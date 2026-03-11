@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let likedPosts = JSON.parse(localStorage.getItem('kcon_liked')) || [];
     
-    // FORCE RESET: Unified Multilingual & Pagination System (v4)
-    const resetVersion = "v4";
+    // FORCE RESET: Pure Multilingual System (v5)
+    const resetVersion = "v5";
     if (localStorage.getItem('kcon_posts_version') !== resetVersion) {
         localStorage.removeItem('kcon_posts');
         localStorage.setItem('kcon_posts_version', resetVersion);
@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPostImage = null;
     let expandedPostId = null;
     
-    // Pagination State
     let currentPage = 1;
     const pageSize = 10;
 
@@ -73,13 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderContent: "あなたの考えを共有しましょう...", confirmDelete: "この投稿を削除してもよろしいですか？",
             confirmDeleteComment: "このコメントを削除しますか？", noPosts: "このカテゴリーにはまだ投稿がありません。",
             labelComments: "コメント", btnSendComment: "送信", placeholderComment: "コメントを書く...", loggedInAs: "ログイン中: ",
-            prev: "以前", next: "次へ", page: "ページ",
+            prev: "前へ", next: "次へ", page: "ページ",
             categories: {
-                kpop: { name: "K-POP & 芸能", title: "K-POP & エン터테인먼트", desc: "K-POPと韓国芸能界의最新ニュースをお届けします。" },
+                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界の最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント、アドバイス、ストーリーをご紹介します。" },
-                food: { name: "料理 & レ시피", title: "料理 & レシピ", desc: "美味しい韓国料理의レシピやおすすめ의飲食店を見つけましょう。" },
-                beauty: { name: "ビューティー", title: "K-ビューティー & 스킨케어", desc: "K-뷰티의 비밀과 효과적인 스킨케어 루틴을 확인하세요." },
-                travel: { name: "旅行 & スポット", title: "한국 여행 & 숨은 명소", desc: "한국 곳곳의 유명 랜드마크와 숨겨진 보석 같은 명소를 탐험하세요." }
+                food: { name: "料理 & レシピ", title: "料理 & レシピ", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
+                beauty: { name: "ビューティー", title: "K-ビューティー & スキンケア", desc: "K-ビューティーの秘密と効果的なスキンケア法をチェックしましょう。" },
+                travel: { name: "旅行 & スポット", title: "韓国旅行 & 穴場スポット", desc: "韓国各地の有名なランドマークや隠れた名所を探索しましょう。" }
             }
         },
         zh: {
@@ -93,14 +92,14 @@ document.addEventListener('DOMContentLoaded', () => {
             categories: {
                 kpop: { name: "K-Pop & 娱乐", title: "K-Pop & 娱乐", desc: "来自 K-Pop 和韩国娱乐界的最新动态。" },
                 living: { name: "在韩生活", title: "在韩生活", desc: "关于在韩国生活的提示、建议和故事。" },
-                food: { name: "美食 & 食谱", title: "美食 & 食谱", desc: "发现美味의韩国食谱和最佳就餐去处。" },
+                food: { name: "美食 & 食谱", title: "美食 & 食谱", desc: "发现美味的韩国食谱和最佳就餐去处。" },
                 beauty: { name: "美妆 & 护肤", title: "K-美妆 & 护肤", desc: "揭秘 K-Beauty 的秘密和有效的护肤程序。" },
                 travel: { name: "旅游 & 景点", title: "韩国旅游 & 隐藏景点", desc: "探索韩国各地的著名地标和隐藏瑰宝。" }
             }
         },
         es: {
             logo: "K-community", write: "Publicar", modalTitle: "Crear Nueva Publicación", modalEditTitle: "Editar Publicación",
-            labelCategory: "Categoría", labelTitle: "Título", labelContent: "Content", labelImage: "Añadir Imagen",
+            labelCategory: "Categoría", labelTitle: "Título", labelContent: "Contenido", labelImage: "Añadir Imagen",
             btnCancel: "Cancelar", btnPost: "Publicar en K-community", btnUpdate: "Actualizar", placeholderTitle: "Ingrese el título",
             placeholderContent: "Comparte tus pensamientos...", confirmDelete: "¿Estás seguro de que quieres eliminar esta publicación?",
             confirmDeleteComment: "¿Eliminar este comentario?", noPosts: "Aún no hay publicaciones en esta categoría.",
@@ -136,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const langSwitcher = document.getElementById('lang-switcher');
     const userDisplay = document.getElementById('user-display');
 
-    // Add Pagination Container
     const mainContent = document.querySelector('.content-container');
     const paginationContainer = document.createElement('div');
     paginationContainer.className = 'pagination-container';
@@ -184,6 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const authors = ["AlexJ", "Minji_SEOUL", "Yuki_99", "Li_Wei", "Carlos_ES"];
 
+        const bodyTemplates = {
+            ko: "이 포스트는 한국의 {cat}에 대한 유용한 정보를 담고 있습니다. 주제: {title}. 궁금한 점은 댓글로 남겨주세요!",
+            en: "This post contains useful information about {cat} in Korea. Topic: {title}. Feel free to leave a comment!",
+            ja: "このポストは韓国の {cat} に関する有益な情報を含んでいます。テーマ: {title}。気になる点はコメント欄にお願いします！",
+            zh: "这篇文章包含有关韩国 {cat} 的有用信息。主题：{title}。如有任何问题，请在评论区留言！",
+            es: "Esta publicación contiene información útil sobre {cat} en Corea. Tema: {title}. ¡No dudes en dejar un comentario!"
+        };
+
         let postId = 1;
         categories.forEach(cat => {
             for (let i = 0; i < 30; i++) {
@@ -193,9 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const contents = {};
                 ['ko', 'en', 'ja', 'zh', 'es'].forEach(l => {
-                    contents[l] = l === 'ko' ? 
-                        `이 포스트는 한국의 ${cat}에 대한 유용한 정보를 담고 있습니다. 주제: ${titleObj[l]}. 즐겁게 읽어주시고 궁금한 점은 댓글로 남겨주세요!` :
-                        `This post contains useful information about ${cat} in Korea. Topic: ${titleObj[l]}. Enjoy reading and leave your questions in the comments below!`;
+                    contents[l] = bodyTemplates[l].replace('{cat}', cat).replace('{title}', titleObj[l]);
                 });
 
                 generatedPosts.push({
@@ -226,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const sortedPosts = [...filteredPosts].sort((a, b) => b.id - a.id);
-        
         const totalPages = Math.ceil(sortedPosts.length / pageSize);
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage < 1) currentPage = 1;
@@ -240,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (post.id === expandedPostId) postElement.classList.add('expanded');
             postElement.dataset.id = post.id;
             
+            // Critical Fix: Explicitly use currentLang
             const displayTitle = post.titles ? post.titles[currentLang] : post.title;
             const displayContent = post.contents ? post.contents[currentLang] : post.content;
 
@@ -316,64 +320,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderPagination(totalPages);
 
-        // Event Listeners for Post Actions
-        postsContainer.querySelectorAll('.like-btn').forEach(btn => btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleLike(parseInt(e.target.closest('.like-btn').dataset.id));
-        }));
-        postsContainer.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            editPost(parseInt(e.target.dataset.id));
-        }));
-        postsContainer.querySelectorAll('.delete').forEach(btn => btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deletePost(parseInt(e.target.dataset.id));
-        }));
-
-        // Comments
-        postsContainer.querySelectorAll('.add-comment-btn').forEach(btn => btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const pid = parseInt(e.target.getAttribute('data-post-id'));
-            const input = postsContainer.querySelector(`.comment-input[data-post-id="${pid}"]`);
-            addComment(pid, input.value);
-        }));
-        postsContainer.querySelectorAll('.comment-input').forEach(input => input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.stopPropagation();
-                const pid = parseInt(e.target.getAttribute('data-post-id'));
-                addComment(pid, e.target.value);
-            }
-        }));
-        postsContainer.querySelectorAll('.delete-comment').forEach(btn => btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const pid = parseInt(e.target.getAttribute('data-post-id'));
-            const cid = parseInt(e.target.getAttribute('data-comment-id'));
-            deleteComment(pid, cid);
-        }));
+        // Event Listeners
+        postsContainer.querySelectorAll('.like-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); toggleLike(parseInt(e.target.closest('.like-btn').dataset.id)); }));
+        postsContainer.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); editPost(parseInt(e.target.dataset.id)); }));
+        postsContainer.querySelectorAll('.delete').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); deletePost(parseInt(e.target.dataset.id)); }));
+        postsContainer.querySelectorAll('.add-comment-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const pid = parseInt(e.target.getAttribute('data-post-id')); const input = postsContainer.querySelector(`.comment-input[data-post-id="${pid}"]`); addComment(pid, input.value); }));
+        postsContainer.querySelectorAll('.comment-input').forEach(input => input.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.stopPropagation(); const pid = parseInt(e.target.getAttribute('data-post-id')); addComment(pid, e.target.value); } }));
+        postsContainer.querySelectorAll('.delete-comment').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const pid = parseInt(e.target.getAttribute('data-post-id')); const cid = parseInt(e.target.getAttribute('data-comment-id')); deleteComment(pid, cid); }));
     }
 
     function renderPagination(totalPages) {
         paginationContainer.innerHTML = '';
         if (totalPages <= 1) return;
-
         const t = translations[currentLang];
-
         const prevBtn = document.createElement('button');
         prevBtn.className = 'btn btn-secondary';
         prevBtn.textContent = t.prev;
         prevBtn.disabled = currentPage === 1;
         prevBtn.onclick = () => { currentPage--; renderPosts(); window.scrollTo(0, 0); };
-
         const nextBtn = document.createElement('button');
         nextBtn.className = 'btn btn-secondary';
         nextBtn.textContent = t.next;
         nextBtn.disabled = currentPage === totalPages;
         nextBtn.onclick = () => { currentPage++; renderPosts(); window.scrollTo(0, 0); };
-
         const pageInfo = document.createElement('span');
         pageInfo.textContent = `${t.page} ${currentPage} / ${totalPages}`;
-        pageInfo.style.fontWeight = 'bold';
-
         paginationContainer.appendChild(prevBtn);
         paginationContainer.appendChild(pageInfo);
         paginationContainer.appendChild(nextBtn);
@@ -381,28 +352,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function incrementViews(postId) {
         const post = posts.find(p => p.id === postId);
-        if (post) {
-            post.views = (post.views || 0) + 1;
-            savePosts();
-            const viewSpan = postsContainer.querySelector(`.post-card[data-id="${postId}"] .post-meta span:last-child`);
-            if (viewSpan) viewSpan.textContent = `👁 ${post.views}`;
-        }
+        if (post) { post.views = (post.views || 0) + 1; savePosts(); const viewSpan = postsContainer.querySelector(`.post-card[data-id="${postId}"] .post-meta span:last-child`); if (viewSpan) viewSpan.textContent = `👁 ${post.views}`; }
     }
 
     function toggleLike(postId) {
         const post = posts.find(p => p.id === postId);
         if (!post) return;
         const isLiked = likedPosts.includes(postId);
-        if (isLiked) {
-            post.likes = Math.max(0, (post.likes || 0) - 1);
-            likedPosts = likedPosts.filter(id => id !== postId);
-        } else {
-            post.likes = (post.likes || 0) + 1;
-            likedPosts.push(postId);
-        }
+        if (isLiked) { post.likes = Math.max(0, (post.likes || 0) - 1); likedPosts = likedPosts.filter(id => id !== postId); }
+        else { post.likes = (post.likes || 0) + 1; likedPosts.push(postId); }
         localStorage.setItem('kcon_liked', JSON.stringify(likedPosts));
-        savePosts();
-        renderPosts();
+        savePosts(); renderPosts();
     }
 
     function addComment(postId, text) {
@@ -410,9 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const postIndex = posts.findIndex(p => p.id === postId);
         if (postIndex === -1) return;
         posts[postIndex].comments.push({ id: Date.now(), text: text, author: currentUser, date: new Date().toLocaleDateString() });
-        expandedPostId = postId;
-        savePosts();
-        renderPosts();
+        expandedPostId = postId; savePosts(); renderPosts();
     }
 
     function deleteComment(postId, commentId) {
@@ -421,9 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const comment = posts[postIndex].comments.find(c => c.id === commentId);
         if (comment.author !== currentUser || !confirm(translations[currentLang].confirmDeleteComment)) return;
         posts[postIndex].comments = posts[postIndex].comments.filter(c => c.id !== commentId);
-        expandedPostId = postId;
-        savePosts();
-        renderPosts();
+        expandedPostId = postId; savePosts(); renderPosts();
     }
 
     function handleImageUpload(e) {
@@ -431,11 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
         if (file.size > 1024 * 1024) { alert("Image too large! (<1MB)"); postImageInput.value = ''; return; }
         const reader = new FileReader();
-        reader.onload = (event) => {
-            currentPostImage = event.target.result;
-            imagePreview.innerHTML = `<img src="${currentPostImage}" alt="Preview">`;
-            imagePreview.style.display = 'block';
-        };
+        reader.onload = (event) => { currentPostImage = event.target.result; imagePreview.innerHTML = `<img src="${currentPostImage}" alt="Preview">`; imagePreview.style.display = 'block'; };
         reader.readAsDataURL(file);
     }
 
@@ -444,12 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('kcon_lang', lang);
         document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
         const t = translations[lang];
-        btnWrite.textContent = t.write;
-        logoLink.textContent = t.logo;
-        userDisplay.textContent = t.loggedInAs + currentUser;
+        btnWrite.textContent = t.write; logoLink.textContent = t.logo; userDisplay.textContent = t.loggedInAs + currentUser;
         document.querySelectorAll('.tab').forEach(tab => tab.textContent = t.categories[tab.dataset.category].name);
-        categoryTitle.textContent = t.categories[currentCategory].title;
-        categoryDesc.textContent = t.categories[currentCategory].desc;
+        categoryTitle.textContent = t.categories[currentCategory].title; categoryDesc.textContent = t.categories[currentCategory].desc;
         modalHeaderTitle.textContent = postIdInput.value ? t.modalEditTitle : t.modalTitle;
         document.querySelector('label[for="post-category"]').textContent = t.labelCategory;
         document.querySelector('label[for="post-title"]').textContent = t.labelTitle;
@@ -457,8 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('label-image').textContent = t.labelImage;
         document.getElementById('post-title').placeholder = t.placeholderTitle;
         document.getElementById('post-content').placeholder = t.placeholderContent;
-        cancelPost.textContent = t.btnCancel;
-        submitBtn.textContent = postIdInput.value ? t.btnUpdate : t.btnPost;
+        cancelPost.textContent = t.btnCancel; submitBtn.textContent = postIdInput.value ? t.btnUpdate : t.btnPost;
         renderPosts();
     }
 
@@ -469,111 +417,39 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('post-category').value = post.category;
         document.getElementById('post-title').value = post.titles ? post.titles[currentLang] : post.title;
         document.getElementById('post-content').value = post.contents ? post.contents[currentLang] : post.content;
-        if (post.image) {
-            currentPostImage = post.image;
-            imagePreview.innerHTML = `<img src="${currentPostImage}" alt="Preview">`;
-            imagePreview.style.display = 'block';
-        }
-        updateLanguage(currentLang);
-        openModal();
+        if (post.image) { currentPostImage = post.image; imagePreview.innerHTML = `<img src="${currentPostImage}" alt="Preview">`; imagePreview.style.display = 'block'; }
+        updateLanguage(currentLang); openModal();
     }
 
     function deletePost(id) {
         const post = posts.find(p => p.id === id);
         if (!post || post.author !== currentUser || !confirm(translations[currentLang].confirmDelete)) return;
-        posts = posts.filter(p => p.id !== id);
-        savePosts();
-        renderPosts();
+        posts = posts.filter(p => p.id !== id); savePosts(); renderPosts();
     }
 
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('kcon_theme', theme);
-    }
-
+    function applyTheme(theme) { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('kcon_theme', theme); }
     function savePosts() { localStorage.setItem('kcon_posts', JSON.stringify(posts)); }
 
-    langSwitcher.addEventListener('click', (e) => {
-        const btn = e.target.closest('.lang-btn');
-        if (btn) {
-            updateLanguage(btn.dataset.lang);
-        }
-    });
-
-    categoryTabs.addEventListener('click', (e) => {
-        const tab = e.target.closest('.tab');
-        if (!tab) return;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentCategory = tab.dataset.category;
-        currentPage = 1;
-        expandedPostId = null;
-        updateLanguage(currentLang);
-    });
-
-    themeToggle.addEventListener('click', () => {
-        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-        applyTheme(currentTheme);
-    });
-
+    langSwitcher.addEventListener('click', (e) => { const btn = e.target.closest('.lang-btn'); if (btn) updateLanguage(btn.dataset.lang); });
+    categoryTabs.addEventListener('click', (e) => { const tab = e.target.closest('.tab'); if (!tab) return; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); currentCategory = tab.dataset.category; currentPage = 1; expandedPostId = null; updateLanguage(currentLang); });
+    themeToggle.addEventListener('click', () => { currentTheme = currentTheme === 'light' ? 'dark' : 'light'; applyTheme(currentTheme); });
     postImageInput.addEventListener('change', handleImageUpload);
-
     const openModal = () => modalOverlay.classList.add('active');
-    const hideModal = () => {
-        modalOverlay.classList.remove('active');
-        postForm.reset();
-        postIdInput.value = '';
-        currentPostImage = null;
-        imagePreview.style.display = 'none';
-        imagePreview.innerHTML = '';
-        updateLanguage(currentLang);
-    };
-
-    btnWrite.addEventListener('click', openModal);
-    closeModal.addEventListener('click', hideModal);
-    cancelPost.addEventListener('click', hideModal);
-    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) hideModal(); });
+    const hideModal = () => { modalOverlay.classList.remove('active'); postForm.reset(); postIdInput.value = ''; currentPostImage = null; imagePreview.style.display = 'none'; imagePreview.innerHTML = ''; updateLanguage(currentLang); };
+    btnWrite.addEventListener('click', openModal); closeModal.addEventListener('click', hideModal); cancelPost.addEventListener('click', hideModal); modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) hideModal(); });
 
     postForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const id = postIdInput.value;
-        const postData = {
-            category: document.getElementById('post-category').value,
-            title: document.getElementById('post-title').value,
-            content: document.getElementById('post-content').value,
-            image: currentPostImage
-        };
-
+        const postData = { category: document.getElementById('post-category').value, title: document.getElementById('post-title').value, content: document.getElementById('post-content').value, image: currentPostImage };
         if (id) {
             const index = posts.findIndex(p => p.id === parseInt(id));
-            if (index !== -1) {
-                if (posts[index].author !== currentUser) return;
-                posts[index] = { ...posts[index], ...postData, titles: null, contents: null };
-            }
+            if (index !== -1) { if (posts[index].author !== currentUser) return; posts[index] = { ...posts[index], ...postData, titles: null, contents: null }; }
         } else {
-            posts.push({
-                id: Date.now(),
-                ...postData,
-                lang: currentLang,
-                author: currentUser,
-                date: new Date().toLocaleDateString(),
-                comments: [],
-                views: 0,
-                likes: 0
-            });
+            posts.push({ id: Date.now(), ...postData, lang: currentLang, author: currentUser, date: new Date().toLocaleDateString(), comments: [], views: 0, likes: 0 });
         }
-
-        savePosts();
-        currentCategory = postData.category;
-        currentPage = 1; 
-        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.category === currentCategory));
-        updateLanguage(currentLang);
-        hideModal();
+        savePosts(); currentCategory = postData.category; currentPage = 1; document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.category === currentCategory)); updateLanguage(currentLang); hideModal();
     });
 
-    logoLink.addEventListener('click', () => {
-        const firstTab = document.querySelector('.tab');
-        if (firstTab) firstTab.click();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    logoLink.addEventListener('click', () => { const firstTab = document.querySelector('.tab'); if (firstTab) firstTab.click(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 });
