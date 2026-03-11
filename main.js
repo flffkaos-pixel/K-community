@@ -8,9 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let likedPosts = JSON.parse(localStorage.getItem('kcon_liked')) || [];
     
-    // FORCE RESET: To ensure the 150 high-quality posts with correct language tags are applied.
-    // We will clear the existing local storage for posts once to apply the new content structure.
-    const resetVersion = "v2"; // Increment this to force a reset for all users
+    // FORCE RESET: Unified Multilingual System (v3)
+    const resetVersion = "v3";
     if (localStorage.getItem('kcon_posts_version') !== resetVersion) {
         localStorage.removeItem('kcon_posts');
         localStorage.setItem('kcon_posts_version', resetVersion);
@@ -32,26 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const translations = {
         ko: {
-            logo: "K-community",
-            write: "글쓰기",
-            modalTitle: "새 게시글 작성",
-            modalEditTitle: "게시글 수정",
-            labelCategory: "카테고리",
-            labelTitle: "제목",
-            labelContent: "내용",
-            labelImage: "사진 추가",
-            btnCancel: "취소",
-            btnPost: "게시하기",
-            btnUpdate: "수정하기",
-            placeholderTitle: "제목을 입력하세요",
-            placeholderContent: "생각을 공유해 보세요...",
-            confirmDelete: "정말 이 게시글을 삭제하시겠습니까?",
-            confirmDeleteComment: "이 댓글을 삭제하시겠습니까?",
-            noPosts: "이 언어로 작성된 게시글이 없습니다. 첫 번째 글을 작성해 보세요!",
-            labelComments: "댓글",
-            btnSendComment: "등록",
-            placeholderComment: "댓글을 입력하세요...",
-            loggedInAs: "내 아이디: ",
+            logo: "K-community", write: "글쓰기", modalTitle: "새 게시글 작성", modalEditTitle: "게시글 수정",
+            labelCategory: "카테고리", labelTitle: "제목", labelContent: "내용", labelImage: "사진 추가",
+            btnCancel: "취소", btnPost: "게시하기", btnUpdate: "수정하기", placeholderTitle: "제목을 입력하세요",
+            placeholderContent: "생각을 공유해 보세요...", confirmDelete: "정말 이 게시글을 삭제하시겠습니까?",
+            confirmDeleteComment: "이 댓글을 삭제하시겠습니까?", noPosts: "이 카테고리에 게시글이 없습니다.",
+            labelComments: "댓글", btnSendComment: "등록", placeholderComment: "댓글을 입력하세요...", loggedInAs: "내 아이디: ",
             categories: {
                 kpop: { name: "K-팝 & 엔터", title: "K-Pop & 엔터테인먼트", desc: "K-Pop과 한국 연예계의 최신 소식을 만나보세요." },
                 living: { name: "한국 생활", title: "한국 생활", desc: "한국 생활에 필요한 팁과 유용한 정보, 일상을 공유합니다." },
@@ -61,26 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         en: {
-            logo: "K-community",
-            write: "Write Post",
-            modalTitle: "Create New Post",
-            modalEditTitle: "Edit Post",
-            labelCategory: "Category",
-            labelTitle: "Title",
-            labelContent: "Content",
-            labelImage: "Add Image",
-            btnCancel: "Cancel",
-            btnPost: "Post to K-community",
-            btnUpdate: "Update Post",
-            placeholderTitle: "Enter post title",
-            placeholderContent: "Share your thoughts...",
-            confirmDelete: "Are you sure you want to delete this post?",
-            confirmDeleteComment: "Delete this comment?",
-            noPosts: "No posts in this language yet. Be the first to write one!",
-            labelComments: "Comments",
-            btnSendComment: "Post",
-            placeholderComment: "Write a comment...",
-            loggedInAs: "Logged in as: ",
+            logo: "K-community", write: "Write Post", modalTitle: "Create New Post", modalEditTitle: "Edit Post",
+            labelCategory: "Category", labelTitle: "Title", labelContent: "Content", labelImage: "Add Image",
+            btnCancel: "Cancel", btnPost: "Post to K-community", btnUpdate: "Update Post", placeholderTitle: "Enter post title",
+            placeholderContent: "Share your thoughts...", confirmDelete: "Are you sure you want to delete this post?",
+            confirmDeleteComment: "Delete this comment?", noPosts: "No posts in this category yet.",
+            labelComments: "Comments", btnSendComment: "Post", placeholderComment: "Write a comment...", loggedInAs: "Logged in as: ",
             categories: {
                 kpop: { name: "K-Pop & Ent", title: "K-Pop & Entertainment", desc: "The latest from the world of K-Pop and Korean entertainment." },
                 living: { name: "Living in Korea", title: "Living in Korea", desc: "Tips, advice, and stories about living in the Land of the Morning Calm." },
@@ -90,26 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         ja: {
-            logo: "K-community",
-            write: "投稿する",
-            modalTitle: "新規投稿作成",
-            modalEditTitle: "投稿を編集",
-            labelCategory: "カテゴリー",
-            labelTitle: "タイトル",
-            labelContent: "内容",
-            labelImage: "写真を追加",
-            btnCancel: "キャンセル",
-            btnPost: "投稿する",
-            btnUpdate: "更新する",
-            placeholderTitle: "タイトルを入力してください",
-            placeholderContent: "あなたの考えを共有しましょう...",
-            confirmDelete: "この投稿を削除してもよろしいですか？",
-            confirmDeleteComment: "このコメントを削除しますか？",
-            noPosts: "この言語の投稿はまだありません。最初の投稿をしてみましょう！",
-            labelComments: "コメント",
-            btnSendComment: "送信",
-            placeholderComment: "コメントを書く...",
-            loggedInAs: "ログイン中: ",
+            logo: "K-community", write: "投稿する", modalTitle: "新規投稿作成", modalEditTitle: "投稿を編集",
+            labelCategory: "カテゴリー", labelTitle: "タイトル", labelContent: "内容", labelImage: "写真を追加",
+            btnCancel: "キャンセル", btnPost: "投稿する", btnUpdate: "更新する", placeholderTitle: "タイトルを入力してください",
+            placeholderContent: "あなたの考えを共有しましょう...", confirmDelete: "この投稿を削除してもよろしいですか？",
+            confirmDeleteComment: "このコメントを削除しますか？", noPosts: "このカテゴリーにはまだ投稿がありません。",
+            labelComments: "コメント", btnSendComment: "送信", placeholderComment: "コメントを書く...", loggedInAs: "ログイン中: ",
             categories: {
                 kpop: { name: "K-POP & 芸能", title: "K-POP & エン터테인먼트", desc: "K-POPと韓国芸能界의最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント、アドバイス、ストーリーをご紹介します。" },
@@ -119,26 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         zh: {
-            logo: "K-community",
-            write: "发布文章",
-            modalTitle: "创建新文章",
-            modalEditTitle: "编辑文章",
-            labelCategory: "类别",
-            labelTitle: "标题",
-            labelContent: "内容",
-            labelImage: "添加图片",
-            btnCancel: "取消",
-            btnPost: "发布到 K-community",
-            btnUpdate: "更新文章",
-            placeholderTitle: "输入文章标题",
-            placeholderContent: "分享你的想法...",
-            confirmDelete: "你确定要删除这文章吗？",
-            confirmDeleteComment: "确定要删除这条评论吗？",
-            noPosts: "该语言下暂无文章。快来发布第一篇吧！",
-            labelComments: "评论",
-            btnSendComment: "发布",
-            placeholderComment: "写下你的评论...",
-            loggedInAs: "当前用户: ",
+            logo: "K-community", write: "发布文章", modalTitle: "创建新文章", modalEditTitle: "编辑文章",
+            labelCategory: "类别", labelTitle: "标题", labelContent: "内容", labelImage: "添加图片",
+            btnCancel: "取消", btnPost: "发布到 K-community", btnUpdate: "更新文章", placeholderTitle: "输入文章标题",
+            placeholderContent: "分享你的想法...", confirmDelete: "你确定要删除这文章吗？",
+            confirmDeleteComment: "确定要删除这条评论吗？", noPosts: "该类别下暂无文章。",
+            labelComments: "评论", btnSendComment: "发布", placeholderComment: "写下你的评论...", loggedInAs: "当前用户: ",
             categories: {
                 kpop: { name: "K-Pop & 娱乐", title: "K-Pop & 娱乐", desc: "来自 K-Pop 和韩国娱乐界的最新动态。" },
                 living: { name: "在韩生活", title: "在韩生活", desc: "关于在韩国生活的提示、建议和故事。" },
@@ -148,26 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         es: {
-            logo: "K-community",
-            write: "Publicar",
-            modalTitle: "Crear Nueva Publicación",
-            modalEditTitle: "Editar Publicación",
-            labelCategory: "Categoría",
-            labelTitle: "Título",
-            labelContent: "Content",
-            labelImage: "Añadir Imagen",
-            btnCancel: "Cancelar",
-            btnPost: "Publicar en K-community",
-            btnUpdate: "Actualizar",
-            placeholderTitle: "Ingrese el título",
-            placeholderContent: "Comparte tus pensamientos...",
-            confirmDelete: "¿Estás seguro de que quieres eliminar esta publicación?",
-            confirmDeleteComment: "¿Eliminar este comentario?",
-            noPosts: "Aún no hay publicaciones en este idioma. ¡Sé el primero en escribir!",
-            labelComments: "Comentarios",
-            btnSendComment: "Enviar",
-            placeholderComment: "Escribe un comentario...",
-            loggedInAs: "Usuario: ",
+            logo: "K-community", write: "Publicar", modalTitle: "Crear Nueva Publicación", modalEditTitle: "Editar Publicación",
+            labelCategory: "Categoría", labelTitle: "Título", labelContent: "Contenido", labelImage: "Añadir Imagen",
+            btnCancel: "Cancelar", btnPost: "Publicar en K-community", btnUpdate: "Actualizar", placeholderTitle: "Ingrese el título",
+            placeholderContent: "Comparte tus pensamientos...", confirmDelete: "¿Estás seguro de que quieres eliminar esta publicación?",
+            confirmDeleteComment: "¿Eliminar este comentario?", noPosts: "Aún no hay publicaciones en esta categoría.",
+            labelComments: "Comentarios", btnSendComment: "Enviar", placeholderComment: "Escribe un comentario...", loggedInAs: "Usuario: ",
             categories: {
                 kpop: { name: "K-Pop y Ent", title: "K-Pop y Entretenimiento", desc: "Lo último del mundo del K-Pop y el entretenimiento coreano." },
                 living: { name: "Vivir en Corea", title: "Vivir en Corea", desc: "Consejos, recomendaciones e historias sobre la vida en Corea." },
@@ -207,191 +136,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getInitialPosts() {
         const generatedPosts = [];
-        const languages = ['en', 'ko', 'ja', 'zh', 'es'];
         const categories = ['kpop', 'living', 'food', 'beauty', 'travel'];
         
-        // --- Content Dictionaries for "Non-AI" realistic feel ---
         const contentData = {
             kpop: [
-                "New Jeans' collaboration with Nike is finally dropping!",
-                "Does anyone have the full concert setlist for BTS in Busan?",
-                "Aespa's 'Supernova' is still stuck in my head. The bridge is genius.",
-                "Thoughts on the recent IVE world tour? The vocal improvement is insane.",
-                "Unpopular opinion: 2nd Gen K-Pop had the most unique concepts.",
-                "Le Sserafim's Coachella performance was actually quite energetic live.",
-                "The evolution of Stray Kids' production style is a masterclass in modern pop.",
-                "Blackpink's solo era has been such a journey for all the members.",
-                "Red Velvet's 'Velvet' side deserves more mainstream appreciation.",
-                "Which 5th gen group should I start stanning? Suggest me some tracks!",
-                "The impact of K-Pop fashion on global luxury brands is undeniable.",
-                "SVT's BSS is the best unit ever, you can't change my mind.",
-                "TWICE's consistent growth in the US market is so impressive.",
-                "NCT's neo concept was ahead of its time.",
-                "Hybe's new girl group rumors - what do we know so far?",
-                "The history of SM Entertainment's A&R strategy.",
-                "Why K-Pop fan culture is a unique anthropological study.",
-                "Best lightsticks of all time - ranking them by design and function.",
-                "The importance of variety shows for rookie idol groups.",
-                "The rise of Japanese idols in the K-Pop industry.",
-                "What's your favorite K-Pop music video cinematography?",
-                "The vocal range of 4th gen female vocalists is getting serious.",
-                "Mamamoo's vocal harmony is still the gold standard.",
-                "IU's storytelling through her albums is unparalleled.",
-                "EXO's vocal line is truly one in a million.",
-                "SHINee's influence on the current generation's choreography.",
-                "The future of virtual idols in the K-Pop scene.",
-                "How K-Pop changed the global music industry in a decade.",
-                "The best K-Pop debut of 2024 so far?",
-                "Ranking the best K-Pop bridges of all time."
+                { ko: "뉴진스의 새로운 콜라보레이션 소식!", en: "New Jeans' New Collaboration News!", ja: "New Jeansの新しいコラボニュース！", zh: "New Jeans 新合作消息！", es: "¡Nuevas noticias de colaboración de New Jeans!" },
+                { ko: "BTS 부산 콘서트 세트리스트 공유", en: "BTS Busan Concert Setlist Share", ja: "BTS釜山コンサートのセットリスト共有", zh: "BTS 釜山演唱会歌单分享", es: "Compartir lista de canciones del concierto de BTS en Busan" },
+                { ko: "에스파 'Supernova' 가사 해석", en: "Aespa 'Supernova' Lyrics Analysis", ja: "Aespa「Supernova」歌詞の解釈", zh: "Aespa 'Supernova' 歌词解析", es: "Análisis de la letra de 'Supernova' de Aespa" }
             ],
             living: [
-                "Tips for finding a pet-friendly apartment in Mapo-gu.",
-                "How to navigate the NHI (National Health Insurance) as an expat.",
-                "My experience with the F-2-7 point-based visa application.",
-                "The best coworking spaces in Gangnam for digital nomads.",
-                "Is it worth buying a car in Seoul? Parking is a nightmare.",
-                "A guide to the trash disposal system - don't get fined!",
-                "Opening a bank account as an ARC holder - which bank is easiest?",
-                "The reality of teaching English in Korea in 2026.",
-                "How to use the Gmarket Global app like a pro.",
-                "Best neighborhoods for young families in Gyeonggi-do.",
-                "Life in Busan vs. Seoul - my honest comparison after 2 years.",
-                "The magic of the 24-hour convenience store culture.",
-                "Seasonal depression in Korea - how to stay active during winter.",
-                "Learning Korean at Sogang vs. Yonsei - which is better for speaking?",
-                "Tips for grocery shopping on a budget (Lotte Mart vs. Traditional markets).",
-                "How to set up high-speed internet in your new 'One-room'.",
-                "The etiquette of using the subway during rush hour.",
-                "The most useful Korean apps for everyday life (Kakao, Naver, Coupang).",
-                "Navigating the Korean tax system (May global tax return).",
-                "Finding an English-speaking dentist in Seoul - my recommendation.",
-                "The pros and cons of living in a Goshitel.",
-                "How to handle noisy neighbors in a Korean villa.",
-                "The best public parks for a weekend picnic in Seoul.",
-                "Working in a Korean office - understanding the hierarchy.",
-                "A foreigner's guide to the Korean 'Bballi-Bballi' culture.",
-                "The hidden costs of living in Seoul that no one tells you about.",
-                "How to move apartments in Korea using a 'Yongdal' service.",
-                "Life as an international student at a Korean university.",
-                "Tips for dating in Korea - culture shocks and expectations.",
-                "My favorite hidden gems in Incheon's Songdo district."
+                { ko: "마포구에서 반려동물과 살기 좋은 동네", en: "Pet-friendly neighborhoods in Mapo-gu", ja: "麻浦区でペットと暮らしやすい街", zh: "麻浦区适合宠物居住的社区", es: "Barrios aptos para mascotas en Mapo-gu" },
+                { ko: "외국인을 위한 건강보험 가이드", en: "Health Insurance Guide for Expats", ja: "外国人のための健康保険ガイド", zh: "外籍人士健康保险指南", es: "Guía de seguro médico para expatriados" },
+                { ko: "한국에서 은행 계좌 개설하는 법", en: "How to open a bank account in Korea", ja: "韓国で銀行口座を開設する方法", zh: "如何在韩国开设银行账户", es: "Cómo abrir una cuenta bancaria en Corea" }
             ],
             food: [
-                "The ultimate Kimchi Jjigae secret: old kimchi and pork belly.",
-                "Finding the best Gamjatang in Seoul's back alleys.",
-                "The perfect recipe for crispy Jeon on a rainy day.",
-                "How to order delivery food like a local using Baemin.",
-                "Traditional Market Tour: Mangwon Market's best snacks.",
-                "The difference between Ssamjang and Gochujang - a guide for beginners.",
-                "My favorite BBQ spot in Hongdae (affordable and high quality).",
-                "Ranking the best instant ramen (Shin vs. Jin vs. Neoguri).",
-                "How to make soft-boiled drug eggs (Mayak Gyeran) at home.",
-                "The ritual of Chimaek (Chicken and Beer) along the Han River.",
-                "Best vegan-friendly restaurants in Insadong.",
-                "Why you must try cold noodles (Naengmyeon) in the winter.",
-                "A deep dive into the different types of Makgeolli.",
-                "How to properly grill pork belly (Samgyeopsal) at a restaurant.",
-                "The best street food in Myeongdong that isn't a tourist trap.",
-                "The ultimate guide to Korean Temple Food.",
-                "Making your own Gimbap - tips for the perfect roll.",
-                "The rise of high-end Omakase-style Korean beef (Hanwoo) spots.",
-                "The best dessert cafes in Yeonnam-dong.",
-                "Seasonal Korean fruits you have to try (Hallabong is the best).",
-                "The history of Budae Jjigae (Army Base Stew).",
-                "How to make professional-level Bibimbap sauce.",
-                "The best late-night eats (Yasik) for a study session.",
-                "My experience visiting a traditional tea house in Bukchon.",
-                "The best spicy rice cakes (Tteokbokki) in Sinchon.",
-                "A guide to Korean side dishes (Banchan) you can make in bulk.",
-                "Traditional Korean alcohol: Beyond Soju and Makgeolli.",
-                "The perfect hangover cure: Haejang-guk exploration.",
-                "Korean convenience store food hacks you need to know.",
-                "Why Korean strawberries are famous globally."
+                { ko: "김치찌개 맛있게 끓이는 비법", en: "Secret to Delicious Kimchi Jjigae", ja: "キムチチゲを美味しく作る秘訣", zh: "美味泡菜汤的秘诀", es: "Secreto para un delicioso Kimchi Jjigae" },
+                { ko: "서울의 숨겨진 떡볶이 맛집들", en: "Hidden Tteokbokki Spots in Seoul", ja: "ソウルの隠れたトッポッキの名店", zh: "首尔隐藏的辣炒年糕店", es: "Lugares ocultos de Tteokbokki en Seúl" },
+                { ko: "전통 시장에서 꼭 먹어야 할 음식", en: "Must-eat food at Traditional Markets", ja: "伝統市場で必ず食べるべき料理", zh: "传统市场必吃美食", es: "Comida imprescindible en los mercados tradicionales" }
             ],
             beauty: [
-                "My 10-step K-Beauty routine for glass skin.",
-                "Best sunscreens that don't leave a white cast (2026 edition).",
-                "The difference between Ampoules, Serums, and Essences.",
-                "Olive Young Haul: 5 items I repurchase every month.",
-                "Getting a professional skin analysis in Gangnam - was it worth it?",
-                "The magic of PDRN and Rejuran Healer - my experience.",
-                "How to treat hormonal acne using Korean skincare products.",
-                "The best sheet masks for sensitive skin.",
-                "K-Beauty makeup trends: The 'Clean Girl' look vs. 'Glitter'.",
-                "Reviewing the viral 'Rice Water' cleanser from a luxury brand.",
-                "The best hair salons in Seoul for C-curl perms.",
-                "How to build a basic K-Beauty routine for under $50.",
-                "The importance of double cleansing - don't skip the oil!",
-                "Best Korean products for hyperpigmentation and dark spots.",
-                "Exploring the world of 'Hanbang' (traditional medicine) skincare.",
-                "Why Korean lip tints are superior to western lipsticks.",
-                "The best eye creams for dark circles - ranking 10 brands.",
-                "How to do a 'Cold Girl' makeup look using K-Beauty products.",
-                "My favorite exfoliating pads for smooth skin texture.",
-                "The best cushion foundations for oily vs. dry skin.",
-                "Reviewing the latest 'Glass Skin' serum from a cult favorite.",
-                "K-Beauty for men: A simple 3-step routine.",
-                "The trend of 'Skip-care' - simplifying your routine for better results.",
-                "Best Korean anti-aging products for your 30s.",
-                "How to choose the right moisturizer for Seoul's dry winter.",
-                "Professional color analysis in Seoul - a game changer for my wardrobe.",
-                "The best nail art salons in Hongdae - creative and affordable.",
-                "Reviewing the 'Cica' trend for soothing redness.",
-                "The best K-Beauty brands you've never heard of.",
-                "Sustainable and Vegan K-Beauty: The brands leading the way."
+                { ko: "유리 피부를 위한 10단계 스킨케어", en: "10-Step Skincare for Glass Skin", ja: "ガラス肌のための10ステップスキンケア", zh: "打造玻璃肌的10步护肤法", es: "Cuidado de la piel de 10 pasos para una piel de cristal" },
+                { ko: "올리브영에서 꼭 사야 할 아이템 5가지", en: "5 Must-buy items at Olive Young", ja: "オリーブヤングで必ず買うべき5つのアイテム", zh: "欧利芙洋必买的5件单品", es: "5 artículos imprescindibles en Olive Young" },
+                { ko: "한국의 최신 메이크업 트렌드", en: "Latest Makeup Trends in Korea", ja: "韓国の最新メイクアップトレンド", zh: "韩国最新化妆趋势", es: "Últimas tendencias de maquillaje en Corea" }
             ],
             travel: [
-                "The hidden alleys of Ikseon-dong - better than Myeongdong!",
-                "A day trip to Suwon Hwaseong Fortress - history and views.",
-                "Jeju Island: Renting a car vs. using the bus (My experience).",
-                "The best photo spots in Gamcheon Culture Village, Busan.",
-                "Exploring the DMZ - a sobering but necessary experience.",
-                "Hiking Bukhansan National Park - which trail is the easiest?",
-                "The best time to see cherry blossoms in Gyeongju.",
-                "A weekend in Sokcho: Seafood, mountains, and the sea.",
-                "Gyeongbokgung Palace at night - a magical experience.",
-                "The hidden 'Murals Village' in Ihwa-dong, Seoul.",
-                "A guide to the high-speed KTX - booking and boarding tips.",
-                "The most beautiful cafes in Gyeonggi-do (need a car!).",
-                "Exploring the traditional 'Hanok' village in Jeonju.",
-                "Surfing in Yangyang: The rising surf culture in Korea.",
-                "The best islands to visit near Incheon for a quick getaway.",
-                "A guide to the Seoul Bike (Ttareungyi) system for tourists.",
-                "The most Instagrammable libraries in Korea (Starfield and more).",
-                "Exploring the historical sites of Baekje in Gongju.",
-                "A winter wonderland trip to Nami Island.",
-                "The best night markets in Seoul (Bamdokkaebi is back!).",
-                "Visiting the 'Alps of Korea' - Daegwallyeong Sheep Farm.",
-                "A guide to the best hot springs (Jjimjilbang) in Busan.",
-                "Hiking the Jeju Olle Trail: A beginner's guide.",
-                "The hidden gem of Damyang: The bamboo forest.",
-                "Exploring the coastal beauty of Yeosu.",
-                "A day trip to the 'Swiss Village' in Gapyeong.",
-                "The best sunset spots in Seoul (besides Namsan Tower).",
-                "A guide to the traditional markets of Daegu.",
-                "Exploring the salt farms and wetlands of Sinan.",
-                "My ultimate 7-day South Korea itinerary for first-timers."
+                { ko: "익선동의 숨겨진 골목길 탐방", en: "Hidden Alleys of Ikseon-dong", ja: "益善洞の隠れた路地裏探訪", zh: "探访益善洞隐藏的小巷", es: "Explorando los callejones ocultos de Ikseon-dong" },
+                { ko: "제주도 렌터카 여행 꿀팁", en: "Jeju Island Car Rental Tips", ja: "済州島レンタカー旅行のコツ", zh: "济州岛租车旅行秘诀", es: "Consejos para alquilar un coche en la isla de Jeju" },
+                { ko: "경복궁 야간 개장 관람 후기", en: "Review of Gyeongbokgung Night Opening", ja: "景福宮夜間特別観覧のレビュー", zh: "景福宫夜间开放观赏心得", es: "Reseña de la apertura nocturna de Gyeongbokgung" }
             ]
         };
 
-        const authors = ["AlexJ", "Minji_SEOUL", "Yuki_99", "Li_Wei", "Carlos_ES", "K-Guru", "SeoulExplorer", "BeautyQueen", "FoodieK", "KimchiLover"];
+        const authors = ["AlexJ", "Minji_SEOUL", "Yuki_99", "Li_Wei", "Carlos_ES"];
 
         let postId = 1;
         categories.forEach(cat => {
             for (let i = 0; i < 30; i++) {
-                const lang = languages[i % languages.length];
-                const contentIndex = i % contentData[cat].length;
+                const titleObj = contentData[cat][i % contentData[cat].length];
                 const author = authors[i % authors.length];
                 const date = new Date(Date.now() - Math.floor(Math.random() * 1000000000)).toLocaleDateString();
                 
+                // Construct multilingual content
+                const contents = {};
+                ['ko', 'en', 'ja', 'zh', 'es'].forEach(l => {
+                    contents[l] = l === 'ko' ? 
+                        `이 포스트는 한국의 ${cat}에 대한 유용한 정보를 담고 있습니다. 많은 분들이 궁금해하시는 내용을 정리해 보았습니다. 주제: ${titleObj[l]}. 즐겁게 읽어주시고 궁금한 점은 댓글로 남겨주세요!` :
+                        `This post contains useful information about ${cat} in Korea. I've summarized the details that many people are curious about. Topic: ${titleObj[l]}. Enjoy reading and leave your questions in the comments below!`;
+                });
+
                 generatedPosts.push({
                     id: postId++,
-                    lang: lang,
                     category: cat,
-                    title: contentData[cat][contentIndex],
-                    content: lang === 'ko' ? 
-                        `이 포스트는 한국의 ${cat}에 대한 흥미로운 내용을 담고 있습니다. 한국 문화에 관심이 있는 분들이라면 이 주제가 얼마나 중요한지 잘 아실 겁니다. ${contentData[cat][contentIndex]} 이에 대해 어떻게 생각하시는지 아래 댓글로 자유롭게 의견을 나눠주세요!` :
-                        `This is an interesting post about ${cat} in Korea. As someone who has spent a lot of time here, I can say that this topic is really important for anyone interested in Korean culture. ${contentData[cat][contentIndex]} Let me know what you guys think about this in the comments below!`,
+                    titles: titleObj,
+                    contents: contents,
                     author: author,
                     date: date,
                     comments: [],
@@ -406,9 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPosts() {
         postsContainer.innerHTML = '';
-        const filteredPosts = posts.filter(post => 
-            post.category === currentCategory && post.lang === currentLang
-        );
+        const filteredPosts = posts.filter(post => post.category === currentCategory);
 
         if (filteredPosts.length === 0) {
             postsContainer.innerHTML = `<div class="post-card"><p>${translations[currentLang].noPosts}</p></div>`;
@@ -423,6 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (post.id === expandedPostId) postElement.classList.add('expanded');
             postElement.dataset.id = post.id;
             
+            // Multilingual title and content
+            const displayTitle = post.titles ? post.titles[currentLang] : post.title;
+            const displayContent = post.contents ? post.contents[currentLang] : post.content;
+
             let imageHtml = '';
             if (post.image) {
                 imageHtml = `<div class="post-image-container"><img src="${post.image}" alt="Post image"></div>`;
@@ -451,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             postElement.innerHTML = `
                 <div class="post-header">
-                    <h3 class="post-title">${post.title}</h3>
+                    <h3 class="post-title">${displayTitle}</h3>
                     <div class="post-actions">
                         <button class="btn-icon like-btn ${isLiked ? 'active' : ''}" data-id="${post.id}">${isLiked ? '❤️' : '🤍'} ${post.likes || 0}</button>
                         ${isPostAuthor ? `
@@ -466,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span>${post.date}</span>
                     <span style="margin-left: auto;">👁 ${post.views || 0}</span>
                 </div>
-                <div class="post-content">${post.content}</div>
+                <div class="post-content">${displayContent}</div>
                 ${imageHtml}
                 <div class="comments-section">
                     <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">${translations[currentLang].labelComments} (${post.comments ? post.comments.length : 0})</h4>
@@ -478,17 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             
-            // Toggle Expand Logic
             postElement.addEventListener('click', (e) => {
-                if (e.target.closest('.post-actions') || e.target.closest('.comment-input-area') || e.target.closest('.delete-comment')) {
-                    return;
-                }
-                
+                if (e.target.closest('.post-actions') || e.target.closest('.comment-input-area') || e.target.closest('.delete-comment')) return;
                 const isExpanding = !postElement.classList.contains('expanded');
-                
-                // Collapse others
                 document.querySelectorAll('.post-card').forEach(card => card.classList.remove('expanded'));
-                
                 if (isExpanding) {
                     postElement.classList.add('expanded');
                     expandedPostId = post.id;
@@ -502,55 +293,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Event Listeners for Post Actions
-        postsContainer.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleLike(parseInt(e.target.closest('.like-btn').dataset.id));
-            });
-        });
+        postsContainer.querySelectorAll('.like-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleLike(parseInt(e.target.closest('.like-btn').dataset.id));
+        }));
+        postsContainer.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            editPost(parseInt(e.target.dataset.id));
+        }));
+        postsContainer.querySelectorAll('.delete').forEach(btn => btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deletePost(parseInt(e.target.dataset.id));
+        }));
 
-        postsContainer.querySelectorAll('.edit').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                editPost(parseInt(e.target.dataset.id));
-            });
-        });
-
-        postsContainer.querySelectorAll('.delete').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                deletePost(parseInt(e.target.dataset.id));
-            });
-        });
-
-        // Event Listeners for Comments
-        postsContainer.querySelectorAll('.add-comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        // Comments
+        postsContainer.querySelectorAll('.add-comment-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const pid = parseInt(e.target.getAttribute('data-post-id'));
+            const input = postsContainer.querySelector(`.comment-input[data-post-id="${pid}"]`);
+            addComment(pid, input.value);
+        }));
+        postsContainer.querySelectorAll('.comment-input').forEach(input => input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
                 e.stopPropagation();
                 const pid = parseInt(e.target.getAttribute('data-post-id'));
-                const input = postsContainer.querySelector(`.comment-input[data-post-id="${pid}"]`);
-                addComment(pid, input.value);
-            });
-        });
-        
-        postsContainer.querySelectorAll('.comment-input').forEach(input => {
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.stopPropagation();
-                    const pid = parseInt(e.target.getAttribute('data-post-id'));
-                    addComment(pid, e.target.value);
-                }
-            });
-        });
-
-        postsContainer.querySelectorAll('.delete-comment').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const pid = parseInt(e.target.getAttribute('data-post-id'));
-                const cid = parseInt(e.target.getAttribute('data-comment-id'));
-                deleteComment(pid, cid);
-            });
-        });
+                addComment(pid, e.target.value);
+            }
+        }));
+        postsContainer.querySelectorAll('.delete-comment').forEach(btn => btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const pid = parseInt(e.target.getAttribute('data-post-id'));
+            const cid = parseInt(e.target.getAttribute('data-comment-id'));
+            deleteComment(pid, cid);
+        }));
     }
 
     function incrementViews(postId) {
@@ -566,18 +341,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleLike(postId) {
         const post = posts.find(p => p.id === postId);
         if (!post) return;
-
         const isLiked = likedPosts.includes(postId);
         if (isLiked) {
-            // Unlike
             post.likes = Math.max(0, (post.likes || 0) - 1);
             likedPosts = likedPosts.filter(id => id !== postId);
         } else {
-            // Like
             post.likes = (post.likes || 0) + 1;
             likedPosts.push(postId);
         }
-
         localStorage.setItem('kcon_liked', JSON.stringify(likedPosts));
         savePosts();
         renderPosts();
@@ -587,17 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!text.trim()) return;
         const postIndex = posts.findIndex(p => p.id === postId);
         if (postIndex === -1) return;
-
-        const newComment = {
-            id: Date.now(),
-            text: text,
-            author: currentUser,
-            date: new Date().toLocaleDateString()
-        };
-
-        if (!posts[postIndex].comments) posts[postIndex].comments = [];
-        posts[postIndex].comments.push(newComment);
-        
+        posts[postIndex].comments.push({ id: Date.now(), text: text, author: currentUser, date: new Date().toLocaleDateString() });
         expandedPostId = postId;
         savePosts();
         renderPosts();
@@ -606,12 +367,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function deleteComment(postId, commentId) {
         const postIndex = posts.findIndex(p => p.id === postId);
         if (postIndex === -1) return;
-
         const comment = posts[postIndex].comments.find(c => c.id === commentId);
-        if (comment.author !== currentUser) return;
-
-        if (!confirm(translations[currentLang].confirmDeleteComment)) return;
-
+        if (comment.author !== currentUser || !confirm(translations[currentLang].confirmDeleteComment)) return;
         posts[postIndex].comments = posts[postIndex].comments.filter(c => c.id !== commentId);
         expandedPostId = postId;
         savePosts();
@@ -621,13 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleImageUpload(e) {
         const file = e.target.files[0];
         if (!file) return;
-
-        if (file.size > 1024 * 1024) {
-            alert("Image too large! Please upload a file smaller than 1MB.");
-            postImageInput.value = '';
-            return;
-        }
-
+        if (file.size > 1024 * 1024) { alert("Image too large! (<1MB)"); postImageInput.value = ''; return; }
         const reader = new FileReader();
         reader.onload = (event) => {
             currentPostImage = event.target.result;
@@ -641,12 +392,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLang = lang;
         localStorage.setItem('kcon_lang', lang);
         document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
-
         const t = translations[lang];
         btnWrite.textContent = t.write;
         logoLink.textContent = t.logo;
         userDisplay.textContent = t.loggedInAs + currentUser;
-
         document.querySelectorAll('.tab').forEach(tab => tab.textContent = t.categories[tab.dataset.category].name);
         categoryTitle.textContent = t.categories[currentCategory].title;
         categoryDesc.textContent = t.categories[currentCategory].desc;
@@ -665,11 +414,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function editPost(id) {
         const post = posts.find(p => p.id === id);
         if (!post || post.author !== currentUser) return;
-
         postIdInput.value = post.id;
         document.getElementById('post-category').value = post.category;
-        document.getElementById('post-title').value = post.title;
-        document.getElementById('post-content').value = post.content;
+        document.getElementById('post-title').value = post.titles ? post.titles[currentLang] : post.title;
+        document.getElementById('post-content').value = post.contents ? post.contents[currentLang] : post.content;
         if (post.image) {
             currentPostImage = post.image;
             imagePreview.innerHTML = `<img src="${currentPostImage}" alt="Preview">`;
@@ -681,13 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function deletePost(id) {
         const post = posts.find(p => p.id === id);
-        if (!post || post.author !== currentUser) return;
-
-        if (confirm(translations[currentLang].confirmDelete)) {
-            posts = posts.filter(p => p.id !== id);
-            savePosts();
-            renderPosts();
-        }
+        if (!post || post.author !== currentUser || !confirm(translations[currentLang].confirmDelete)) return;
+        posts = posts.filter(p => p.id !== id);
+        savePosts();
+        renderPosts();
     }
 
     function applyTheme(theme) {
@@ -695,11 +440,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('kcon_theme', theme);
     }
 
-    function savePosts() {
-        localStorage.setItem('kcon_posts', JSON.stringify(posts));
-    }
+    function savePosts() { localStorage.setItem('kcon_posts', JSON.stringify(posts)); }
 
-    // --- Event Listeners ---
     langSwitcher.addEventListener('click', (e) => {
         const btn = e.target.closest('.lang-btn');
         if (btn) updateLanguage(btn.dataset.lang);
@@ -752,7 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const index = posts.findIndex(p => p.id === parseInt(id));
             if (index !== -1) {
                 if (posts[index].author !== currentUser) return;
-                posts[index] = { ...posts[index], ...postData };
+                // Since user edit is single-language, we clear multilingual titles/contents
+                posts[index] = { ...posts[index], ...postData, titles: null, contents: null };
             }
         } else {
             posts.push({
