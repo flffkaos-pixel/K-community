@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
         rawPosts = rawPosts.map(p => {
             if (!p.lang) p.lang = 'en';
             if (!p.comments) p.comments = [];
+            if (p.views === undefined) p.views = 0;
+            if (p.likes === undefined) p.likes = 0;
             return p;
         });
     }
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentLang = localStorage.getItem('kcon_lang') || 'en';
     let currentPostImage = null;
+    let expandedPostId = null; // Track expanded post to persist through renders
 
     const translations = {
         ko: {
@@ -96,9 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSendComment: "送信",
             placeholderComment: "コメントを書く...",
             categories: {
-                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界の最新ニュースをお届けします。" },
+                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界의最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント、アドバイス、ストーリーをご紹介します。" },
-                food: { name: "料理 & レシピ", title: "料理 & レシピ", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
+                food: { name: "料理 & レシ피", title: "料理 & レ시피", desc: "美味しい韓国料理의レシピやおすすめ의飲食店を見つけましょう。" },
                 beauty: { name: "ビューティー", title: "K-ビューティー & スキンケア", desc: "K-ビューティーの秘密と効果的なスキンケア法をチェックしましょう。" },
                 travel: { name: "旅行 & スポット", title: "韓国旅行 & 穴場スポット", desc: "韓国各地の有名なランドマークや隠れた名所を探索しましょう。" }
             }
@@ -189,9 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getInitialPosts() {
         return [
-            { id: 1, lang: 'en', category: 'kpop', title: 'Aespa\'s New Album is Incredible!', content: 'I just listened to the whole album and the production quality is through the roof.', author: 'KPopFan99', date: new Date().toLocaleDateString(), comments: [] },
-            { id: 2, lang: 'en', category: 'living', title: 'Best districts for expats in Seoul?', content: 'Moving to Seoul next month. Any advice?', author: 'SeoulBound', date: new Date().toLocaleDateString(), comments: [] },
-            { id: 3, lang: 'ko', category: 'kpop', title: '에스파 신곡 너무 좋아요!', content: '이번 앨범 수록곡까지 전부 취향저격이네요.', author: '한국팬', date: new Date().toLocaleDateString(), comments: [] }
+            { id: 1, lang: 'en', category: 'kpop', title: 'Aespa\'s New Album is Incredible!', content: 'I just listened to the whole album and the production quality is through the roof.', author: 'KPopFan99', date: new Date().toLocaleDateString(), comments: [], views: 120, likes: 45 },
+            { id: 2, lang: 'en', category: 'living', title: 'Best districts for expats in Seoul?', content: 'Moving to Seoul next month. Any advice?', author: 'SeoulBound', date: new Date().toLocaleDateString(), comments: [], views: 85, likes: 12 },
+            { id: 3, lang: 'ko', category: 'kpop', title: '에스파 신곡 너무 좋아요!', content: '이번 앨범 수록곡까지 전부 취향저격이네요.', author: '한국팬', date: new Date().toLocaleDateString(), comments: [], views: 250, likes: 89 }
         ];
     }
 
@@ -211,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sortedPosts.forEach(post => {
             const postElement = document.createElement('article');
             postElement.className = 'post-card';
+            if (post.id === expandedPostId) postElement.classList.add('expanded');
             postElement.dataset.id = post.id;
             
             let imageHtml = '';
@@ -239,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="post-header">
                     <h3 class="post-title">${post.title}</h3>
                     <div class="post-actions">
+                        <button class="btn-icon like-btn ${post.liked ? 'active' : ''}" data-id="${post.id}">❤️ ${post.likes || 0}</button>
                         <button class="btn-icon edit" data-id="${post.id}" title="Edit">✎</button>
                         <button class="btn-icon delete" data-id="${post.id}" title="Delete">🗑</button>
                     </div>
@@ -247,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span>@${post.author}</span>
                     <span>•</span>
                     <span>${post.date}</span>
+                    <span style="margin-left: auto;">👁 ${post.views || 0}</span>
                 </div>
                 <div class="post-content">${post.content}</div>
                 ${imageHtml}
@@ -260,19 +266,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             
-            // Toggle Expand on Title/Card Click
+            // Toggle Expand Logic
             postElement.addEventListener('click', (e) => {
-                // Don't toggle if clicking buttons, inputs, or actions
                 if (e.target.closest('.post-actions') || e.target.closest('.comment-input-area') || e.target.closest('.delete-comment')) {
                     return;
                 }
-                postElement.classList.toggle('expanded');
+                
+                const isExpanding = !postElement.classList.contains('expanded');
+                
+                // Collapse others
+                document.querySelectorAll('.post-card').forEach(card => card.classList.remove('expanded'));
+                
+                if (isExpanding) {
+                    postElement.classList.add('expanded');
+                    expandedPostId = post.id;
+                    incrementViews(post.id);
+                } else {
+                    expandedPostId = null;
+                }
             });
 
             postsContainer.appendChild(postElement);
         });
 
         // Event Listeners for Post Actions
+        postsContainer.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleLike(parseInt(e.target.closest('.like-btn').dataset.id));
+            });
+        });
+
         postsContainer.querySelectorAll('.edit').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -317,6 +341,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function incrementViews(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            post.views = (post.views || 0) + 1;
+            savePosts();
+            // Partial render update for views
+            const viewSpan = postsContainer.querySelector(`.post-card[data-id="${postId}"] .post-meta span:last-child`);
+            if (viewSpan) viewSpan.textContent = `👁 ${post.views}`;
+        }
+    }
+
+    function toggleLike(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            post.likes = (post.likes || 0) + 1;
+            savePosts();
+            renderPosts(); // Full render to update UI state
+        }
+    }
+
     function addComment(postId, text) {
         if (!text.trim()) return;
         const postIndex = posts.findIndex(p => p.id === postId);
@@ -331,6 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!posts[postIndex].comments) posts[postIndex].comments = [];
         posts[postIndex].comments.push(newComment);
+        
+        expandedPostId = postId; // Persist expansion
         savePosts();
         renderPosts();
     }
@@ -341,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (postIndex === -1) return;
 
         posts[postIndex].comments = posts[postIndex].comments.filter(c => c.id !== commentId);
+        expandedPostId = postId; // Persist expansion
         savePosts();
         renderPosts();
     }
@@ -349,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Size check: limit to 1MB for localStorage
         if (file.size > 1024 * 1024) {
             alert("Image too large! Please upload a file smaller than 1MB.");
             postImageInput.value = '';
@@ -433,6 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         currentCategory = tab.dataset.category;
+        expandedPostId = null; // Reset expansion when category changes
         updateLanguage(currentLang);
     });
 
@@ -479,7 +526,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 lang: currentLang,
                 author: 'User_' + Math.floor(Math.random() * 1000),
                 date: new Date().toLocaleDateString(),
-                comments: []
+                comments: [],
+                views: 0,
+                likes: 0
             });
         }
 
