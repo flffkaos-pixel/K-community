@@ -2,13 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let rawPosts = JSON.parse(localStorage.getItem('kcon_posts'));
     
-    // Migration: If posts exist but don't have language, or if we want to reset to initial
     if (!rawPosts) {
         rawPosts = getInitialPosts();
     } else {
-        // Ensure every post has a lang property
         rawPosts = rawPosts.map(p => {
-            if (!p.lang) p.lang = 'en'; // Default old posts to English
+            if (!p.lang) p.lang = 'en';
+            if (!p.comments) p.comments = [];
             return p;
         });
     }
@@ -17,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCategory = 'kpop';
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentLang = localStorage.getItem('kcon_lang') || 'en';
+    let currentPostImage = null;
 
     const translations = {
         ko: {
@@ -27,13 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
             labelCategory: "카테고리",
             labelTitle: "제목",
             labelContent: "내용",
+            labelImage: "사진 추가",
             btnCancel: "취소",
             btnPost: "게시하기",
             btnUpdate: "수정하기",
             placeholderTitle: "제목을 입력하세요",
             placeholderContent: "생각을 공유해 보세요...",
             confirmDelete: "정말 이 게시글을 삭제하시겠습니까?",
+            confirmDeleteComment: "이 댓글을 삭제하시겠습니까?",
             noPosts: "이 언어로 작성된 게시글이 없습니다. 첫 번째 글을 작성해 보세요!",
+            labelComments: "댓글",
+            btnSendComment: "등록",
+            placeholderComment: "댓글을 입력하세요...",
             categories: {
                 kpop: { name: "K-팝 & 엔터", title: "K-Pop & 엔터테인먼트", desc: "K-Pop과 한국 연예계의 최신 소식을 만나보세요." },
                 living: { name: "한국 생활", title: "한국 생활", desc: "한국 생활에 필요한 팁과 유용한 정보, 일상을 공유합니다." },
@@ -50,13 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
             labelCategory: "Category",
             labelTitle: "Title",
             labelContent: "Content",
+            labelImage: "Add Image",
             btnCancel: "Cancel",
             btnPost: "Post to K-community",
             btnUpdate: "Update Post",
             placeholderTitle: "Enter post title",
             placeholderContent: "Share your thoughts...",
             confirmDelete: "Are you sure you want to delete this post?",
+            confirmDeleteComment: "Delete this comment?",
             noPosts: "No posts in this language yet. Be the first to write one!",
+            labelComments: "Comments",
+            btnSendComment: "Post",
+            placeholderComment: "Write a comment...",
             categories: {
                 kpop: { name: "K-Pop & Ent", title: "K-Pop & Entertainment", desc: "The latest from the world of K-Pop and Korean entertainment." },
                 living: { name: "Living in Korea", title: "Living in Korea", desc: "Tips, advice, and stories about living in the Land of the Morning Calm." },
@@ -73,17 +83,22 @@ document.addEventListener('DOMContentLoaded', () => {
             labelCategory: "カテゴリー",
             labelTitle: "タイトル",
             labelContent: "内容",
+            labelImage: "写真を追加",
             btnCancel: "キャンセル",
             btnPost: "投稿する",
             btnUpdate: "更新する",
             placeholderTitle: "タイトルを入力してください",
             placeholderContent: "あなたの考えを共有しましょう...",
             confirmDelete: "この投稿を削除してもよろしいですか？",
+            confirmDeleteComment: "このコメントを削除しますか？",
             noPosts: "この言語の投稿はまだありません。最初の投稿をしてみましょう！",
+            labelComments: "コメント",
+            btnSendComment: "送信",
+            placeholderComment: "コメントを書く...",
             categories: {
-                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界의最新ニュースをお届けします。" },
+                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界の最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント、アドバイス、ストーリーをご紹介します。" },
-                food: { name: "料理 & レシ피", title: "料理 & レシピ", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
+                food: { name: "料理 & レシピ", title: "料理 & レシピ", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
                 beauty: { name: "ビューティー", title: "K-ビューティー & スキンケア", desc: "K-ビューティーの秘密と効果的なスキンケア法をチェックしましょう。" },
                 travel: { name: "旅行 & スポット", title: "韓国旅行 & 穴場スポット", desc: "韓国各地の有名なランドマークや隠れた名所を探索しましょう。" }
             }
@@ -96,13 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
             labelCategory: "类别",
             labelTitle: "标题",
             labelContent: "内容",
+            labelImage: "添加图片",
             btnCancel: "取消",
             btnPost: "发布到 K-community",
             btnUpdate: "更新文章",
             placeholderTitle: "输入文章标题",
             placeholderContent: "分享你的想法...",
             confirmDelete: "你确定要删除这文章吗？",
+            confirmDeleteComment: "确定要删除这条评论吗？",
             noPosts: "该语言下暂无文章。快来发布第一篇吧！",
+            labelComments: "评论",
+            btnSendComment: "发布",
+            placeholderComment: "写下你的评论...",
             categories: {
                 kpop: { name: "K-Pop & 娱乐", title: "K-Pop & 娱乐", desc: "来自 K-Pop 和韩国娱乐界的最新动态。" },
                 living: { name: "在韩生活", title: "在韩生活", desc: "关于在韩国生活的提示、建议和故事。" },
@@ -119,13 +139,18 @@ document.addEventListener('DOMContentLoaded', () => {
             labelCategory: "Categoría",
             labelTitle: "Título",
             labelContent: "Contenido",
+            labelImage: "Añadir Imagen",
             btnCancel: "Cancelar",
             btnPost: "Publicar en K-community",
             btnUpdate: "Actualizar",
             placeholderTitle: "Ingrese el título",
             placeholderContent: "Comparte tus pensamientos...",
             confirmDelete: "¿Estás seguro de que quieres eliminar esta publicación?",
+            confirmDeleteComment: "¿Eliminar este comentario?",
             noPosts: "Aún no hay publicaciones en este idioma. ¡Sé el primero en escribir!",
+            labelComments: "Comentarios",
+            btnSendComment: "Enviar",
+            placeholderComment: "Escribe un comentario...",
             categories: {
                 kpop: { name: "K-Pop y Ent", title: "K-Pop y Entretenimiento", desc: "Lo último del mundo del K-Pop y el entretenimiento coreano." },
                 living: { name: "Vivir en Corea", title: "Vivir en Corea", desc: "Consejos, recomendaciones e historias sobre la vida en Corea." },
@@ -149,6 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelPost = document.getElementById('cancel-post');
     const postForm = document.getElementById('post-form');
     const postIdInput = document.getElementById('post-id');
+    const postImageInput = document.getElementById('post-image');
+    const imagePreview = document.getElementById('image-preview');
     const submitBtn = postForm.querySelector('button[type="submit"]');
     const logoLink = document.getElementById('logo-link');
     const langSwitcher = document.getElementById('lang-switcher');
@@ -162,24 +189,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getInitialPosts() {
         return [
-            // English Posts
-            { id: 1, lang: 'en', category: 'kpop', title: 'Aespa\'s New Album is Incredible!', content: 'I just listened to the whole album and the production quality is through the roof.', author: 'KPopFan99', date: new Date().toLocaleDateString() },
-            { id: 2, lang: 'en', category: 'living', title: 'Best districts for expats in Seoul?', content: 'Moving to Seoul next month. Any advice?', author: 'SeoulBound', date: new Date().toLocaleDateString() },
-            // Korean Posts
-            { id: 3, lang: 'ko', category: 'kpop', title: '에스파 신곡 너무 좋아요!', content: '이번 앨범 수록곡까지 전부 취향저격이네요. 여러분은 어떤 곡이 제일 좋나요?', author: '한국팬', date: new Date().toLocaleDateString() },
-            { id: 4, lang: 'ko', category: 'food', title: '서울 최고의 떡볶이 맛집 추천', content: '종로에 있는 작은 가게인데 정말 맵고 맛있어요.', author: '맛집탐방가', date: new Date().toLocaleDateString() },
-            // Japanese Post
-            { id: 5, lang: 'ja', category: 'travel', title: 'ソウルの隠れた名所', content: '北村韓屋村の裏通りがとても静かで綺麗でした。', author: '日本旅人', date: new Date().toLocaleDateString() },
-            // Chinese Post
-            { id: 6, lang: 'zh', category: 'beauty', title: '推荐韩国护肤品', content: '最近用了这款面霜，效果真的很棒！', author: '爱美之人', date: new Date().toLocaleDateString() },
-            // Spanish Post
-            { id: 7, lang: 'es', category: 'food', title: 'Mejor comida coreana', content: 'El Bibimbap es mi plato favorito. ¿Dónde puedo comer el mejor?', author: 'ViajeroES', date: new Date().toLocaleDateString() }
+            { id: 1, lang: 'en', category: 'kpop', title: 'Aespa\'s New Album is Incredible!', content: 'I just listened to the whole album and the production quality is through the roof.', author: 'KPopFan99', date: new Date().toLocaleDateString(), comments: [] },
+            { id: 2, lang: 'en', category: 'living', title: 'Best districts for expats in Seoul?', content: 'Moving to Seoul next month. Any advice?', author: 'SeoulBound', date: new Date().toLocaleDateString(), comments: [] },
+            { id: 3, lang: 'ko', category: 'kpop', title: '에스파 신곡 너무 좋아요!', content: '이번 앨범 수록곡까지 전부 취향저격이네요.', author: '한국팬', date: new Date().toLocaleDateString(), comments: [] }
         ];
     }
 
     function renderPosts() {
         postsContainer.innerHTML = '';
-        // Strict filter by Category AND Language
         const filteredPosts = posts.filter(post => 
             post.category === currentCategory && post.lang === currentLang
         );
@@ -194,6 +211,29 @@ document.addEventListener('DOMContentLoaded', () => {
         sortedPosts.forEach(post => {
             const postElement = document.createElement('article');
             postElement.className = 'post-card';
+            
+            let imageHtml = '';
+            if (post.image) {
+                imageHtml = `<div class="post-image-container"><img src="${post.image}" alt="Post image"></div>`;
+            }
+
+            let commentsHtml = '';
+            if (post.comments) {
+                post.comments.forEach(comment => {
+                    commentsHtml += `
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span>@${comment.author} • ${comment.date}</span>
+                                <div class="comment-actions">
+                                    <button class="btn-icon delete-comment" data-post-id="${post.id}" data-comment-id="${comment.id}">🗑</button>
+                                </div>
+                            </div>
+                            <div class="comment-content">${comment.text}</div>
+                        </div>
+                    `;
+                });
+            }
+
             postElement.innerHTML = `
                 <div class="post-header">
                     <div class="post-meta">
@@ -208,69 +248,134 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <h3 class="post-title">${post.title}</h3>
                 <div class="post-content">${post.content}</div>
+                ${imageHtml}
+                <div class="comments-section">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">${translations[currentLang].labelComments} (${post.comments ? post.comments.length : 0})</h4>
+                    <div class="comments-list">${commentsHtml}</div>
+                    <div class="comment-input-area">
+                        <input type="text" class="comment-input" placeholder="${translations[currentLang].placeholderComment}" data-post-id="${post.id}">
+                        <button class="btn btn-primary add-comment-btn" data-post-id="${post.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">${translations[currentLang].btnSendComment}</button>
+                    </div>
+                </div>
             `;
             postsContainer.appendChild(postElement);
         });
 
-        // Add Listeners for Edit/Delete
-        postsContainer.querySelectorAll('.edit').forEach(btn => {
-            btn.addEventListener('click', (e) => editPost(parseInt(e.target.dataset.id)));
+        // Event Listeners for Post Actions
+        postsContainer.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', (e) => editPost(parseInt(e.target.dataset.id))));
+        postsContainer.querySelectorAll('.delete').forEach(btn => btn.addEventListener('click', (e) => deletePost(parseInt(e.target.dataset.id))));
+
+        // Event Listeners for Comments
+        postsContainer.querySelectorAll('.add-comment-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const postId = parseInt(e.target.dataset.post-id);
+                const input = postsContainer.querySelector(`.comment-input[data-post-id="${postId}"]`);
+                addComment(postId, input.value);
+            });
         });
-        postsContainer.querySelectorAll('.delete').forEach(btn => {
-            btn.addEventListener('click', (e) => deletePost(parseInt(e.target.dataset.id)));
+        
+        postsContainer.querySelectorAll('.comment-input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const postId = parseInt(e.target.dataset.post-id);
+                    addComment(postId, e.target.value);
+                }
+            });
         });
+
+        postsContainer.querySelectorAll('.delete-comment').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const postId = parseInt(e.target.dataset.post-id);
+                const commentId = parseInt(e.target.dataset.comment-id);
+                deleteComment(postId, commentId);
+            });
+        });
+    }
+
+    function addComment(postId, text) {
+        if (!text.trim()) return;
+        const postIndex = posts.findIndex(p => p.id === postId);
+        if (postIndex === -1) return;
+
+        const newComment = {
+            id: Date.now(),
+            text: text,
+            author: 'User_' + Math.floor(Math.random() * 1000),
+            date: new Date().toLocaleDateString()
+        };
+
+        if (!posts[postIndex].comments) posts[postIndex].comments = [];
+        posts[postIndex].comments.push(newComment);
+        savePosts();
+        renderPosts();
+    }
+
+    function deleteComment(postId, commentId) {
+        if (!confirm(translations[currentLang].confirmDeleteComment)) return;
+        const postIndex = posts.findIndex(p => p.id === postId);
+        if (postIndex === -1) return;
+
+        posts[postIndex].comments = posts[postIndex].comments.filter(c => c.id !== commentId);
+        savePosts();
+        renderPosts();
+    }
+
+    function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Size check: limit to 1MB for localStorage
+        if (file.size > 1024 * 1024) {
+            alert("Image too large! Please upload a file smaller than 1MB.");
+            postImageInput.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            currentPostImage = event.target.result;
+            imagePreview.innerHTML = `<img src="${currentPostImage}" alt="Preview">`;
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
     }
 
     function updateLanguage(lang) {
         currentLang = lang;
         localStorage.setItem('kcon_lang', lang);
-
-        // Update active class on switcher
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.lang === lang);
-        });
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
 
         const t = translations[lang];
-
-        // Update Header & Static UI
         btnWrite.textContent = t.write;
         logoLink.textContent = t.logo;
-        
-        // Update Tabs
-        const tabs = document.querySelectorAll('.tab');
-        tabs.forEach(tab => {
-            const cat = tab.dataset.category;
-            tab.textContent = t.categories[cat].name;
-        });
-
-        // Update Current Category Info
+        document.querySelectorAll('.tab').forEach(tab => tab.textContent = t.categories[tab.dataset.category].name);
         categoryTitle.textContent = t.categories[currentCategory].title;
         categoryDesc.textContent = t.categories[currentCategory].desc;
-
-        // Update Modal labels
         modalHeaderTitle.textContent = postIdInput.value ? t.modalEditTitle : t.modalTitle;
         document.querySelector('label[for="post-category"]').textContent = t.labelCategory;
         document.querySelector('label[for="post-title"]').textContent = t.labelTitle;
         document.querySelector('label[for="post-content"]').textContent = t.labelContent;
+        document.getElementById('label-image').textContent = t.labelImage;
         document.getElementById('post-title').placeholder = t.placeholderTitle;
         document.getElementById('post-content').placeholder = t.placeholderContent;
         cancelPost.textContent = t.btnCancel;
         submitBtn.textContent = postIdInput.value ? t.btnUpdate : t.btnPost;
-
-        // Re-render posts to update empty message and filter by new lang
         renderPosts();
     }
 
     function editPost(id) {
         const post = posts.find(p => p.id === id);
         if (!post) return;
-
         postIdInput.value = post.id;
         document.getElementById('post-category').value = post.category;
         document.getElementById('post-title').value = post.title;
         document.getElementById('post-content').value = post.content;
-
-        updateLanguage(currentLang); // Update modal title/button text
+        if (post.image) {
+            currentPostImage = post.image;
+            imagePreview.innerHTML = `<img src="${currentPostImage}" alt="Preview">`;
+            imagePreview.style.display = 'block';
+        }
+        updateLanguage(currentLang);
         openModal();
     }
 
@@ -292,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Event Listeners ---
-
     langSwitcher.addEventListener('click', (e) => {
         const btn = e.target.closest('.lang-btn');
         if (btn) updateLanguage(btn.dataset.lang);
@@ -312,11 +416,16 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(currentTheme);
     });
 
+    postImageInput.addEventListener('change', handleImageUpload);
+
     const openModal = () => modalOverlay.classList.add('active');
     const hideModal = () => {
         modalOverlay.classList.remove('active');
         postForm.reset();
         postIdInput.value = '';
+        currentPostImage = null;
+        imagePreview.style.display = 'none';
+        imagePreview.innerHTML = '';
         updateLanguage(currentLang);
     };
 
@@ -332,31 +441,26 @@ document.addEventListener('DOMContentLoaded', () => {
             category: document.getElementById('post-category').value,
             title: document.getElementById('post-title').value,
             content: document.getElementById('post-content').value,
+            image: currentPostImage
         };
 
         if (id) {
-            // Update
             const index = posts.findIndex(p => p.id === parseInt(id));
-            if (index !== -1) {
-                posts[index] = { ...posts[index], ...postData };
-            }
+            if (index !== -1) posts[index] = { ...posts[index], ...postData };
         } else {
-            // Create
             posts.push({
                 id: Date.now(),
                 ...postData,
-                lang: currentLang, // Tag with current UI language
+                lang: currentLang,
                 author: 'User_' + Math.floor(Math.random() * 1000),
-                date: new Date().toLocaleDateString()
+                date: new Date().toLocaleDateString(),
+                comments: []
             });
         }
 
         savePosts();
         currentCategory = postData.category;
-        
-        // Update active tab UI
         document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.category === currentCategory));
-        
         updateLanguage(currentLang);
         hideModal();
     });
