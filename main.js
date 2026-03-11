@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let likedPosts = JSON.parse(localStorage.getItem('kcon_liked')) || [];
     
-    // FORCE RESET: Pure Multilingual System (v5)
-    const resetVersion = "v5";
+    // FORCE RESET: Clear posts for fresh start (v6)
+    const resetVersion = "v6";
     if (localStorage.getItem('kcon_posts_version') !== resetVersion) {
         localStorage.removeItem('kcon_posts');
         localStorage.setItem('kcon_posts_version', resetVersion);
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let rawPosts = JSON.parse(localStorage.getItem('kcon_posts'));
     
     if (!rawPosts) {
-        rawPosts = getInitialPosts();
+        rawPosts = []; // Return empty array instead of generating posts
         localStorage.setItem('kcon_posts', JSON.stringify(rawPosts));
     }
     
