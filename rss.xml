@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>K-community | Global Korea Hub</title>
+    <link>https://flffkaos-pixel.github.io/K-community/</link>
+    <description>Discover the best of Korea: K-Pop, Travel, Life, and Food.</description>
+    <language>ko-kr</language>
+    <lastBuildDate>Wed, 11 Mar 2026 00:00:00 +0900</lastBuildDate>
+    <atom:link href="https://flffkaos-pixel.github.io/K-community/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Welcome to K-community</title>
+      <link>https://flffkaos-pixel.github.io/K-community/</link>
+      <description>Join our global community and share your stories about Korea.</description>
+      <pubDate>Wed, 11 Mar 2026 00:00:00 +0900</pubDate>
+      <guid>https://flffkaos-pixel.github.io/K-community/</guid>
+    </item>
+  </channel>
+</rss>
