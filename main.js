@@ -1,6 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
-    let posts = JSON.parse(localStorage.getItem('kcon_posts')) || getInitialPosts();
+    let rawPosts = JSON.parse(localStorage.getItem('kcon_posts'));
+    
+    // Migration: If posts exist but don't have language, or if we want to reset to initial
+    if (!rawPosts) {
+        rawPosts = getInitialPosts();
+    } else {
+        // Ensure every post has a lang property
+        rawPosts = rawPosts.map(p => {
+            if (!p.lang) p.lang = 'en'; // Default old posts to English
+            return p;
+        });
+    }
+    
+    let posts = rawPosts;
     let currentCategory = 'kpop';
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentLang = localStorage.getItem('kcon_lang') || 'en';
@@ -166,10 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPosts() {
         postsContainer.innerHTML = '';
-        // Filter by Category AND Language
+        // Strict filter by Category AND Language
         const filteredPosts = posts.filter(post => 
-            post.category === currentCategory && 
-            (post.lang === currentLang || !post.lang) // Compatibility for old posts without lang
+            post.category === currentCategory && post.lang === currentLang
         );
 
         if (filteredPosts.length === 0) {
