@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let likedPosts = JSON.parse(localStorage.getItem('kcon_liked')) || [];
     
-    // FORCE RESET: Unified Multilingual System (v3)
-    const resetVersion = "v3";
+    // FORCE RESET: Unified Multilingual & Pagination System (v4)
+    const resetVersion = "v4";
     if (localStorage.getItem('kcon_posts_version') !== resetVersion) {
         localStorage.removeItem('kcon_posts');
         localStorage.setItem('kcon_posts_version', resetVersion);
@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentLang = localStorage.getItem('kcon_lang') || 'en';
     let currentPostImage = null;
     let expandedPostId = null;
+    
+    // Pagination State
+    let currentPage = 1;
+    const pageSize = 10;
 
     const translations = {
         ko: {
@@ -37,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderContent: "생각을 공유해 보세요...", confirmDelete: "정말 이 게시글을 삭제하시겠습니까?",
             confirmDeleteComment: "이 댓글을 삭제하시겠습니까?", noPosts: "이 카테고리에 게시글이 없습니다.",
             labelComments: "댓글", btnSendComment: "등록", placeholderComment: "댓글을 입력하세요...", loggedInAs: "내 아이디: ",
+            prev: "이전", next: "다음", page: "페이지",
             categories: {
                 kpop: { name: "K-팝 & 엔터", title: "K-Pop & 엔터테인먼트", desc: "K-Pop과 한국 연예계의 최신 소식을 만나보세요." },
                 living: { name: "한국 생활", title: "한국 생활", desc: "한국 생활에 필요한 팁과 유용한 정보, 일상을 공유합니다." },
@@ -52,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderContent: "Share your thoughts...", confirmDelete: "Are you sure you want to delete this post?",
             confirmDeleteComment: "Delete this comment?", noPosts: "No posts in this category yet.",
             labelComments: "Comments", btnSendComment: "Post", placeholderComment: "Write a comment...", loggedInAs: "Logged in as: ",
+            prev: "Prev", next: "Next", page: "Page",
             categories: {
                 kpop: { name: "K-Pop & Ent", title: "K-Pop & Entertainment", desc: "The latest from the world of K-Pop and Korean entertainment." },
                 living: { name: "Living in Korea", title: "Living in Korea", desc: "Tips, advice, and stories about living in the Land of the Morning Calm." },
@@ -67,12 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderContent: "あなたの考えを共有しましょう...", confirmDelete: "この投稿を削除してもよろしいですか？",
             confirmDeleteComment: "このコメントを削除しますか？", noPosts: "このカテゴリーにはまだ投稿がありません。",
             labelComments: "コメント", btnSendComment: "送信", placeholderComment: "コメントを書く...", loggedInAs: "ログイン中: ",
+            prev: "以前", next: "次へ", page: "ページ",
             categories: {
                 kpop: { name: "K-POP & 芸能", title: "K-POP & エン터테인먼트", desc: "K-POPと韓国芸能界의最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント、アドバイス、ストーリーをご紹介します。" },
-                food: { name: "料理 & レシ피", title: "料理 & 레시피", desc: "美味しい韓国料理의レシピやおすすめ의飲食店を見つけましょう。" },
-                beauty: { name: "ビューティー", title: "K-ビューティー & 스킨케어", desc: "K-ビューティーの秘密と効果的なスキンケア法をチェックしましょう。" },
-                travel: { name: "旅行 & スポット", title: "韓国旅行 & 穴場スポット", desc: "韓国各地の有名なランドマークや隠れた名所を探索しましょう。" }
+                food: { name: "料理 & レ시피", title: "料理 & レシピ", desc: "美味しい韓国料理의レシピやおすすめ의飲食店を見つけましょう。" },
+                beauty: { name: "ビューティー", title: "K-ビューティー & 스킨케어", desc: "K-뷰티의 비밀과 효과적인 스킨케어 루틴을 확인하세요." },
+                travel: { name: "旅行 & スポット", title: "한국 여행 & 숨은 명소", desc: "한국 곳곳의 유명 랜드마크와 숨겨진 보석 같은 명소를 탐험하세요." }
             }
         },
         zh: {
@@ -82,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderContent: "分享你的想法...", confirmDelete: "你确定要删除这文章吗？",
             confirmDeleteComment: "确定要删除这条评论吗？", noPosts: "该类别下暂无文章。",
             labelComments: "评论", btnSendComment: "发布", placeholderComment: "写下你的评论...", loggedInAs: "当前用户: ",
+            prev: "上一页", next: "下一页", page: "页",
             categories: {
                 kpop: { name: "K-Pop & 娱乐", title: "K-Pop & 娱乐", desc: "来自 K-Pop 和韩国娱乐界的最新动态。" },
                 living: { name: "在韩生活", title: "在韩生活", desc: "关于在韩国生活的提示、建议和故事。" },
@@ -92,11 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         es: {
             logo: "K-community", write: "Publicar", modalTitle: "Crear Nueva Publicación", modalEditTitle: "Editar Publicación",
-            labelCategory: "Categoría", labelTitle: "Título", labelContent: "Contenido", labelImage: "Añadir Imagen",
+            labelCategory: "Categoría", labelTitle: "Título", labelContent: "Content", labelImage: "Añadir Imagen",
             btnCancel: "Cancelar", btnPost: "Publicar en K-community", btnUpdate: "Actualizar", placeholderTitle: "Ingrese el título",
             placeholderContent: "Comparte tus pensamientos...", confirmDelete: "¿Estás seguro de que quieres eliminar esta publicación?",
             confirmDeleteComment: "¿Eliminar este comentario?", noPosts: "Aún no hay publicaciones en esta categoría.",
             labelComments: "Comentarios", btnSendComment: "Enviar", placeholderComment: "Escribe un comentario...", loggedInAs: "Usuario: ",
+            prev: "Ant", next: "Sig", page: "Página",
             categories: {
                 kpop: { name: "K-Pop y Ent", title: "K-Pop y Entretenimiento", desc: "Lo último del mundo del K-Pop y el entretenimiento coreano." },
                 living: { name: "Vivir en Corea", title: "Vivir en Corea", desc: "Consejos, recomendaciones e historias sobre la vida en Corea." },
@@ -126,6 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoLink = document.getElementById('logo-link');
     const langSwitcher = document.getElementById('lang-switcher');
     const userDisplay = document.getElementById('user-display');
+
+    // Add Pagination Container
+    const mainContent = document.querySelector('.content-container');
+    const paginationContainer = document.createElement('div');
+    paginationContainer.className = 'pagination-container';
+    paginationContainer.style.cssText = 'display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; align-items: center; padding-bottom: 2rem;';
+    mainContent.appendChild(paginationContainer);
 
     // --- Initialization ---
     applyTheme(currentTheme);
@@ -175,12 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const author = authors[i % authors.length];
                 const date = new Date(Date.now() - Math.floor(Math.random() * 1000000000)).toLocaleDateString();
                 
-                // Construct multilingual content
                 const contents = {};
                 ['ko', 'en', 'ja', 'zh', 'es'].forEach(l => {
                     contents[l] = l === 'ko' ? 
-                        `이 포스트는 한국의 ${cat}에 대한 유용한 정보를 담고 있습니다. 많은 분들이 궁금해하시는 내용을 정리해 보았습니다. 주제: ${titleObj[l]}. 즐겁게 읽어주시고 궁금한 점은 댓글로 남겨주세요!` :
-                        `This post contains useful information about ${cat} in Korea. I've summarized the details that many people are curious about. Topic: ${titleObj[l]}. Enjoy reading and leave your questions in the comments below!`;
+                        `이 포스트는 한국의 ${cat}에 대한 유용한 정보를 담고 있습니다. 주제: ${titleObj[l]}. 즐겁게 읽어주시고 궁금한 점은 댓글로 남겨주세요!` :
+                        `This post contains useful information about ${cat} in Korea. Topic: ${titleObj[l]}. Enjoy reading and leave your questions in the comments below!`;
                 });
 
                 generatedPosts.push({
@@ -206,18 +221,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (filteredPosts.length === 0) {
             postsContainer.innerHTML = `<div class="post-card"><p>${translations[currentLang].noPosts}</p></div>`;
+            paginationContainer.innerHTML = '';
             return;
         }
 
         const sortedPosts = [...filteredPosts].sort((a, b) => b.id - a.id);
+        
+        const totalPages = Math.ceil(sortedPosts.length / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
 
-        sortedPosts.forEach(post => {
+        const startIdx = (currentPage - 1) * pageSize;
+        const pagedPosts = sortedPosts.slice(startIdx, startIdx + pageSize);
+
+        pagedPosts.forEach(post => {
             const postElement = document.createElement('article');
             postElement.className = 'post-card';
             if (post.id === expandedPostId) postElement.classList.add('expanded');
             postElement.dataset.id = post.id;
             
-            // Multilingual title and content
             const displayTitle = post.titles ? post.titles[currentLang] : post.title;
             const displayContent = post.contents ? post.contents[currentLang] : post.content;
 
@@ -292,6 +314,8 @@ document.addEventListener('DOMContentLoaded', () => {
             postsContainer.appendChild(postElement);
         });
 
+        renderPagination(totalPages);
+
         // Event Listeners for Post Actions
         postsContainer.querySelectorAll('.like-btn').forEach(btn => btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -326,6 +350,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const cid = parseInt(e.target.getAttribute('data-comment-id'));
             deleteComment(pid, cid);
         }));
+    }
+
+    function renderPagination(totalPages) {
+        paginationContainer.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const t = translations[currentLang];
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'btn btn-secondary';
+        prevBtn.textContent = t.prev;
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => { currentPage--; renderPosts(); window.scrollTo(0, 0); };
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'btn btn-secondary';
+        nextBtn.textContent = t.next;
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => { currentPage++; renderPosts(); window.scrollTo(0, 0); };
+
+        const pageInfo = document.createElement('span');
+        pageInfo.textContent = `${t.page} ${currentPage} / ${totalPages}`;
+        pageInfo.style.fontWeight = 'bold';
+
+        paginationContainer.appendChild(prevBtn);
+        paginationContainer.appendChild(pageInfo);
+        paginationContainer.appendChild(nextBtn);
     }
 
     function incrementViews(postId) {
@@ -444,7 +495,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     langSwitcher.addEventListener('click', (e) => {
         const btn = e.target.closest('.lang-btn');
-        if (btn) updateLanguage(btn.dataset.lang);
+        if (btn) {
+            updateLanguage(btn.dataset.lang);
+        }
     });
 
     categoryTabs.addEventListener('click', (e) => {
@@ -453,6 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         currentCategory = tab.dataset.category;
+        currentPage = 1;
         expandedPostId = null;
         updateLanguage(currentLang);
     });
@@ -494,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const index = posts.findIndex(p => p.id === parseInt(id));
             if (index !== -1) {
                 if (posts[index].author !== currentUser) return;
-                // Since user edit is single-language, we clear multilingual titles/contents
                 posts[index] = { ...posts[index], ...postData, titles: null, contents: null };
             }
         } else {
@@ -512,6 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         savePosts();
         currentCategory = postData.category;
+        currentPage = 1; 
         document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.category === currentCategory));
         updateLanguage(currentLang);
         hideModal();
