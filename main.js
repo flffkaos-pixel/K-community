@@ -7,12 +7,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let likedPosts = JSON.parse(localStorage.getItem('kcon_liked')) || [];
+    
+    // FORCE RESET: To ensure the 150 high-quality posts with correct language tags are applied.
+    // We will clear the existing local storage for posts once to apply the new content structure.
+    const resetVersion = "v2"; // Increment this to force a reset for all users
+    if (localStorage.getItem('kcon_posts_version') !== resetVersion) {
+        localStorage.removeItem('kcon_posts');
+        localStorage.setItem('kcon_posts_version', resetVersion);
+    }
+
     let rawPosts = JSON.parse(localStorage.getItem('kcon_posts'));
     
-    // Clear old posts if user requested (or if we want to reset to high-quality content)
-    // For this special update, we reset the content to ensure 30 high-quality posts per category.
-    rawPosts = getInitialPosts();
-    localStorage.setItem('kcon_posts', JSON.stringify(rawPosts));
+    if (!rawPosts) {
+        rawPosts = getInitialPosts();
+        localStorage.setItem('kcon_posts', JSON.stringify(rawPosts));
+    }
     
     let posts = rawPosts;
     let currentCategory = 'kpop';
@@ -380,7 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     lang: lang,
                     category: cat,
                     title: contentData[cat][contentIndex],
-                    content: `This is an interesting post about ${cat} in Korea. As someone who has spent a lot of time here, I can say that this topic is really important for anyone interested in Korean culture. ${contentData[cat][contentIndex]} Let me know what you guys think about this in the comments below!`,
+                    content: lang === 'ko' ? 
+                        `이 포스트는 한국의 ${cat}에 대한 흥미로운 내용을 담고 있습니다. 한국 문화에 관심이 있는 분들이라면 이 주제가 얼마나 중요한지 잘 아실 겁니다. ${contentData[cat][contentIndex]} 이에 대해 어떻게 생각하시는지 아래 댓글로 자유롭게 의견을 나눠주세요!` :
+                        `This is an interesting post about ${cat} in Korea. As someone who has spent a lot of time here, I can say that this topic is really important for anyone interested in Korean culture. ${contentData[cat][contentIndex]} Let me know what you guys think about this in the comments below!`,
                     author: author,
                     date: date,
                     comments: [],
