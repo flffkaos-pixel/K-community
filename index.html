@@ -1,14 +1,86 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-con | The Ultimate Korea Community</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <header class="header">
+        <div class="header-container">
+            <h1 class="logo" id="logo-link">K-con</h1>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn btn-secondary" aria-label="Toggle Theme">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+                <button id="btn-write" class="btn btn-primary">Write Post</button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="nav-container">
+            <ul class="category-tabs" id="category-tabs">
+                <li class="tab active" data-category="kpop">K-Pop & Ent</li>
+                <li class="tab" data-category="living">Living in Korea</li>
+                <li class="tab" data-category="food">Food & Recipes</li>
+                <li class="tab" data-category="beauty">Beauty & Skincare</li>
+                <li class="tab" data-category="travel">Travel & Hidden Spots</li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="category-info">
+                <h2 id="category-title">K-Pop & Entertainment</h2>
+                <p id="category-desc">The latest from the world of K-Pop and Korean entertainment.</p>
+            </div>
+            <div id="posts-container" class="posts-list">
+                <!-- Posts will be injected here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Write Post Modal -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create New Post</h3>
+                <button id="close-modal" class="btn-close">&times;</button>
+            </div>
+            <form id="post-form" class="post-form">
+                <div class="form-group">
+                    <label for="post-category">Category</label>
+                    <select id="post-category" required>
+                        <option value="kpop">K-Pop & Entertainment</option>
+                        <option value="living">Living in Korea</option>
+                        <option value="food">Food & Recipes</option>
+                        <option value="beauty">Beauty & Skincare</option>
+                        <option value="travel">Travel & Hidden Spots</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-title">Title</label>
+                    <input type="text" id="post-title" placeholder="Enter post title" required>
+                </div>
+                <div class="form-group">
+                    <label for="post-content">Content</label>
+                    <textarea id="post-content" rows="10" placeholder="Share your thoughts..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-post" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post to K-con</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
 </body>
 </html>
