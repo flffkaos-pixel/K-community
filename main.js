@@ -211,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sortedPosts.forEach(post => {
             const postElement = document.createElement('article');
             postElement.className = 'post-card';
+            postElement.dataset.id = post.id;
             
             let imageHtml = '';
             if (post.image) {
@@ -236,58 +237,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
             postElement.innerHTML = `
                 <div class="post-header">
-                    <div class="post-meta">
-                        <span>@${post.author}</span>
-                        <span>•</span>
-                        <span>${post.date}</span>
-                    </div>
+                    <h3 class="post-title">${post.title}</h3>
                     <div class="post-actions">
                         <button class="btn-icon edit" data-id="${post.id}" title="Edit">✎</button>
                         <button class="btn-icon delete" data-id="${post.id}" title="Delete">🗑</button>
                     </div>
                 </div>
-                <h3 class="post-title">${post.title}</h3>
+                <div class="post-meta" style="margin-bottom: 0.5rem;">
+                    <span>@${post.author}</span>
+                    <span>•</span>
+                    <span>${post.date}</span>
+                </div>
                 <div class="post-content">${post.content}</div>
                 ${imageHtml}
                 <div class="comments-section">
                     <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">${translations[currentLang].labelComments} (${post.comments ? post.comments.length : 0})</h4>
                     <div class="comments-list">${commentsHtml}</div>
-                    <div class="comment-input-area">
+                    <div class="comment-input-area" onclick="event.stopPropagation();">
                         <input type="text" class="comment-input" placeholder="${translations[currentLang].placeholderComment}" data-post-id="${post.id}">
                         <button class="btn btn-primary add-comment-btn" data-post-id="${post.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">${translations[currentLang].btnSendComment}</button>
                     </div>
                 </div>
             `;
+            
+            // Toggle Expand on Title/Card Click
+            postElement.addEventListener('click', (e) => {
+                // Don't toggle if clicking buttons, inputs, or actions
+                if (e.target.closest('.post-actions') || e.target.closest('.comment-input-area') || e.target.closest('.delete-comment')) {
+                    return;
+                }
+                postElement.classList.toggle('expanded');
+            });
+
             postsContainer.appendChild(postElement);
         });
 
         // Event Listeners for Post Actions
-        postsContainer.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', (e) => editPost(parseInt(e.target.dataset.id))));
-        postsContainer.querySelectorAll('.delete').forEach(btn => btn.addEventListener('click', (e) => deletePost(parseInt(e.target.dataset.id))));
+        postsContainer.querySelectorAll('.edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                editPost(parseInt(e.target.dataset.id));
+            });
+        });
+
+        postsContainer.querySelectorAll('.delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deletePost(parseInt(e.target.dataset.id));
+            });
+        });
 
         // Event Listeners for Comments
         postsContainer.querySelectorAll('.add-comment-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const postId = parseInt(e.target.dataset.post-id);
-                const input = postsContainer.querySelector(`.comment-input[data-post-id="${postId}"]`);
-                addComment(postId, input.value);
+                e.stopPropagation();
+                const pid = parseInt(e.target.getAttribute('data-post-id'));
+                const input = postsContainer.querySelector(`.comment-input[data-post-id="${pid}"]`);
+                addComment(pid, input.value);
             });
         });
         
         postsContainer.querySelectorAll('.comment-input').forEach(input => {
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    const postId = parseInt(e.target.dataset.post-id);
-                    addComment(postId, e.target.value);
+                    e.stopPropagation();
+                    const pid = parseInt(e.target.getAttribute('data-post-id'));
+                    addComment(pid, e.target.value);
                 }
             });
         });
 
         postsContainer.querySelectorAll('.delete-comment').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const postId = parseInt(e.target.dataset.post-id);
-                const commentId = parseInt(e.target.dataset.comment-id);
-                deleteComment(postId, commentId);
+                e.stopPropagation();
+                const pid = parseInt(e.target.getAttribute('data-post-id'));
+                const cid = parseInt(e.target.getAttribute('data-comment-id'));
+                deleteComment(pid, cid);
             });
         });
     }
