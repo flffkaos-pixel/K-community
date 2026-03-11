@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const translations = {
         ko: {
-            logo: "K-con",
+            logo: "K-community",
             write: "글쓰기",
             modalTitle: "새 게시글 작성",
             modalEditTitle: "게시글 수정",
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderTitle: "제목을 입력하세요",
             placeholderContent: "생각을 공유해 보세요...",
             confirmDelete: "정말 이 게시글을 삭제하시겠습니까?",
-            noPosts: "이 카테고리에 게시글이 없습니다. 첫 번째 글을 작성해 보세요!",
+            noPosts: "이 언어로 작성된 게시글이 없습니다. 첫 번째 글을 작성해 보세요!",
             categories: {
                 kpop: { name: "K-팝 & 엔터", title: "K-Pop & 엔터테인먼트", desc: "K-Pop과 한국 연예계의 최신 소식을 만나보세요." },
                 living: { name: "한국 생활", title: "한국 생활", desc: "한국 생활에 필요한 팁과 유용한 정보, 일상을 공유합니다." },
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         en: {
-            logo: "K-con",
+            logo: "K-community",
             write: "Write Post",
             modalTitle: "Create New Post",
             modalEditTitle: "Edit Post",
@@ -38,12 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
             labelTitle: "Title",
             labelContent: "Content",
             btnCancel: "Cancel",
-            btnPost: "Post to K-con",
+            btnPost: "Post to K-community",
             btnUpdate: "Update Post",
             placeholderTitle: "Enter post title",
             placeholderContent: "Share your thoughts...",
             confirmDelete: "Are you sure you want to delete this post?",
-            noPosts: "No posts in this category yet. Be the first to write one!",
+            noPosts: "No posts in this language yet. Be the first to write one!",
             categories: {
                 kpop: { name: "K-Pop & Ent", title: "K-Pop & Entertainment", desc: "The latest from the world of K-Pop and Korean entertainment." },
                 living: { name: "Living in Korea", title: "Living in Korea", desc: "Tips, advice, and stories about living in the Land of the Morning Calm." },
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         ja: {
-            logo: "K-con",
+            logo: "K-community",
             write: "投稿する",
             modalTitle: "新規投稿作成",
             modalEditTitle: "投稿を編集",
@@ -66,17 +66,17 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderTitle: "タイトルを入力してください",
             placeholderContent: "あなたの考えを共有しましょう...",
             confirmDelete: "この投稿を削除してもよろしいですか？",
-            noPosts: "このカテゴリーにはまだ投稿がありません。最初の投稿をしてみましょう！",
+            noPosts: "この言語の投稿はまだありません。最初の投稿をしてみましょう！",
             categories: {
-                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界の最新ニュースをお届けします。" },
+                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界의最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント、アドバイス、ストーリーをご紹介します。" },
-                food: { name: "料理 & レシピ", title: "料理 & レシピ", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
+                food: { name: "料理 & レシ피", title: "料理 & レシピ", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
                 beauty: { name: "ビューティー", title: "K-ビューティー & スキンケア", desc: "K-ビューティーの秘密と効果的なスキンケア法をチェックしましょう。" },
                 travel: { name: "旅行 & スポット", title: "韓国旅行 & 穴場スポット", desc: "韓国各地の有名なランドマークや隠れた名所を探索しましょう。" }
             }
         },
         zh: {
-            logo: "K-con",
+            logo: "K-community",
             write: "发布文章",
             modalTitle: "创建新文章",
             modalEditTitle: "编辑文章",
@@ -84,12 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
             labelTitle: "标题",
             labelContent: "内容",
             btnCancel: "取消",
-            btnPost: "发布到 K-con",
+            btnPost: "发布到 K-community",
             btnUpdate: "更新文章",
             placeholderTitle: "输入文章标题",
             placeholderContent: "分享你的想法...",
             confirmDelete: "你确定要删除这文章吗？",
-            noPosts: "该类别下暂无文章。快来发布第一篇吧！",
+            noPosts: "该语言下暂无文章。快来发布第一篇吧！",
             categories: {
                 kpop: { name: "K-Pop & 娱乐", title: "K-Pop & 娱乐", desc: "来自 K-Pop 和韩国娱乐界的最新动态。" },
                 living: { name: "在韩生活", title: "在韩生活", desc: "关于在韩国生活的提示、建议和故事。" },
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         es: {
-            logo: "K-con",
+            logo: "K-community",
             write: "Publicar",
             modalTitle: "Crear Nueva Publicación",
             modalEditTitle: "Editar Publicación",
@@ -107,12 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
             labelTitle: "Título",
             labelContent: "Contenido",
             btnCancel: "Cancelar",
-            btnPost: "Publicar en K-con",
+            btnPost: "Publicar en K-community",
             btnUpdate: "Actualizar",
             placeholderTitle: "Ingrese el título",
             placeholderContent: "Comparte tus pensamientos...",
             confirmDelete: "¿Estás seguro de que quieres eliminar esta publicación?",
-            noPosts: "Aún no hay publicaciones en esta categoría. ¡Sé el primero en escribir!",
+            noPosts: "Aún no hay publicaciones en este idioma. ¡Sé el primero en escribir!",
             categories: {
                 kpop: { name: "K-Pop y Ent", title: "K-Pop y Entretenimiento", desc: "Lo último del mundo del K-Pop y el entretenimiento coreano." },
                 living: { name: "Vivir en Corea", title: "Vivir en Corea", desc: "Consejos, recomendaciones e historias sobre la vida en Corea." },
@@ -149,14 +149,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getInitialPosts() {
         return [
-            { id: 1, category: 'kpop', title: 'Aespa\'s New Album is Incredible!', content: 'I just listened to the whole album and the production quality is through the roof.', author: 'KPopFan99', date: new Date().toLocaleDateString() },
-            { id: 2, category: 'living', title: 'Best districts for expats in Seoul?', content: 'Moving to Seoul next month. Any advice?', author: 'SeoulBound', date: new Date().toLocaleDateString() }
+            // English Posts
+            { id: 1, lang: 'en', category: 'kpop', title: 'Aespa\'s New Album is Incredible!', content: 'I just listened to the whole album and the production quality is through the roof.', author: 'KPopFan99', date: new Date().toLocaleDateString() },
+            { id: 2, lang: 'en', category: 'living', title: 'Best districts for expats in Seoul?', content: 'Moving to Seoul next month. Any advice?', author: 'SeoulBound', date: new Date().toLocaleDateString() },
+            // Korean Posts
+            { id: 3, lang: 'ko', category: 'kpop', title: '에스파 신곡 너무 좋아요!', content: '이번 앨범 수록곡까지 전부 취향저격이네요. 여러분은 어떤 곡이 제일 좋나요?', author: '한국팬', date: new Date().toLocaleDateString() },
+            { id: 4, lang: 'ko', category: 'food', title: '서울 최고의 떡볶이 맛집 추천', content: '종로에 있는 작은 가게인데 정말 맵고 맛있어요.', author: '맛집탐방가', date: new Date().toLocaleDateString() },
+            // Japanese Post
+            { id: 5, lang: 'ja', category: 'travel', title: 'ソウルの隠れた名所', content: '北村韓屋村の裏通りがとても静かで綺麗でした。', author: '日本旅人', date: new Date().toLocaleDateString() },
+            // Chinese Post
+            { id: 6, lang: 'zh', category: 'beauty', title: '推荐韩国护肤品', content: '最近用了这款面霜，效果真的很棒！', author: '爱美之人', date: new Date().toLocaleDateString() },
+            // Spanish Post
+            { id: 7, lang: 'es', category: 'food', title: 'Mejor comida coreana', content: 'El Bibimbap es mi plato favorito. ¿Dónde puedo comer el mejor?', author: 'ViajeroES', date: new Date().toLocaleDateString() }
         ];
     }
 
     function renderPosts() {
         postsContainer.innerHTML = '';
-        const filteredPosts = posts.filter(post => post.category === currentCategory);
+        // Filter by Category AND Language
+        const filteredPosts = posts.filter(post => 
+            post.category === currentCategory && 
+            (post.lang === currentLang || !post.lang) // Compatibility for old posts without lang
+        );
 
         if (filteredPosts.length === 0) {
             postsContainer.innerHTML = `<div class="post-card"><p>${translations[currentLang].noPosts}</p></div>`;
@@ -208,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update Header & Static UI
         btnWrite.textContent = t.write;
+        logoLink.textContent = t.logo;
         
         // Update Tabs
         const tabs = document.querySelectorAll('.tab');
@@ -230,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelPost.textContent = t.btnCancel;
         submitBtn.textContent = postIdInput.value ? t.btnUpdate : t.btnPost;
 
-        // Re-render posts to update empty message
+        // Re-render posts to update empty message and filter by new lang
         renderPosts();
     }
 
@@ -318,6 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             posts.push({
                 id: Date.now(),
                 ...postData,
+                lang: currentLang, // Tag with current UI language
                 author: 'User_' + Math.floor(Math.random() * 1000),
                 date: new Date().toLocaleDateString()
             });
