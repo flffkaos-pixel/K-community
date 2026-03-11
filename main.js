@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
+    let currentUser = localStorage.getItem('kcon_user');
+    if (!currentUser) {
+        currentUser = 'User_' + Math.floor(Math.random() * 1000);
+        localStorage.setItem('kcon_user', currentUser);
+    }
+
+    let likedPosts = JSON.parse(localStorage.getItem('kcon_liked')) || [];
     let rawPosts = JSON.parse(localStorage.getItem('kcon_posts'));
     
     if (!rawPosts) {
@@ -19,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentLang = localStorage.getItem('kcon_lang') || 'en';
     let currentPostImage = null;
-    let expandedPostId = null; // Track expanded post to persist through renders
+    let expandedPostId = null;
 
     const translations = {
         ko: {
@@ -42,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "댓글",
             btnSendComment: "등록",
             placeholderComment: "댓글을 입력하세요...",
+            loggedInAs: "내 아이디: ",
             categories: {
                 kpop: { name: "K-팝 & 엔터", title: "K-Pop & 엔터테인먼트", desc: "K-Pop과 한국 연예계의 최신 소식을 만나보세요." },
                 living: { name: "한국 생활", title: "한국 생활", desc: "한국 생활에 필요한 팁과 유용한 정보, 일상을 공유합니다." },
@@ -70,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "Comments",
             btnSendComment: "Post",
             placeholderComment: "Write a comment...",
+            loggedInAs: "Logged in as: ",
             categories: {
                 kpop: { name: "K-Pop & Ent", title: "K-Pop & Entertainment", desc: "The latest from the world of K-Pop and Korean entertainment." },
                 living: { name: "Living in Korea", title: "Living in Korea", desc: "Tips, advice, and stories about living in the Land of the Morning Calm." },
@@ -98,11 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "コメント",
             btnSendComment: "送信",
             placeholderComment: "コメントを書く...",
+            loggedInAs: "ログイン中: ",
             categories: {
                 kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテインメント", desc: "K-POPと韓国芸能界의最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント、アドバイス、ストーリーをご紹介します。" },
-                food: { name: "料理 & レシ피", title: "料理 & レ시피", desc: "美味しい韓国料理의レシピやおすすめ의飲食店を見つけましょう。" },
-                beauty: { name: "ビューティー", title: "K-ビューティー & スキンケア", desc: "K-ビューティーの秘密と効果的なスキンケア法をチェックしましょう。" },
+                food: { name: "料理 & レシ피", title: "料理 & レシピ", desc: "美味しい韓国料理의レシピやおすすめ의飲食店を見つけましょう。" },
+                beauty: { name: "ビューティー", title: "K-ビューティー & 스킨케어", desc: "K-ビューティーの秘密と効果的なスキンケア法をチェックしましょう。" },
                 travel: { name: "旅行 & スポット", title: "韓国旅行 & 穴場スポット", desc: "韓国各地の有名なランドマークや隠れた名所を探索しましょう。" }
             }
         },
@@ -126,10 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "评论",
             btnSendComment: "发布",
             placeholderComment: "写下你的评论...",
+            loggedInAs: "当前用户: ",
             categories: {
                 kpop: { name: "K-Pop & 娱乐", title: "K-Pop & 娱乐", desc: "来自 K-Pop 和韩国娱乐界的最新动态。" },
                 living: { name: "在韩生活", title: "在韩生活", desc: "关于在韩国生活的提示、建议和故事。" },
-                food: { name: "美食 & 食谱", title: "美食 & 食谱", desc: "发现美味的韩国食谱和最佳就餐去处。" },
+                food: { name: "美食 & 食谱", title: "美食 & 食谱", desc: "发现美味의韩国食谱和最佳就餐去处。" },
                 beauty: { name: "美妆 & 护肤", title: "K-美妆 & 护肤", desc: "揭秘 K-Beauty 的秘密和有效的护肤程序。" },
                 travel: { name: "旅游 & 景点", title: "韩国旅游 & 隐藏景点", desc: "探索韩国各地的著名地标和隐藏瑰宝。" }
             }
@@ -141,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalEditTitle: "Editar Publicación",
             labelCategory: "Categoría",
             labelTitle: "Título",
-            labelContent: "Contenido",
+            labelContent: "Content",
             labelImage: "Añadir Imagen",
             btnCancel: "Cancelar",
             btnPost: "Publicar en K-community",
@@ -154,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "Comentarios",
             btnSendComment: "Enviar",
             placeholderComment: "Escribe un comentario...",
+            loggedInAs: "Usuario: ",
             categories: {
                 kpop: { name: "K-Pop y Ent", title: "K-Pop y Entretenimiento", desc: "Lo último del mundo del K-Pop y el entretenimiento coreano." },
                 living: { name: "Vivir en Corea", title: "Vivir en Corea", desc: "Consejos, recomendaciones e historias sobre la vida en Corea." },
@@ -182,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = postForm.querySelector('button[type="submit"]');
     const logoLink = document.getElementById('logo-link');
     const langSwitcher = document.getElementById('lang-switcher');
+    const userDisplay = document.getElementById('user-display');
 
     // --- Initialization ---
     applyTheme(currentTheme);
@@ -225,12 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let commentsHtml = '';
             if (post.comments) {
                 post.comments.forEach(comment => {
+                    const isCommentAuthor = comment.author === currentUser;
                     commentsHtml += `
                         <div class="comment-item">
                             <div class="comment-header">
                                 <span>@${comment.author} • ${comment.date}</span>
                                 <div class="comment-actions">
-                                    <button class="btn-icon delete-comment" data-post-id="${post.id}" data-comment-id="${comment.id}">🗑</button>
+                                    ${isCommentAuthor ? `<button class="btn-icon delete-comment" data-post-id="${post.id}" data-comment-id="${comment.id}">🗑</button>` : ''}
                                 </div>
                             </div>
                             <div class="comment-content">${comment.text}</div>
@@ -239,13 +253,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
+            const isPostAuthor = post.author === currentUser;
+            const isLiked = likedPosts.includes(post.id);
+
             postElement.innerHTML = `
                 <div class="post-header">
                     <h3 class="post-title">${post.title}</h3>
                     <div class="post-actions">
-                        <button class="btn-icon like-btn ${post.liked ? 'active' : ''}" data-id="${post.id}">❤️ ${post.likes || 0}</button>
-                        <button class="btn-icon edit" data-id="${post.id}" title="Edit">✎</button>
-                        <button class="btn-icon delete" data-id="${post.id}" title="Delete">🗑</button>
+                        <button class="btn-icon like-btn ${isLiked ? 'active' : ''}" data-id="${post.id}">${isLiked ? '❤️' : '🤍'} ${post.likes || 0}</button>
+                        ${isPostAuthor ? `
+                            <button class="btn-icon edit" data-id="${post.id}" title="Edit">✎</button>
+                            <button class="btn-icon delete" data-id="${post.id}" title="Delete">🗑</button>
+                        ` : ''}
                     </div>
                 </div>
                 <div class="post-meta" style="margin-bottom: 0.5rem;">
@@ -346,7 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (post) {
             post.views = (post.views || 0) + 1;
             savePosts();
-            // Partial render update for views
             const viewSpan = postsContainer.querySelector(`.post-card[data-id="${postId}"] .post-meta span:last-child`);
             if (viewSpan) viewSpan.textContent = `👁 ${post.views}`;
         }
@@ -354,11 +372,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleLike(postId) {
         const post = posts.find(p => p.id === postId);
-        if (post) {
+        if (!post) return;
+
+        const isLiked = likedPosts.includes(postId);
+        if (isLiked) {
+            // Unlike
+            post.likes = Math.max(0, (post.likes || 0) - 1);
+            likedPosts = likedPosts.filter(id => id !== postId);
+        } else {
+            // Like
             post.likes = (post.likes || 0) + 1;
-            savePosts();
-            renderPosts(); // Full render to update UI state
+            likedPosts.push(postId);
         }
+
+        localStorage.setItem('kcon_liked', JSON.stringify(likedPosts));
+        savePosts();
+        renderPosts();
     }
 
     function addComment(postId, text) {
@@ -369,25 +398,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const newComment = {
             id: Date.now(),
             text: text,
-            author: 'User_' + Math.floor(Math.random() * 1000),
+            author: currentUser,
             date: new Date().toLocaleDateString()
         };
 
         if (!posts[postIndex].comments) posts[postIndex].comments = [];
         posts[postIndex].comments.push(newComment);
         
-        expandedPostId = postId; // Persist expansion
+        expandedPostId = postId;
         savePosts();
         renderPosts();
     }
 
     function deleteComment(postId, commentId) {
-        if (!confirm(translations[currentLang].confirmDeleteComment)) return;
         const postIndex = posts.findIndex(p => p.id === postId);
         if (postIndex === -1) return;
 
+        const comment = posts[postIndex].comments.find(c => c.id === commentId);
+        if (comment.author !== currentUser) return;
+
+        if (!confirm(translations[currentLang].confirmDeleteComment)) return;
+
         posts[postIndex].comments = posts[postIndex].comments.filter(c => c.id !== commentId);
-        expandedPostId = postId; // Persist expansion
+        expandedPostId = postId;
         savePosts();
         renderPosts();
     }
@@ -419,6 +452,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = translations[lang];
         btnWrite.textContent = t.write;
         logoLink.textContent = t.logo;
+        userDisplay.textContent = t.loggedInAs + currentUser;
+
         document.querySelectorAll('.tab').forEach(tab => tab.textContent = t.categories[tab.dataset.category].name);
         categoryTitle.textContent = t.categories[currentCategory].title;
         categoryDesc.textContent = t.categories[currentCategory].desc;
@@ -436,7 +471,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function editPost(id) {
         const post = posts.find(p => p.id === id);
-        if (!post) return;
+        if (!post || post.author !== currentUser) return;
+
         postIdInput.value = post.id;
         document.getElementById('post-category').value = post.category;
         document.getElementById('post-title').value = post.title;
@@ -451,6 +487,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deletePost(id) {
+        const post = posts.find(p => p.id === id);
+        if (!post || post.author !== currentUser) return;
+
         if (confirm(translations[currentLang].confirmDelete)) {
             posts = posts.filter(p => p.id !== id);
             savePosts();
@@ -479,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         currentCategory = tab.dataset.category;
-        expandedPostId = null; // Reset expansion when category changes
+        expandedPostId = null;
         updateLanguage(currentLang);
     });
 
@@ -518,13 +557,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (id) {
             const index = posts.findIndex(p => p.id === parseInt(id));
-            if (index !== -1) posts[index] = { ...posts[index], ...postData };
+            if (index !== -1) {
+                if (posts[index].author !== currentUser) return;
+                posts[index] = { ...posts[index], ...postData };
+            }
         } else {
             posts.push({
                 id: Date.now(),
                 ...postData,
                 lang: currentLang,
-                author: 'User_' + Math.floor(Math.random() * 1000),
+                author: currentUser,
                 date: new Date().toLocaleDateString(),
                 comments: [],
                 views: 0,
