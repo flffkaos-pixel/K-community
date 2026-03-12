@@ -334,13 +334,116 @@ body {
     display: block;
 }
 
-/* Comments Section */
-.comments-section {
-    border-top: 1px solid var(--border-color);
-    margin-top: 1.5rem;
-    padding-top: 1.25rem;
+/* Layout Enhancement */
+.content-layout {
+    display: flex;
+    gap: 2rem;
 }
 
+.posts-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar {
+    width: 300px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+    .content-layout {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+    }
+    .sidebar .trending-card {
+        position: static !important;
+    }
+}
+
+/* Trending Section */
+.trending-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.trending-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.trending-item {
+    display: flex;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.trending-item:hover {
+    background-color: var(--btn-secondary-bg);
+}
+
+.trending-rank {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    opacity: 0.5;
+    min-width: 1.5rem;
+}
+
+.trending-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.trending-item-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trending-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Inline Image Previews in Modal */
+.image-preview-item {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.image-preview-item:hover {
+    transform: scale(1.05);
+    border-color: var(--primary-color);
+}
+
+/* Post Content Multiple Images */
+.post-content img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 1rem 0;
+    display: block;
+    box-shadow: var(--shadow);
+}
+
+/* Comment System Update (Existing) */
 .comment-item {
     background-color: var(--bg-color);
     padding: 0.75rem 1rem;

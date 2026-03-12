@@ -93,7 +93,10 @@
         <div class="header-container">
             <div class="header-left">
                 <h1 class="logo" id="logo-link">K-community</h1>
-                <span id="user-display" class="user-display"></span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="user-display" class="user-display"></span>
+                    <button id="btn-change-nickname" class="btn-icon" title="Change Nickname" style="font-size: 0.75rem; padding: 2px 6px; background: var(--btn-secondary-bg); border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer;">✎</button>
+                </div>
             </div>
             <div class="header-actions">
                 <div class="lang-switcher" id="lang-switcher">
@@ -126,12 +129,25 @@
 
     <main class="main-content">
         <div class="content-container">
-            <div class="category-info">
-                <h2 id="category-title">K-Pop & Entertainment</h2>
-                <p id="category-desc">The latest from the world of K-Pop and Korean entertainment.</p>
-            </div>
-            <div id="posts-container" class="posts-list">
-                <!-- Posts will be injected here -->
+            <div class="content-layout" style="display: flex; gap: 2rem;">
+                <div class="posts-section" style="flex: 1; min-width: 0;">
+                    <div class="category-info">
+                        <h2 id="category-title">K-Pop & Entertainment</h2>
+                        <p id="category-desc">The latest from the world of K-Pop and Korean entertainment.</p>
+                    </div>
+                    <div id="posts-container" class="posts-list">
+                        <!-- Posts will be injected here -->
+                    </div>
+                </div>
+                
+                <aside class="sidebar" style="width: 300px; flex-shrink: 0;">
+                    <div class="trending-card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; position: sticky; top: 130px;">
+                        <h3 id="trending-title" style="font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">🔥 Trending Now</h3>
+                        <ul id="trending-list" style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Trending items injected here -->
+                        </ul>
+                    </div>
+                </aside>
             </div>
         </div>
     </main>
@@ -161,12 +177,13 @@
                 </div>
                 <div class="form-group">
                     <label for="post-content">Content</label>
-                    <textarea id="post-content" rows="10" placeholder="Share your thoughts..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="post-image" id="label-image">Add Image</label>
-                    <input type="file" id="post-image" accept="image/*">
-                    <div id="image-preview" class="image-preview"></div>
+                    <div style="margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;" onclick="document.getElementById('post-image').click()">📷 Add Photo</button>
+                        <input type="file" id="post-image" accept="image/*" style="display: none;" multiple>
+                    </div>
+                    <div id="image-previews" style="display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 0.75rem; padding-bottom: 0.25rem;"></div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">※ Click a preview image to insert it into the text.</p>
+                    <textarea id="post-content" rows="12" placeholder="Share your thoughts..." required></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="cancel-post" class="btn btn-secondary">Cancel</button>
