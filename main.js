@@ -125,8 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         categoryTitle: document.getElementById('category-title'),
         categoryDesc: document.getElementById('category-desc'),
         btnNick: document.getElementById('btn-change-nickname'),
-        userDisplay: document.getElementById('user-display'),
-        siteIntro: document.getElementById('site-intro')
+        userDisplay: document.getElementById('user-display')
     };
 
     init();
@@ -176,11 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         els.categoryDesc.textContent = langData.descs[currentCategory];
         els.userDisplay.textContent = currentUser;
-        
-        // Update site intro text
-        if (els.siteIntro) {
-            els.siteIntro.textContent = langData.intro;
-        }
     }
 
     function renderContent() {
