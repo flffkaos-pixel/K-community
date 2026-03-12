@@ -361,6 +361,27 @@ body {
     line-height: 1.5;
 }
 
+.comment-translated {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border-color);
+    font-style: italic;
+    line-height: 1.4;
+    animation: fadeIn 0.3s ease;
+}
+
+.translate-comment {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.translate-comment:hover {
+    color: var(--primary-color);
+    background-color: var(--btn-secondary-bg);
+}
+
 .comment-input-area {
     display: flex;
     gap: 0.5rem;
