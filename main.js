@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('kcon_votes');
         localStorage.removeItem('kcon_posts');
         localStorage.removeItem('kcon_requests');
+        localStorage.removeItem('kcon_my_dislikes');
+        localStorage.removeItem('kcon_liked_posts');
         localStorage.setItem('kcon_ver', RESET_VER);
     }
 
@@ -272,7 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).forEach(([key, data]) => {
             const el = document.createElement('div'); el.className = 'idol-card';
             const hasDisliked = myDislikes.includes(key);
-            el.innerHTML = `<div class="idol-name">${data.name}</div><div class="poll-actions"><button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button><button class="poll-btn dislike ${hasDisliked ? 'disabled' : ''}" data-key="${key}">👎 <span class="count">${data.dislikes}</span></button></div>`;
+            el.innerHTML = `
+                <div class="idol-name">${data.name}</div>
+                <div class="poll-actions">
+                    <button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button>
+                    <button class="poll-btn dislike ${hasDisliked ? 'disabled' : ''}" data-key="${key}">👎 <span class="count">${data.dislikes}</span></button>
+                </div>`;
             grid.appendChild(el);
         });
         grid.onclick = (e) => {
