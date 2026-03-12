@@ -312,10 +312,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // --- Add Blogspot link to sidebar for SEO and AdSense Authority ---
-        const blogBox = document.createElement('div');
-        blogBox.style.cssText = "margin-top: 1.5rem; padding: 1rem; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 12px; font-size: 0.85rem;";
-        blogBox.innerHTML = `<strong>📖 All About Korea Blog</strong><p style="margin: 0.5rem 0; color: #666;">Explore more deep stories about Korea.</p><a href="https://ailaboutkorea.blogspot.com/" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Visit Blog →</a>`;
-        els.trendingList.parentNode.appendChild(blogBox);
+        let blogBox = document.getElementById('blog-promo-box');
+        if (!blogBox) {
+            blogBox = document.createElement('div');
+            blogBox.id = 'blog-promo-box';
+            blogBox.style.cssText = "margin-top: 1.5rem; padding: 1rem; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 12px; font-size: 0.85rem;";
+            blogBox.innerHTML = `<strong>📖 All About Korea Blog</strong><p style="margin: 0.5rem 0; color: #666;">Explore more deep stories about Korea.</p><a href="https://ailaboutkorea.blogspot.com/" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Visit Blog →</a>`;
+            els.trendingList.parentNode.appendChild(blogBox);
+        }
     }
 
     async function translatePost(post) {
