@@ -6,4 +6,4 @@ User-agent: Mediapartners-Google
 Allow: /
 
 User-agent: Googlebot
-Allow: /
+Allow: /Disallow: /firebase-debug.log
