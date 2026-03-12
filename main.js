@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let likedPosts = JSON.parse(localStorage.getItem('kcon_liked')) || [];
     
-    // FORCE RESET: UI Update (v12 - Trending & Inline Images)
-    const resetVersion = "v12";
+    // FORCE RESET: UI Update (v13 - Post Translation & Managed Buttons)
+    const resetVersion = "v13";
     if (localStorage.getItem('kcon_posts_version') !== resetVersion) {
         localStorage.removeItem('kcon_posts');
         localStorage.setItem('kcon_posts_version', resetVersion);
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCategory = 'kpop';
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentLang = localStorage.getItem('kcon_lang') || 'en';
-    let currentPostImages = []; // Array for multiple images
+    let currentPostImages = []; 
     let expandedPostId = null;
     
     let currentPage = 1;
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "댓글", btnSendComment: "등록", placeholderComment: "댓글을 입력하세요...", loggedInAs: "내 아이디: ",
             prev: "이전", next: "다음", page: "페이지",
             translating: "번역 중...", trending: "🔥 실시간 인기글", changeNickname: "닉네임 변경",
-            promptNickname: "새로운 닉네임을 입력하세요:",
+            promptNickname: "새로운 닉네임을 입력하세요:", btnEdit: "수정", btnDelete: "삭제",
             categories: {
                 kpop: { name: "K-팝 & 엔터", title: "K-Pop & 엔터테인먼트", desc: "K-Pop과 한국 연예계의 최신 소식을 만나보세요." },
                 living: { name: "한국 생활", title: "한국 생활", desc: "한국 생활에 필요한 팁과 유용한 정보, 일상을 공유합니다." },
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "Comments", btnSendComment: "Post", placeholderComment: "Write a comment...", loggedInAs: "User: ",
             prev: "Prev", next: "Next", page: "Page",
             translating: "Translating...", trending: "🔥 Trending Now", changeNickname: "Change Nickname",
-            promptNickname: "Enter your new nickname:",
+            promptNickname: "Enter your new nickname:", btnEdit: "Edit", btnDelete: "Delete",
             categories: {
                 kpop: { name: "K-Pop & Ent", title: "K-Pop & Entertainment", desc: "The latest from the world of K-Pop and Korean entertainment." },
                 living: { name: "Living in Korea", title: "Living in Korea", desc: "Tips, advice, and stories about living in the Land of the Morning Calm." },
@@ -75,18 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
             logo: "K-community", write: "投稿する", modalTitle: "新規投稿作成", modalEditTitle: "投稿を編集",
             labelCategory: "カテゴリー", labelTitle: "タイトル", labelContent: "内容", labelImage: "写真追加",
             btnCancel: "キャンセル", btnPost: "投稿する", btnUpdate: "更新する", placeholderTitle: "タイトルを入力してください",
-            placeholderContent: "あなたの考えを共有しましょう...", confirmDelete: "この投稿を削除してもよろしいですか？",
+            placeholderContent: "あなたの考えを共有しましょう...", confirmDelete: "この投稿を削除해도 よろしいですか？",
             confirmDeleteComment: "このコメントを削除しますか？", noPosts: "このカテゴリーにはまだ投稿がありません。",
             labelComments: "コメント", btnSendComment: "送信", placeholderComment: "コメントを書く...", loggedInAs: "ログイン中: ",
             prev: "前へ", next: "次へ", page: "ページ",
             translating: "翻訳中...", trending: "🔥 人気の投稿", changeNickname: "名前変更",
-            promptNickname: "新しいニックネームを入力してください:",
+            promptNickname: "新しいニックネームを入力してください:", btnEdit: "修正", btnDelete: "削除",
             categories: {
-                kpop: { name: "K-POP & 芸能", title: "K-POP & エンターテイン먼트", desc: "K-POPと韓国芸能界の最新ニュースをお届けします。" },
+                kpop: { name: "K-POP & 芸能", title: "K-POP & エン터テイン먼트", desc: "K-POPと韓国芸能界의 最新ニュースをお届けします。" },
                 living: { name: "韓国生活", title: "韓国生活", desc: "韓国での生活に関するヒント, アドバイス, ストーリーをご紹介します。" },
-                food: { name: "料理 & レシピ", title: "料理 & レ시피", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
-                beauty: { name: "ビューティー", title: "K-ビューティー & 스킨케어", desc: "K-ビューティーの秘密と効果的なスキン케어ルーチンを確認してください。" },
-                travel: { name: "旅行 & スポット", title: "韓国旅行 & 隠れた名所", desc: "韓国各地の有名なランドマークと隠れた宝石のような名所を探索してください。" }
+                food: { name: "料理 & レシピ", title: "料理 & レシ피", desc: "美味しい韓国料理のレシピやおすすめの飲食店を見つけましょう。" },
+                beauty: { name: "ビューティー", title: "K-ビューティー & 스킨케어", desc: "K-뷰티의 비밀과 효과적인 스킨케어 루틴을 확인하세요." },
+                travel: { name: "旅行 & スポット", title: "한국 여행 & 숨은 명소", desc: "한국 곳곳의 유명 랜드마크와 숨겨진 보석 같은 명소를 탐험하세요." }
             }
         },
         zh: {
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "评论", btnSendComment: "发布", placeholderComment: "写下你的评论...", loggedInAs: "当前用户: ",
             prev: "上一页", next: "下一页", page: "页",
             translating: "翻译中...", trending: "🔥 热门文章", changeNickname: "更改昵称",
-            promptNickname: "请输入新的昵称:",
+            promptNickname: "请输入新的昵称:", btnEdit: "编辑", btnDelete: "删除",
             categories: {
                 kpop: { name: "K-Pop & 娱乐", title: "K-Pop & 娱乐", desc: "来自 K-Pop 和韩国娱乐界的最新动态。" },
                 living: { name: "在韩生活", title: "在韩生活", desc: "关于在韩国生活的提示、建议 and 故事。" },
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             labelComments: "Comentarios", btnSendComment: "Enviar", placeholderComment: "Escribe un comentario...", loggedInAs: "Usuario: ",
             prev: "Ant", next: "Sig", page: "Página",
             translating: "Traduciendo...", trending: "🔥 Tendencias", changeNickname: "Cambiar Nick",
-            promptNickname: "Ingrese su nuevo apodo:",
+            promptNickname: "Ingrese su nuevo apodo:", btnEdit: "Editar", btnDelete: "Borrar",
             categories: {
                 kpop: { name: "K-Pop y Ent", title: "K-Pop y Entretenimiento", desc: "Lo último del mundo del K-Pop y el entretenimiento coreano." },
                 living: { name: "Vivir en Corea", title: "Vivir en Corea", desc: "Consejos, recomendaciones e historias sobre la vida en Corea." },
@@ -150,7 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const trendingList = document.getElementById('trending-list');
     const trendingTitle = document.getElementById('trending-title');
 
-    const mainContent = document.querySelector('.content-container');
     const paginationContainer = document.createElement('div');
     paginationContainer.className = 'pagination-container';
     paginationContainer.style.cssText = 'display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; align-items: center; padding-bottom: 2rem;';
@@ -167,27 +166,38 @@ document.addEventListener('DOMContentLoaded', () => {
     function getInitialPosts() {
         return [
             {
-                id: 9001, category: 'kpop', author: 'GlobalEditor', date: '2026-03-11',
+                id: 9001, category: 'kpop', author: 'GlobalEditor', date: '2026-03-11', lang: 'ko',
                 titles: { ko: "최예나, 'Catch Catch'로 컴백 - 2세대 감성 저격", en: "Choi Yena Comeback with 'Catch Catch'", ja: "チェ・イェナ、'Catch Catch'でカムバック", zh: "崔叡娜以 'Catch Catch' 回归", es: "Regreso de Choi Yena" },
-                contents: { ko: "최예나가 새로운 앨범 'Catch Catch'와 함께 레트로한 무드로 돌아왔습니다. [IMG_0] 이번 앨범은 2세대 K-Pop의 향수를 불러일으킵니다.", en: "Choi Yena is back with her new album 'Catch Catch'. [IMG_0] This album brings back retro vibes.", ja: "チェ・イェナがニューアルバム「Catch Catch」と共に帰ってきました。[IMG_0]", zh: "崔叡娜带着新专辑 'Catch Catch' 回归。[IMG_0]", es: "Choi Yena ha regresado con su nuevo álbum 'Catch Catch'. [IMG_0]" },
+                contents: { ko: "최예나가 새로운 앨범 'Catch Catch'와 함께 레트로한 무드로 돌아왔습니다. [IMG_0] 이번 앨범은 2세대 K-Pop의 향수를 불러일으키며, 5,000개의 챌린지 영상 달성을 목표로 하고 있습니다.", en: "Choi Yena is back with her new album 'Catch Catch'. [IMG_0] This album brings back retro vibes.", ja: "チェ・イェナがニューアルバム「Catch Catch」と共に帰ってきました。[IMG_0]", zh: "崔叡娜带着新专辑 'Catch Catch' 回归。[IMG_0]", es: "Choi Yena ha regresado con un ambiente retro en su nuevo álbum 'Catch Catch'. [IMG_0]" },
                 images: ["https://images.unsplash.com/photo-1514525253344-f81f3fbb166e?w=800&auto=format&fit=crop"],
-                comments: [
-                    { id: 101, text: "너무 기대돼요!", author: "예나팬", date: "2026-03-12", lang: "ko" }
-                ], views: 1540, likes: 420
+                comments: [ { id: 101, text: "너무 기대돼요!", author: "예나팬", date: "2026-03-12", lang: "ko" } ], views: 1540, likes: 420
             }
         ];
     }
 
-    async function triggerTranslation(comment, targetLang) {
-        const cacheKey = `${comment.id}_${targetLang}`;
+    async function triggerTranslation(item, targetLang, type = 'comment') {
+        const cacheKey = `${item.id}_${targetLang}_${type}`;
         if (translationCache[cacheKey]) return;
+        
+        const textToTranslate = type === 'post_title' ? item.title : (type === 'post_content' ? item.content : item.text);
+        const sourceLang = item.lang || 'ko';
+
         try {
-            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(comment.text)}&langpair=${comment.lang}|${targetLang}`);
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=${sourceLang}|${targetLang}`);
             const data = await response.json();
             if (data.responseData && data.responseData.translatedText) {
                 translationCache[cacheKey] = data.responseData.translatedText;
-                const commentTextEl = document.querySelector(`.comment-item[data-comment-id="${comment.id}"] .comment-content`);
-                if (commentTextEl && currentLang === targetLang) commentTextEl.textContent = data.responseData.translatedText;
+                if (currentLang !== targetLang) return;
+                
+                if (type === 'comment') {
+                    const el = document.querySelector(`.comment-item[data-comment-id="${item.id}"] .comment-content`);
+                    if (el) el.textContent = data.responseData.translatedText;
+                } else if (type === 'post_title') {
+                    const el = document.querySelector(`.post-card[data-id="${item.id}"] .post-title`);
+                    if (el) el.textContent = data.responseData.translatedText;
+                } else if (type === 'post_content') {
+                    renderPosts(); // Re-render content to handle IMG tags correctly
+                }
             }
         } catch (error) { console.error("Translation error:", error); }
     }
@@ -208,41 +218,47 @@ document.addEventListener('DOMContentLoaded', () => {
             if (post.id === expandedPostId) postElement.classList.add('expanded');
             postElement.dataset.id = post.id;
             
-            const displayTitle = post.titles ? (post.titles[currentLang] || post.titles['en']) : post.title;
+            // Post Translation Logic
+            let displayTitle = post.titles ? (post.titles[currentLang] || post.titles['en']) : post.title;
             let displayContent = post.contents ? (post.contents[currentLang] || post.contents['en']) : post.content;
             
-            // Replace inline image placeholders [IMG_0], [IMG_1]...
+            if (!post.titles || !post.titles[currentLang]) {
+                const titleCacheKey = `${post.id}_${currentLang}_post_title`;
+                const contentCacheKey = `${post.id}_${currentLang}_post_content`;
+                if (post.lang && post.lang !== currentLang) {
+                    if (translationCache[titleCacheKey]) displayTitle = translationCache[titleCacheKey];
+                    else { displayTitle = translations[currentLang].translating; triggerTranslation(post, currentLang, 'post_title'); }
+                    
+                    if (translationCache[contentCacheKey]) displayContent = translationCache[contentCacheKey];
+                    else { displayContent = translations[currentLang].translating; triggerTranslation(post, currentLang, 'post_content'); }
+                }
+            }
+
+            // Inline Images
             if (post.images && post.images.length > 0) {
                 post.images.forEach((imgUrl, idx) => {
                     const imgHtml = `<img src="${imgUrl}" alt="Post image ${idx}" loading="lazy">`;
-                    if (displayContent.includes(`[IMG_${idx}]`)) {
-                        displayContent = displayContent.replace(`[IMG_${idx}]`, imgHtml);
-                    } else {
-                        // If not explicitly placed, add to bottom
-                        if (idx === 0 && !displayContent.includes('[IMG_')) {
-                             displayContent += `<div class="post-images-bottom">${imgHtml}</div>`;
-                        }
-                    }
+                    if (displayContent.includes(`[IMG_${idx}]`)) displayContent = displayContent.replace(`[IMG_${idx}]`, imgHtml);
+                    else if (idx === 0 && !displayContent.includes('[IMG_')) displayContent += `<div class="post-images-bottom">${imgHtml}</div>`;
                 });
             }
 
             const postComments = post.comments || [];
             let commentsHtml = '';
             postComments.forEach(comment => {
-                const cacheKey = `${comment.id}_${currentLang}`;
+                const cacheKey = `${comment.id}_${currentLang}_comment`;
                 const isMatchingLang = !comment.lang || comment.lang === currentLang;
                 const displayText = isMatchingLang ? comment.text : (translationCache[cacheKey] || translations[currentLang].translating);
-                if (!isMatchingLang && !translationCache[cacheKey]) triggerTranslation(comment, currentLang);
-                
+                if (!isMatchingLang && !translationCache[cacheKey]) triggerTranslation(comment, currentLang, 'comment');
                 commentsHtml += `<div class="comment-item" data-comment-id="${comment.id}">
                     <div class="comment-header"><span>@${comment.author} • ${comment.date} ${comment.lang ? `(${comment.lang.toUpperCase()})` : ''}</span>
                     ${comment.author === currentUser ? `<button class="btn-icon delete-comment" data-post-id="${post.id}" data-comment-id="${comment.id}">🗑</button>` : ''}</div>
                     <div class="comment-content">${displayText}</div></div>`;
             });
 
-            postElement.innerHTML = `<div class="post-header"><h3 class="post-title">${displayTitle}</h3><div class="post-actions"><button class="btn-icon like-btn ${likedPosts.includes(post.id) ? 'active' : ''}" data-id="${post.id}">${likedPosts.includes(post.id) ? '❤️' : '🤍'} ${post.likes || 0}</button>${post.author === currentUser ? `<button class="btn-icon edit" data-id="${post.id}">✎</button><button class="btn-icon delete" data-id="${post.id}">🗑</button>` : ''}</div></div><div class="post-meta"><span>@${post.author}</span><span>•</span><span>${post.date}</span><div style="margin-left: auto; display: flex; gap: 0.75rem;"><span>👁 ${post.views || 0}</span><span>💬 ${postComments.length}</span></div></div><div class="post-content">${displayContent}</div><div class="comments-section"><h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">${translations[currentLang].labelComments} (${postComments.length})</h4><div class="comments-list">${commentsHtml}</div><div class="comment-input-area" onclick="event.stopPropagation();"><input type="text" class="comment-input" placeholder="${translations[currentLang].placeholderComment}" data-post-id="${post.id}"><button class="btn btn-primary add-comment-btn" data-post-id="${post.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">${translations[currentLang].btnSendComment}</button></div></div>`;
+            postElement.innerHTML = `<div class="post-header"><h3 class="post-title">${displayTitle}</h3><div class="post-actions"><button class="btn-icon like-btn ${likedPosts.includes(post.id) ? 'active' : ''}" data-id="${post.id}">${likedPosts.includes(post.id) ? '❤️' : '🤍'} ${post.likes || 0}</button></div></div><div class="post-meta"><span>@${post.author}</span><span>•</span><span>${post.date}</span><div style="margin-left: auto; text-align: right;"><div><span>👁 ${post.views || 0}</span> <span>💬 ${postComments.length}</span></div>${post.author === currentUser ? `<div class="post-mgmt-actions"><button class="btn-icon edit" data-id="${post.id}">${translations[currentLang].btnEdit}</button><button class="btn-icon delete" data-id="${post.id}">${translations[currentLang].btnDelete}</button></div>` : ''}</div></div><div class="post-content">${displayContent}</div><div class="comments-section"><h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">${translations[currentLang].labelComments} (${postComments.length})</h4><div class="comments-list">${commentsHtml}</div><div class="comment-input-area" onclick="event.stopPropagation();"><input type="text" class="comment-input" placeholder="${translations[currentLang].placeholderComment}" data-post-id="${post.id}"><button class="btn btn-primary add-comment-btn" data-post-id="${post.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">${translations[currentLang].btnSendComment}</button></div></div>`;
             
-            postElement.addEventListener('click', (e) => { if (e.target.closest('.post-actions') || e.target.closest('.comment-input-area') || e.target.closest('.delete-comment')) return; const isExpanding = !postElement.classList.contains('expanded'); document.querySelectorAll('.post-card').forEach(card => card.classList.remove('expanded')); if (isExpanding) { postElement.classList.add('expanded'); expandedPostId = post.id; incrementViews(post.id); } else { expandedPostId = null; } });
+            postElement.onclick = (e) => { if (e.target.closest('.post-actions') || e.target.closest('.comment-input-area') || e.target.closest('.delete-comment') || e.target.closest('.post-mgmt-actions')) return; const isExpanding = !postElement.classList.contains('expanded'); document.querySelectorAll('.post-card').forEach(card => card.classList.remove('expanded')); if (isExpanding) { postElement.classList.add('expanded'); expandedPostId = post.id; incrementViews(post.id); } else expandedPostId = null; };
             postsContainer.appendChild(postElement);
         });
         renderPagination(totalPages);
@@ -252,9 +268,8 @@ document.addEventListener('DOMContentLoaded', () => {
         trendingList.innerHTML = '';
         const topPosts = [...posts].sort((a, b) => ((b.views || 0) + (b.likes || 0) * 2) - ((a.views || 0) + (a.likes || 0) * 2)).slice(0, 5);
         topPosts.forEach((post, idx) => {
-            const displayTitle = post.titles ? (post.titles[currentLang] || post.titles['en']) : post.title;
-            const item = document.createElement('li');
-            item.className = 'trending-item';
+            const displayTitle = post.titles ? (post.titles[currentLang] || post.titles['en']) : (post.lang === currentLang ? post.title : (translationCache[`${post.id}_${currentLang}_post_title`] || post.title));
+            const item = document.createElement('li'); item.className = 'trending-item';
             item.innerHTML = `<span class="trending-rank">${idx + 1}</span><div class="trending-info"><div class="trending-item-title">${displayTitle}</div><div class="trending-meta">@${post.author} • 👁 ${post.views || 0}</div></div>`;
             item.onclick = () => { currentCategory = post.category; expandedPostId = post.id; updateLanguage(currentLang); window.scrollTo({ top: 0, behavior: 'smooth' }); };
             trendingList.appendChild(item);
@@ -273,14 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (file.size > 1024 * 1024) { alert("Image too large! (<1MB)"); return; }
             const reader = new FileReader();
             reader.onload = (event) => {
-                const imgData = event.target.result;
-                currentPostImages.push(imgData);
+                currentPostImages.push(event.target.result);
                 const idx = currentPostImages.length - 1;
-                const thumb = document.createElement('img');
-                thumb.src = imgData;
-                thumb.className = 'image-preview-item';
-                thumb.title = "Click to insert into text";
-                thumb.onclick = () => insertAtCursor(document.getElementById('post-content'), ` [IMG_${idx}] `);
+                const thumb = document.createElement('img'); thumb.src = event.target.result; thumb.className = 'image-preview-item'; thumb.onclick = () => insertAtCursor(document.getElementById('post-content'), ` [IMG_${idx}] `);
                 imagePreviews.appendChild(thumb);
             };
             reader.readAsDataURL(file);
@@ -292,23 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (myField.selectionStart || myField.selectionStart == '0') {
             var startPos = myField.selectionStart; var endPos = myField.selectionEnd;
             myField.value = myField.value.substring(0, startPos) + myValue + myField.value.substring(endPos, myField.value.length);
-        } else { myField.value += myValue; }
+        } else myField.value += myValue;
     }
 
     function updateLanguage(lang) {
         currentLang = lang; localStorage.setItem('kcon_lang', lang);
         document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
         const t = translations[lang];
-        btnWrite.textContent = t.write; logoLink.textContent = t.logo;
-        userDisplay.textContent = t.loggedInAs + currentUser;
-        trendingTitle.textContent = t.trending;
-        btnChangeNickname.textContent = "✎";
+        btnWrite.textContent = t.write; logoLink.textContent = t.logo; userDisplay.textContent = t.loggedInAs + currentUser; trendingTitle.textContent = t.trending;
         document.querySelectorAll('.tab').forEach(tab => tab.textContent = t.categories[tab.dataset.category].name);
         categoryTitle.textContent = t.categories[currentCategory].title; categoryDesc.textContent = t.categories[currentCategory].desc;
         modalHeaderTitle.textContent = postIdInput.value ? t.modalEditTitle : t.modalTitle;
-        document.getElementById('post-title').placeholder = t.placeholderTitle;
-        document.getElementById('post-content').placeholder = t.placeholderContent;
-        cancelPost.textContent = t.btnCancel;
+        document.getElementById('post-title').placeholder = t.placeholderTitle; document.getElementById('post-content').placeholder = t.placeholderContent;
+        cancelPost.textContent = t.btnCancel; submitBtn.textContent = postIdInput.value ? t.btnUpdate : t.btnPost;
         renderPosts(); renderTrending();
     }
 
@@ -320,7 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggle.onclick = () => { currentTheme = (currentTheme === 'light' ? 'dark' : 'light'); applyTheme(currentTheme); };
     postImageInput.onchange = handleImageUpload;
     btnChangeNickname.onclick = () => { const nick = prompt(translations[currentLang].promptNickname, currentUser); if (nick && nick.trim()) { currentUser = nick.trim(); localStorage.setItem('kcon_user', currentUser); updateLanguage(currentLang); } };
-    
     btnWrite.onclick = () => modalOverlay.classList.add('active');
     const hideModal = () => { modalOverlay.classList.remove('active'); postForm.reset(); postIdInput.value = ''; currentPostImages = []; imagePreviews.innerHTML = ''; };
     closeModal.onclick = hideModal; cancelPost.onclick = hideModal;
@@ -329,22 +334,32 @@ document.addEventListener('DOMContentLoaded', () => {
     postForm.onsubmit = (e) => {
         e.preventDefault();
         const id = postIdInput.value;
-        const postData = { category: document.getElementById('post-category').value, title: document.getElementById('post-title').value, content: document.getElementById('post-content').value, images: currentPostImages };
+        const postData = { category: document.getElementById('post-category').value, title: document.getElementById('post-title').value, content: document.getElementById('post-content').value, images: currentPostImages, lang: currentLang };
         if (id) {
             const index = posts.findIndex(p => p.id === parseInt(id));
             if (index !== -1 && posts[index].author === currentUser) posts[index] = { ...posts[index], ...postData, titles: null, contents: null };
-        } else {
-            posts.push({ id: Date.now(), ...postData, author: currentUser, date: new Date().toLocaleDateString(), comments: [], views: 0, likes: 0 });
-        }
+        } else posts.push({ id: Date.now(), ...postData, author: currentUser, date: new Date().toLocaleDateString(), comments: [], views: 0, likes: 0 });
         savePosts(); updateLanguage(currentLang); hideModal();
     };
 
-    postsContainer.addEventListener('click', (e) => {
+    postsContainer.onclick = (e) => {
         const btn = e.target.closest('button'); if (!btn) return;
         const pid = parseInt(btn.dataset.id || btn.dataset.postId);
         if (btn.classList.contains('like-btn')) toggleLike(pid);
-        else if (btn.classList.contains('delete')) { if (confirm(translations[currentLang].confirmDelete)) { posts = posts.filter(p => p.id !== pid); savePosts(); renderPosts(); renderTrending(); } }
+        else if (btn.classList.contains('edit')) { 
+            const post = posts.find(p => p.id === pid); if (post) {
+                postIdInput.value = post.id; document.getElementById('post-category').value = post.category;
+                document.getElementById('post-title').value = post.title; document.getElementById('post-content').value = post.content;
+                currentPostImages = [...(post.images || [])];
+                imagePreviews.innerHTML = '';
+                currentPostImages.forEach((img, idx) => {
+                    const thumb = document.createElement('img'); thumb.src = img; thumb.className = 'image-preview-item'; thumb.onclick = () => insertAtCursor(document.getElementById('post-content'), ` [IMG_${idx}] `);
+                    imagePreviews.appendChild(thumb);
+                });
+                modalOverlay.classList.add('active');
+            }
+        } else if (btn.classList.contains('delete')) { if (confirm(translations[currentLang].confirmDelete)) { posts = posts.filter(p => p.id !== pid); savePosts(); renderPosts(); renderTrending(); } }
         else if (btn.classList.contains('add-comment-btn')) { const input = postsContainer.querySelector(`.comment-input[data-post-id="${pid}"]`); addComment(pid, input.value); input.value = ''; }
-        else if (btn.classList.contains('delete-comment')) { deleteComment(pid, parseInt(btn.dataset.commentId)); }
-    });
+        else if (btn.classList.contains('delete-comment')) deleteComment(parseInt(btn.dataset.postId), parseInt(btn.dataset.commentId));
+    };
 });
