@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('kcon_user', currentUser);
     }
 
-    const RESET_VER = "v17_final_sync";
+    const RESET_VER = "v18_seo_sync";
     if (localStorage.getItem('kcon_ver') !== RESET_VER) {
         localStorage.removeItem('kcon_votes');
         localStorage.removeItem('kcon_posts');
@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
             noPosts: "投稿がありません。", translating: "翻訳中...",
             confirmDelete: "削除しますか？", confirmDislike: "嫌いねは取消不可です。続けますか？",
             cats: { vote: "アイドル投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
-            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活情報", food: "K-フード & レシピ", beauty: "K-ビューティー", travel: "韓国旅行ガイド" },
-            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活のヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティートレンド", travel: "隠れた名所を探そう" }
+            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活정보", food: "K-フード & レシ피", beauty: "K-ビューティー", travel: "韓国旅行ガイド" },
+            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活의 ヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティートレンド", travel: "隠れた名所を探そう" }
         },
         zh: {
             write: "发布", cancel: "取消", post: "发布",
@@ -192,9 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 post.images.forEach((url, idx) => {
                     const imgTag = `<img src="${url}" loading="lazy">`;
                     if (content.includes(`[IMG_${idx}]`)) content = content.replace(`[IMG_${idx}]`, imgTag);
-                    else if (!content.includes('[IMG_')) {
-                        if (idx === 0) content += `<div style="margin-top:1rem">${imgTag}</div>`;
-                    }
+                    else if (!content.includes('[IMG_')) { if (idx === 0) content += `<div style="margin-top:1rem">${imgTag}</div>`; }
                 });
             }
 
@@ -227,19 +225,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.target.closest('button') || e.target.closest('input')) return;
                 const isExp = !el.classList.contains('expanded');
                 document.querySelectorAll('.post-card').forEach(c => c.classList.remove('expanded'));
-                if (isExp) {
-                    el.classList.add('expanded'); expandedPostId = post.id;
-                    post.views++; savePosts();
-                    el.querySelector('.meta-right span').textContent = `👁 ${post.views}`;
-                } else expandedPostId = null;
+                if (isExp) { el.classList.add('expanded'); expandedPostId = post.id; post.views++; savePosts(); el.querySelector('.meta-right span').textContent = `👁 ${post.views}`; }
+                else expandedPostId = null;
             };
 
             el.querySelector('.like-post-btn').onclick = () => {
                 const idx = myLikedPosts.indexOf(post.id);
                 if (idx === -1) { myLikedPosts.push(post.id); post.likes++; }
                 else { myLikedPosts.splice(idx, 1); post.likes--; }
-                localStorage.setItem('kcon_liked_posts', JSON.stringify(myLikedPosts));
-                savePosts(); renderPosts();
+                localStorage.setItem('kcon_liked_posts', JSON.stringify(myLikedPosts)); savePosts(); renderPosts();
             };
 
             if (isOwner) {
@@ -253,12 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             el.querySelector('.add-comment-btn').onclick = () => {
-                const inp = el.querySelector('.comment-input');
-                if(!inp.value.trim()) return;
+                const inp = el.querySelector('.comment-input'); if(!inp.value.trim()) return;
                 post.comments.push({ id: Date.now(), text: inp.value, author: currentUser, lang: currentLang });
                 savePosts(); renderPosts();
             };
-
             els.postsContainer.appendChild(el);
         });
     }
@@ -275,18 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPoll() {
         const lang = t[currentLang];
-        els.postsContainer.innerHTML = `
-            <div class="poll-grid"></div>
-            <div class="request-board">
-                <h3>${lang.reqTitle}</h3>
-                <div class="request-input-area">
-                    <input type="text" id="req-input" class="request-input" placeholder="${lang.reqPlace}">
-                    <button id="btn-submit-req" class="btn btn-primary">${lang.reqBtn}</button>
-                </div>
-                <div class="req-list"></div>
-            </div>
-        `;
-
+        els.postsContainer.innerHTML = `<div class="poll-grid"></div><div class="request-board"><h3>${lang.reqTitle}</h3><div class="request-input-area"><input type="text" id="req-input" class="request-input" placeholder="${lang.reqPlace}"><button id="btn-submit-req" class="btn btn-primary">${lang.reqBtn}</button></div><div class="req-list"></div></div>`;
         const grid = els.postsContainer.querySelector('.poll-grid');
         Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).forEach(([key, data]) => {
             const el = document.createElement('div'); el.className = 'idol-card';
@@ -294,24 +275,15 @@ document.addEventListener('DOMContentLoaded', () => {
             el.innerHTML = `<div class="idol-name">${data.name}</div><div class="poll-actions"><button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button><button class="poll-btn dislike ${hasDisliked ? 'disabled' : ''}" data-key="${key}">👎 <span class="count">${data.dislikes}</span></button></div>`;
             grid.appendChild(el);
         });
-
         grid.onclick = (e) => {
             const btn = e.target.closest('.poll-btn'); if (!btn) return;
             const key = btn.dataset.key;
-            if (btn.classList.contains('like')) {
-                voteData[key].likes++;
-                if (voteData[key].likes > 0 && voteData[key].likes % 100 === 0) triggerFireworks(voteData[key].likes);
-                saveVotes(); renderPoll();
-            } else if (btn.classList.contains('dislike')) {
+            if (btn.classList.contains('like')) { voteData[key].likes++; if (voteData[key].likes > 0 && voteData[key].likes % 100 === 0) triggerFireworks(voteData[key].likes); saveVotes(); renderPoll(); }
+            else if (btn.classList.contains('dislike')) {
                 if (myDislikes.includes(key)) return;
-                if (confirm(lang.confirmDislike)) {
-                    voteData[key].dislikes++; myDislikes.push(key);
-                    localStorage.setItem('kcon_my_dislikes', JSON.stringify(myDislikes));
-                    saveVotes(); renderPoll();
-                }
+                if (confirm(lang.confirmDislike)) { voteData[key].dislikes++; myDislikes.push(key); localStorage.setItem('kcon_my_dislikes', JSON.stringify(myDislikes)); saveVotes(); renderPoll(); }
             }
         };
-
         const reqList = els.postsContainer.querySelector('.req-list');
         idolRequests.forEach((req, idx) => {
             const canDelete = req.author === currentUser || currentUser.toLowerCase().includes('admin');
@@ -319,35 +291,31 @@ document.addEventListener('DOMContentLoaded', () => {
             item.innerHTML = `<span>${req.text} <small style="color:#888">(@${req.author})</small></span>${canDelete ? `<span class="req-delete" data-idx="${idx}">🗑</span>` : ''}`;
             reqList.appendChild(item);
         });
-
-        reqList.onclick = (e) => {
-            if (e.target.classList.contains('req-delete')) {
-                if (confirm(lang.confirmDelete)) { idolRequests.splice(e.target.dataset.idx, 1); saveRequests(); renderPoll(); }
-            }
-        };
-
+        reqList.onclick = (e) => { if (e.target.classList.contains('req-delete')) { if (confirm(lang.confirmDelete)) { idolRequests.splice(e.target.dataset.idx, 1); saveRequests(); renderPoll(); } } };
         els.postsContainer.querySelector('#btn-submit-req').onclick = () => {
-            const inp = document.getElementById('req-input');
-            if (inp.value.trim()) { idolRequests.push({ text: inp.value.trim(), author: currentUser }); saveRequests(); renderPoll(); }
+            const inp = document.getElementById('req-input'); if (inp.value.trim()) { idolRequests.push({ text: inp.value.trim(), author: currentUser }); saveRequests(); renderPoll(); }
         };
     }
 
-    function triggerFireworks(score) {
-        confetti({ particleCount: Math.min(200, 50 + score/5), spread: 70, origin: { y: 0.6 } });
-    }
+    function triggerFireworks(score) { confetti({ particleCount: Math.min(200, 50 + score/5), spread: 70, origin: { y: 0.6 } }); }
 
     function renderTrending() {
         els.trendingList.innerHTML = '';
         const items = [];
         posts.sort((a,b) => (b.views + b.likes*2) - (a.views + a.likes*2)).slice(0, 3).forEach(p => items.push({ title: p.title, meta: `Post • ❤️ ${p.likes}`, id: p.id, cat: p.category }));
         Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).slice(0, 2).forEach(([k, d]) => items.push({ title: d.name, meta: `Idol • ❤️ ${d.likes}`, cat: 'vote' }));
-
         items.forEach((item, i) => {
             const li = document.createElement('li'); li.className = 'trending-item';
             li.innerHTML = `<div class="trending-rank">${i+1}</div><div class="trending-info"><div class="trending-title">${item.title}</div><div class="trending-meta">${item.meta}</div></div>`;
             li.onclick = () => { currentCategory = item.cat; if(item.id) expandedPostId = item.id; updateUI(); renderContent(); };
             els.trendingList.appendChild(li);
         });
+        
+        // --- Add Blogspot link to sidebar for SEO and AdSense Authority ---
+        const blogBox = document.createElement('div');
+        blogBox.style.cssText = "margin-top: 1.5rem; padding: 1rem; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 12px; font-size: 0.85rem;";
+        blogBox.innerHTML = `<strong>📖 All About Korea Blog</strong><p style="margin: 0.5rem 0; color: #666;">Explore more deep stories about Korea.</p><a href="https://ailaboutkorea.blogspot.com/" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Visit Blog →</a>`;
+        els.trendingList.parentNode.appendChild(blogBox);
     }
 
     async function translatePost(post) {
@@ -355,26 +323,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentKey = `${post.id}_content_${currentLang}`;
         if (translationCache[titleKey]) return;
         try {
-            const [tT, tC] = await Promise.all([
-                fetchTranslation(post.title, post.lang, currentLang),
-                fetchTranslation(post.content, post.lang, currentLang)
-            ]);
-            translationCache[titleKey] = tT; translationCache[contentKey] = tC;
-            renderPosts();
+            const [tT, tC] = await Promise.all([fetchTranslation(post.title, post.lang, currentLang), fetchTranslation(post.content, post.lang, currentLang)]);
+            translationCache[titleKey] = tT; translationCache[contentKey] = tC; renderPosts();
         } catch (e) { console.error(e); }
-    }
-
-    async function translateText(text, src, target, callback) {
-        const res = await fetchTranslation(text, src, target);
-        callback(res);
     }
 
     async function fetchTranslation(text, source, target) {
         if (source === target) return text;
         try {
             const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`);
-            const data = await res.json();
-            return data.responseData.translatedText;
+            const data = await res.json(); return data.responseData.translatedText;
         } catch (e) { return text; }
     }
 
@@ -397,8 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupEventListeners() {
         els.tabs.forEach(tab => tab.onclick = () => { currentCategory = tab.dataset.category; expandedPostId = null; updateUI(); renderContent(); });
         els.langBtns.forEach(btn => btn.onclick = () => {
-            currentLang = btn.dataset.lang;
-            els.langBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            currentLang = btn.dataset.lang; els.langBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
             localStorage.setItem('kcon_lang', currentLang); updateUI(); renderContent();
         });
         els.themeToggle.onclick = () => { currentTheme = currentTheme === 'light' ? 'dark' : 'light'; localStorage.setItem('kcon_theme', currentTheme); applyTheme(currentTheme); };
