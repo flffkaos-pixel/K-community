@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('kcon_user', currentUser);
     }
 
-    const RESET_VER = "v18_seo_sync";
+    const RESET_VER = "v19_fixed_poll"; // Incremented version to force reset and fix NewJeans issue
     if (localStorage.getItem('kcon_ver') !== RESET_VER) {
         localStorage.removeItem('kcon_votes');
         localStorage.removeItem('kcon_posts');
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         savePosts();
     }
 
-    let voteData = JSON.parse(localStorage.getItem('kcon_votes')) || {
+    const defaultVoteData = {
         'bts': { name: 'BTS', likes: 0, dislikes: 0 },
         'aespa': { name: 'Aespa', likes: 0, dislikes: 0 },
         'seventeen': { name: 'Seventeen', likes: 0, dislikes: 0 },
@@ -33,6 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
         'riize': { name: 'RIIZE', likes: 0, dislikes: 0 }
     };
 
+    let voteData = JSON.parse(localStorage.getItem('kcon_votes')) || defaultVoteData;
+    
+    // Ensure newjeans exists even if localStorage was from older version without it
+    if (!voteData.newjeans) {
+        voteData.newjeans = { name: 'NewJeans', likes: 0, dislikes: 0 };
+        saveVotes();
+    }
+
     let idolRequests = JSON.parse(localStorage.getItem('kcon_requests')) || [];
     let myDislikes = JSON.parse(localStorage.getItem('kcon_my_dislikes')) || [];
     let myLikedPosts = JSON.parse(localStorage.getItem('kcon_liked_posts')) || [];
@@ -42,8 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentPostImages = [];
     let expandedPostId = null;
-    const pageSize = 10;
-    let currentPage = 1;
 
     const translationCache = {};
 
@@ -54,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reqTitle: "➕ 아이돌 추가 요청", reqPlace: "아이돌 이름 입력...", reqBtn: "요청",
             noPosts: "게시글이 없습니다.", translating: "번역 중...",
             confirmDelete: "삭제하시겠습니까?", confirmDislike: "싫어요는 취소 불가합니다. 계속하시겠습니까?",
+            intro: "K-community에 오신 것을 환영합니다! 이곳은 한국의 다양한 문화, 연예, 생활 정보를 전 세계인과 공유하는 글로벌 허브입니다. 아이돌 투표에도 참여하고 여러분의 소중한 이야기를 들려주세요.",
             cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
             titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
             descs: { vote: "무제한 투표로 팬심을 보여주세요!", kpop: "가장 핫한 K-Pop 뉴스", living: "한국 생활 꿀팁 공유", food: "맛있는 한국 음식 이야기", beauty: "최신 뷰티 트렌드", travel: "숨겨진 명소 탐방" }
@@ -64,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reqTitle: "➕ Request New Idol", reqPlace: "Idol name...", reqBtn: "Request",
             noPosts: "No posts yet.", translating: "Translating...",
             confirmDelete: "Delete this?", confirmDislike: "Cannot undo dislike. Proceed?",
+            intro: "Welcome to K-community! We are a global hub sharing various information about Korean culture, entertainment, and lifestyle. Participate in idol polls and share your precious stories with the world.",
             cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
             titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
             descs: { vote: "Show your love with unlimited votes!", kpop: "Hottest K-Pop News", living: "Tips for life in Korea", food: "Delicious Korean food stories", beauty: "Latest beauty trends", travel: "Explore hidden gems" }
@@ -71,12 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ja: {
             write: "書く", cancel: "キャンセル", post: "投稿",
             pollTitle: "⭐ アイドル人気投票", pollDesc: "いいね無制限！嫌いねは1回のみ。",
-            reqTitle: "➕ 追加リクエスト", reqPlace: "名前を入力...", reqBtn: "リクエスト",
+            reqTitle: "➕ 추가 리퀘스트", reqPlace: "名前を入力...", reqBtn: "리퀘스트",
             noPosts: "投稿がありません。", translating: "翻訳中...",
             confirmDelete: "削除しますか？", confirmDislike: "嫌いねは取消不可です。続けますか？",
+            intro: "K-communityへようこそ！ここは韓国の多様な文化、芸能、生活情報を全世界の人々と共有するグローバルハブです。アイドル投票に参加したり、あなたの貴重な話を共有してください。",
             cats: { vote: "アイドル投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
-            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活정보", food: "K-フード & レシ피", beauty: "K-ビューティー", travel: "韓国旅行ガイド" },
-            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活의 ヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティートレンド", travel: "隠れた名所を探そう" }
+            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活情報", food: "K-フード & レシピ", beauty: "K-ビューティー", travel: "韓国旅行ガイド" },
+            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活のヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティートレンド", travel: "隠れた名所を探そう" }
         },
         zh: {
             write: "发布", cancel: "取消", post: "发布",
@@ -84,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reqTitle: "➕ 请求添加偶像", reqPlace: "偶像名字...", reqBtn: "提交",
             noPosts: "暂无帖子。", translating: "翻译中...",
             confirmDelete: "确定删除吗？", confirmDislike: "踩操作无法撤销。确定吗？",
+            intro: "欢迎来到 K-community！这是一个与全球分享韩国文化、娱乐和生活信息的中心。欢迎参加偶像投票，并与世界分享您的精彩故事。",
             cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
             titles: { vote: "偶像人气投票", kpop: "K-Pop & 娱乐", living: "韩国生活信息", food: "K-美食 & 食谱", beauty: "K-美妆 & 风格", travel: "韩国旅游指南" },
             descs: { vote: "用无限制的票数表达你的爱！", kpop: "最热 K-Pop 新闻", living: "韩国生活小贴士", food: "美味的韩国食物", beauty: "最新美妆潮流", travel: "探索隐藏景点" }
@@ -94,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reqTitle: "➕ Solicitar Ídolo", reqPlace: "Nombre del ídolo...", reqBtn: "Solicitar",
             noPosts: "No hay publicaciones.", translating: "Traduciendo...",
             confirmDelete: "¿Eliminar?", confirmDislike: "No se puede deshacer. ¿Continuar?",
+            intro: "¡Bienvenido a K-community! Somos un centro global que comparte información sobre la cultura, el entretenimiento y el estilo de vida coreanos. Participa en las encuestas de ídolos y comparte tus historias con el mundo.",
             cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
             titles: { vote: "Votación de Ídolos", kpop: "K-Pop y Entretenimiento", living: "Vida en Corea", food: "Comida y Recetas", beauty: "Belleza y Estilo", travel: "Guía de Viajes" },
             descs: { vote: "¡Muestra tu amor con votos ilimitados!", kpop: "Noticias K-Pop", living: "Consejos de vida", food: "Historias de comida", beauty: "Tendencias de belleza", travel: "Explora lugares únicos" }
@@ -114,7 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
         categoryTitle: document.getElementById('category-title'),
         categoryDesc: document.getElementById('category-desc'),
         btnNick: document.getElementById('btn-change-nickname'),
-        userDisplay: document.getElementById('user-display')
+        userDisplay: document.getElementById('user-display'),
+        siteIntro: document.getElementById('site-intro')
     };
 
     init();
@@ -164,6 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         els.categoryDesc.textContent = langData.descs[currentCategory];
         els.userDisplay.textContent = currentUser;
+        
+        // Update site intro text
+        if (els.siteIntro) {
+            els.siteIntro.textContent = langData.intro;
+        }
     }
 
     function renderContent() {
@@ -271,7 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const lang = t[currentLang];
         els.postsContainer.innerHTML = `<div class="poll-grid"></div><div class="request-board"><h3>${lang.reqTitle}</h3><div class="request-input-area"><input type="text" id="req-input" class="request-input" placeholder="${lang.reqPlace}"><button id="btn-submit-req" class="btn btn-primary">${lang.reqBtn}</button></div><div class="req-list"></div></div>`;
         const grid = els.postsContainer.querySelector('.poll-grid');
-        Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).forEach(([key, data]) => {
+        
+        // Use fixed order (no sort) as requested
+        Object.entries(voteData).forEach(([key, data]) => {
             const el = document.createElement('div'); el.className = 'idol-card';
             const hasDisliked = myDislikes.includes(key);
             el.innerHTML = `
@@ -282,13 +301,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             grid.appendChild(el);
         });
+
         grid.onclick = (e) => {
             const btn = e.target.closest('.poll-btn'); if (!btn) return;
             const key = btn.dataset.key;
-            if (btn.classList.contains('like')) { voteData[key].likes++; if (voteData[key].likes > 0 && voteData[key].likes % 100 === 0) triggerFireworks(voteData[key].likes); saveVotes(); renderPoll(); }
+            if (!voteData[key]) return; // Safety check
+
+            if (btn.classList.contains('like')) { 
+                voteData[key].likes++; 
+                if (voteData[key].likes > 0 && voteData[key].likes % 100 === 0) triggerFireworks(voteData[key].likes); 
+                saveVotes(); 
+                renderPoll(); 
+            }
             else if (btn.classList.contains('dislike')) {
                 if (myDislikes.includes(key)) return;
-                if (confirm(lang.confirmDislike)) { voteData[key].dislikes++; myDislikes.push(key); localStorage.setItem('kcon_my_dislikes', JSON.stringify(myDislikes)); saveVotes(); renderPoll(); }
+                if (confirm(lang.confirmDislike)) { 
+                    voteData[key].dislikes++; 
+                    myDislikes.push(key); 
+                    localStorage.setItem('kcon_my_dislikes', JSON.stringify(myDislikes)); 
+                    saveVotes(); 
+                    renderPoll(); 
+                }
             }
         };
         const reqList = els.postsContainer.querySelector('.req-list');
