@@ -195,8 +195,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (type === 'post_title') {
                     const el = document.querySelector(`.post-card[data-id="${item.id}"] .post-title`);
                     if (el) el.textContent = data.responseData.translatedText;
+                    // Also update trending sidebar if needed
+                    const trendEl = document.querySelector(`.trending-item[data-id="${item.id}"] .trending-item-title`);
+                    if (trendEl) trendEl.textContent = data.responseData.translatedText;
                 } else if (type === 'post_content') {
-                    renderPosts(); // Re-render content to handle IMG tags correctly
+                    const el = document.querySelector(`.post-card[data-id="${item.id}"] .post-content`);
+                    if (el) {
+                        // Re-process content to handle IMG tags after translation
+                        let content = data.responseData.translatedText;
+                        if (item.images && item.images.length > 0) {
+                            item.images.forEach((imgUrl, idx) => {
+                                const imgHtml = `<img src="${imgUrl}" alt="Post image ${idx}" loading="lazy">`;
+                                if (content.includes(`[IMG_${idx}]`)) content = content.replace(`[IMG_${idx}]`, imgHtml);
+                                else if (idx === 0 && !content.includes('[IMG_')) content += `<div class="post-images-bottom">${imgHtml}</div>`;
+                            });
+                        }
+                        el.innerHTML = content;
+                    }
                 }
             }
         } catch (error) { console.error("Translation error:", error); }
