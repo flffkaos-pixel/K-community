@@ -6,24 +6,20 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('kcon_user', currentUser);
     }
 
-    // Force Reset for V16 (Reset Poll & New UI)
-    const RESET_VER = "v16_reset";
+    const RESET_VER = "v17_final_sync";
     if (localStorage.getItem('kcon_ver') !== RESET_VER) {
         localStorage.removeItem('kcon_votes');
         localStorage.removeItem('kcon_posts');
         localStorage.removeItem('kcon_requests');
-        localStorage.removeItem('kcon_liked_posts');
         localStorage.setItem('kcon_ver', RESET_VER);
     }
 
-    // --- Data Initialization ---
     let posts = JSON.parse(localStorage.getItem('kcon_posts'));
     if (!posts) {
         posts = getInitialPosts();
         savePosts();
     }
 
-    // Reset Vote Data to 0 as requested
     let voteData = JSON.parse(localStorage.getItem('kcon_votes')) || {
         'bts': { name: 'BTS', likes: 0, dislikes: 0 },
         'aespa': { name: 'Aespa', likes: 0, dislikes: 0 },
@@ -39,14 +35,69 @@ document.addEventListener('DOMContentLoaded', () => {
     let myDislikes = JSON.parse(localStorage.getItem('kcon_my_dislikes')) || [];
     let myLikedPosts = JSON.parse(localStorage.getItem('kcon_liked_posts')) || [];
 
-    // --- App State ---
     let currentCategory = 'vote';
     let currentLang = localStorage.getItem('kcon_lang') || 'en';
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentPostImages = [];
     let expandedPostId = null;
-    
-    // --- DOM Elements ---
+    const pageSize = 10;
+    let currentPage = 1;
+
+    const translationCache = {};
+
+    const t = {
+        ko: {
+            write: "글쓰기", cancel: "취소", post: "게시하기",
+            pollTitle: "⭐ 아이돌 인기 투표", pollDesc: "좋아요 무제한! 싫어요는 1회만!",
+            reqTitle: "➕ 아이돌 추가 요청", reqPlace: "아이돌 이름 입력...", reqBtn: "요청",
+            noPosts: "게시글이 없습니다.", translating: "번역 중...",
+            confirmDelete: "삭제하시겠습니까?", confirmDislike: "싫어요는 취소 불가합니다. 계속하시겠습니까?",
+            cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
+            titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
+            descs: { vote: "무제한 투표로 팬심을 보여주세요!", kpop: "가장 핫한 K-Pop 뉴스", living: "한국 생활 꿀팁 공유", food: "맛있는 한국 음식 이야기", beauty: "최신 뷰티 트렌드", travel: "숨겨진 명소 탐방" }
+        },
+        en: {
+            write: "Write", cancel: "Cancel", post: "Post",
+            pollTitle: "⭐ Idol Popularity Poll", pollDesc: "Unlimited Likes! One Dislike only.",
+            reqTitle: "➕ Request New Idol", reqPlace: "Idol name...", reqBtn: "Request",
+            noPosts: "No posts yet.", translating: "Translating...",
+            confirmDelete: "Delete this?", confirmDislike: "Cannot undo dislike. Proceed?",
+            cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
+            titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
+            descs: { vote: "Show your love with unlimited votes!", kpop: "Hottest K-Pop News", living: "Tips for life in Korea", food: "Delicious Korean food stories", beauty: "Latest beauty trends", travel: "Explore hidden gems" }
+        },
+        ja: {
+            write: "書く", cancel: "キャンセル", post: "投稿",
+            pollTitle: "⭐ アイドル人気投票", pollDesc: "いいね無制限！嫌いねは1回のみ。",
+            reqTitle: "➕ 追加リクエスト", reqPlace: "名前を入力...", reqBtn: "リクエスト",
+            noPosts: "投稿がありません。", translating: "翻訳中...",
+            confirmDelete: "削除しますか？", confirmDislike: "嫌いねは取消不可です。続けますか？",
+            cats: { vote: "アイドル投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
+            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活情報", food: "K-フード & レシピ", beauty: "K-ビューティー", travel: "韓国旅行ガイド" },
+            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活のヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティートレンド", travel: "隠れた名所を探そう" }
+        },
+        zh: {
+            write: "发布", cancel: "取消", post: "发布",
+            pollTitle: "⭐ 偶像人气投票", pollDesc: "点赞无限制！踩只能投一次。",
+            reqTitle: "➕ 请求添加偶像", reqPlace: "偶像名字...", reqBtn: "提交",
+            noPosts: "暂无帖子。", translating: "翻译中...",
+            confirmDelete: "确定删除吗？", confirmDislike: "踩操作无法撤销。确定吗？",
+            cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
+            titles: { vote: "偶像人气投票", kpop: "K-Pop & 娱乐", living: "韩国生活信息", food: "K-美食 & 食谱", beauty: "K-美妆 & 风格", travel: "韩国旅游指南" },
+            descs: { vote: "用无限制的票数表达你的爱！", kpop: "最热 K-Pop 新闻", living: "韩国生活小贴士", food: "美味的韩国食物", beauty: "最新美妆潮流", travel: "探索隐藏景点" }
+        },
+        es: {
+            write: "Escribir", cancel: "Cancelar", post: "Publicar",
+            pollTitle: "⭐ Votación de Ídolos", pollDesc: "¡Likes ilimitados! Dislike solo una vez.",
+            reqTitle: "➕ Solicitar Ídolo", reqPlace: "Nombre del ídolo...", reqBtn: "Solicitar",
+            noPosts: "No hay publicaciones.", translating: "Traduciendo...",
+            confirmDelete: "¿Eliminar?", confirmDislike: "No se puede deshacer. ¿Continuar?",
+            cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
+            titles: { vote: "Votación de Ídolos", kpop: "K-Pop y Entretenimiento", living: "Vida en Corea", food: "Comida y Recetas", beauty: "Belleza y Estilo", travel: "Guía de Viajes" },
+            descs: { vote: "¡Muestra tu amor con votos ilimitados!", kpop: "Noticias K-Pop", living: "Consejos de vida", food: "Historias de comida", beauty: "Tendencias de belleza", travel: "Explora lugares únicos" }
+        }
+    };
+
     const els = {
         postsContainer: document.getElementById('posts-container'),
         trendingList: document.getElementById('trending-list'),
@@ -64,59 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         userDisplay: document.getElementById('user-display')
     };
 
-    const t = {
-        ko: {
-            write: "글쓰기", cancel: "취소", post: "게시하기",
-            pollTitle: "⭐ 아이돌 인기 투표", pollDesc: "당신의 '최애'에게 투표하세요! 좋아요는 무제한, 싫어요는 1회만!",
-            reqTitle: "➕ 아이돌 추가 요청", reqPlace: "추가하고 싶은 아이돌 이름...", reqBtn: "요청",
-            noPosts: "이 게시판에 글이 없습니다.",
-            confirmDelete: "삭제하시겠습니까?", confirmDislike: "싫어요는 취소할 수 없습니다. 계속하시겠습니까?",
-            cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
-            titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
-            descs: { vote: "무제한 투표로 팬심을 보여주세요!", kpop: "가장 핫한 K-Pop 뉴스", living: "한국 생활 꿀팁 공유", food: "맛있는 한국 음식 이야기", beauty: "최신 뷰티 트렌드", travel: "숨겨진 명소 탐방" }
-        },
-        en: {
-            write: "Write Post", cancel: "Cancel", post: "Post",
-            pollTitle: "⭐ Idol Popularity Poll", pollDesc: "Vote for your bias! Unlimited Likes, One Dislike only.",
-            reqTitle: "➕ Request New Idol", reqPlace: "Enter idol name...", reqBtn: "Request",
-            noPosts: "No posts here yet.",
-            confirmDelete: "Delete this post?", confirmDislike: "Dislike cannot be undone. Proceed?",
-            cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
-            titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
-            descs: { vote: "Show your love with unlimited votes!", kpop: "Hottest K-Pop News", living: "Tips for life in Korea", food: "Delicious Korean food stories", beauty: "Latest beauty trends", travel: "Explore hidden gems" }
-        },
-        ja: {
-            write: "投稿", cancel: "キャンセル", post: "投稿",
-            pollTitle: "⭐ アイドル人気投票", pollDesc: "推しに投票しよう！いいねは無制限、嫌いねは1回のみ。",
-            reqTitle: "➕ アイドル追加リクエスト", reqPlace: "アイドル名を入力...", reqBtn: "リクエスト",
-            noPosts: "まだ投稿がありません。",
-            confirmDelete: "削除しますか？", confirmDislike: "嫌いねは取り消せません。続けますか？",
-            cats: { vote: "アイドル投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
-            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活情報", food: "K-フード & レシピ", beauty: "K-ビューティー", travel: "韓国旅行ガイド" },
-            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活のヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティートレンド", travel: "隠れた名所を探そう" }
-        },
-        zh: {
-            write: "发帖", cancel: "取消", post: "发布",
-            pollTitle: "⭐ 偶像人气投票", pollDesc: "为你最爱的偶像投票！点赞无限制，踩只能一次。",
-            reqTitle: "➕ 请求添加偶像", reqPlace: "输入偶像名字...", reqBtn: "提交",
-            noPosts: "暂无帖子。",
-            confirmDelete: "确定删除吗？", confirmDislike: "踩操作无法撤销。确定吗？",
-            cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
-            titles: { vote: "偶像人气投票", kpop: "K-Pop & 娱乐", living: "韩国生活信息", food: "K-美食 & 食谱", beauty: "K-美妆 & 风格", travel: "韩国旅游指南" },
-            descs: { vote: "用无限制的票数表达你的爱！", kpop: "最热 K-Pop 新闻", living: "韩国生活小贴士", food: "美味的韩国食物", beauty: "最新美妆潮流", travel: "探索隐藏景点" }
-        },
-        es: {
-            write: "Publicar", cancel: "Cancelar", post: "Publicar",
-            pollTitle: "⭐ Votación de Ídolos", pollDesc: "¡Vota por tu favorito! Likes ilimitados, Dislike solo una vez.",
-            reqTitle: "➕ Solicitar Ídolo", reqPlace: "Nombre del ídolo...", reqBtn: "Solicitar",
-            noPosts: "No hay publicaciones aún.",
-            confirmDelete: "¿Eliminar?", confirmDislike: "No se puede deshacer. ¿Continuar?",
-            cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
-            titles: { vote: "Votación de Ídolos", kpop: "K-Pop y Entretenimiento", living: "Vida en Corea", food: "Comida y Recetas", beauty: "Belleza y Estilo", travel: "Guía de Viajes" },
-            descs: { vote: "¡Muestra tu amor con votos ilimitados!", kpop: "Noticias K-Pop", living: "Consejos de vida", food: "Historias de comida", beauty: "Tendencias de belleza", travel: "Explora lugares únicos" }
-        }
-    };
-
     init();
 
     function init() {
@@ -132,14 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveRequests() { localStorage.setItem('kcon_requests', JSON.stringify(idolRequests)); }
 
     function getInitialPosts() {
-        return [
-            {
-                id: 9001, category: 'kpop', author: 'K-Editor', date: '2026-03-12', lang: 'en',
-                title: "Welcome to K-community!", content: "Enjoy K-Pop voting and share your stories! [IMG_0]",
-                images: ["https://images.unsplash.com/photo-1532452119098-a3650b3c46d3?w=800&auto=format&fit=crop"],
-                likes: 0, views: 0, comments: []
-            }
-        ];
+        return [{ id: 9001, category: 'kpop', author: 'K-Editor', date: '2026-03-12', lang: 'en', title: "Welcome to K-community!", content: "Enjoy K-Pop voting and share your stories! [IMG_0]", images: ["https://images.unsplash.com/photo-1532452119098-a3650b3c46d3?w=800&auto=format&fit=crop"], likes: 0, views: 0, comments: [] }];
     }
 
     function updateUI() {
@@ -149,13 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.textContent = langData.cats[tab.dataset.category];
         });
         
-        // Remove individual write button first if exists
         const oldBtn = document.getElementById('board-write-btn');
         if (oldBtn) oldBtn.remove();
 
         els.categoryTitle.innerHTML = langData.titles[currentCategory];
         
-        // Add Write Button to Category Header if not 'vote'
         if (currentCategory !== 'vote') {
             const writeBtn = document.createElement('button');
             writeBtn.id = 'board-write-btn';
@@ -165,10 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             writeBtn.textContent = langData.write;
             writeBtn.onclick = () => {
                 document.getElementById('post-id').value = '';
-                els.postTitle.value = '';
-                els.postContent.value = '';
-                currentPostImages = [];
-                els.imagePreviews.innerHTML = '';
+                els.postTitle.value = ''; els.postContent.value = ''; currentPostImages = []; els.imagePreviews.innerHTML = '';
                 els.modal.classList.add('active');
             };
             els.categoryTitle.appendChild(writeBtn);
@@ -188,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         els.postsContainer.innerHTML = '';
         const filtered = posts.filter(p => p.category === currentCategory);
         if (filtered.length === 0) {
-            els.postsContainer.innerHTML = `<div class="post-card" style="text-align:center; color:#888;">${t[currentLang].noPosts}</div>`;
+            els.postsContainer.innerHTML = `<div class="post-card" style="text-align:center; color:#888; padding: 2rem;">${t[currentLang].noPosts}</div>`;
             return;
         }
 
@@ -197,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
             el.className = 'post-card';
             if (expandedPostId === post.id) el.classList.add('expanded');
 
-            const title = (post.lang === currentLang) ? post.title : (translationCache[`${post.id}_title_${currentLang}`] || post.title);
-            let content = (post.lang === currentLang) ? post.content : (translationCache[`${post.id}_content_${currentLang}`] || post.content);
+            let title = (post.lang === currentLang) ? post.title : (translationCache[`${post.id}_title_${currentLang}`] || t[currentLang].translating);
+            let content = (post.lang === currentLang) ? post.content : (translationCache[`${post.id}_content_${currentLang}`] || t[currentLang].translating);
 
             if (post.lang !== currentLang && !translationCache[`${post.id}_title_${currentLang}`]) translatePost(post);
 
@@ -206,7 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 post.images.forEach((url, idx) => {
                     const imgTag = `<img src="${url}" loading="lazy">`;
                     if (content.includes(`[IMG_${idx}]`)) content = content.replace(`[IMG_${idx}]`, imgTag);
-                    else if (!content.includes('[IMG_')) content += imgTag;
+                    else if (!content.includes('[IMG_')) {
+                        if (idx === 0) content += `<div style="margin-top:1rem">${imgTag}</div>`;
+                    }
                 });
             }
 
@@ -227,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${isOwner ? `<div class="post-mgmt-actions"><button class="btn-icon edit-btn">✎</button><button class="btn-icon delete-btn">🗑</button></div>` : ''}
                 <div class="post-content">${content}</div>
                 <div class="comments-section">
-                    <div class="comment-list">${post.comments.map(c => `<div class="comment-item"><b>@${c.author}</b>: ${c.text}</div>`).join('')}</div>
+                    <div class="comment-list">${post.comments.map(c => renderComment(c)).join('')}</div>
                     <div class="comment-input-area">
                         <input type="text" class="comment-input" placeholder="...">
                         <button class="btn btn-primary add-comment-btn">Send</button>
@@ -240,10 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isExp = !el.classList.contains('expanded');
                 document.querySelectorAll('.post-card').forEach(c => c.classList.remove('expanded'));
                 if (isExp) {
-                    el.classList.add('expanded');
-                    expandedPostId = post.id;
-                    post.views++;
-                    savePosts();
+                    el.classList.add('expanded'); expandedPostId = post.id;
+                    post.views++; savePosts();
                     el.querySelector('.meta-right span').textContent = `👁 ${post.views}`;
                 } else expandedPostId = null;
             };
@@ -259,14 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isOwner) {
                 el.querySelector('.delete-btn').onclick = () => { if(confirm(t[currentLang].confirmDelete)) { posts = posts.filter(p => p.id !== post.id); savePosts(); renderContent(); } };
                 el.querySelector('.edit-btn').onclick = () => {
-                    document.getElementById('post-id').value = post.id;
-                    els.postTitle.value = post.title;
-                    els.postContent.value = post.content;
-                    currentPostImages = [...(post.images || [])];
-                    els.imagePreviews.innerHTML = '';
-                    currentPostImages.forEach(src => {
-                        const img = document.createElement('img'); img.src = src; img.className = 'preview-thumb'; els.imagePreviews.appendChild(img);
-                    });
+                    document.getElementById('post-id').value = post.id; els.postTitle.value = post.title; els.postContent.value = post.content;
+                    currentPostImages = [...(post.images || [])]; els.imagePreviews.innerHTML = '';
+                    currentPostImages.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'preview-thumb'; els.imagePreviews.appendChild(img); });
                     els.modal.classList.add('active');
                 };
             }
@@ -280,6 +261,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             els.postsContainer.appendChild(el);
         });
+    }
+
+    function renderComment(c) {
+        let text = c.text;
+        if (c.lang !== currentLang) {
+            const key = `cmt_${c.id}_${currentLang}`;
+            if (translationCache[key]) text = translationCache[key];
+            else translateText(c.text, c.lang, currentLang, (res) => { translationCache[key] = res; });
+        }
+        return `<div class="comment-item"><b>@${c.author}</b>: ${text}</div>`;
     }
 
     function renderPoll() {
@@ -298,22 +289,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const grid = els.postsContainer.querySelector('.poll-grid');
         Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).forEach(([key, data]) => {
-            const el = document.createElement('div');
-            el.className = 'idol-card';
+            const el = document.createElement('div'); el.className = 'idol-card';
             const hasDisliked = myDislikes.includes(key);
-            el.innerHTML = `
-                <div class="idol-name">${data.name}</div>
-                <div class="poll-actions">
-                    <button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button>
-                    <button class="poll-btn dislike ${hasDisliked ? 'disabled' : ''}" data-key="${key}">👎 <span class="count">${data.dislikes}</span></button>
-                </div>
-            `;
+            el.innerHTML = `<div class="idol-name">${data.name}</div><div class="poll-actions"><button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button><button class="poll-btn dislike ${hasDisliked ? 'disabled' : ''}" data-key="${key}">👎 <span class="count">${data.dislikes}</span></button></div>`;
             grid.appendChild(el);
         });
 
         grid.onclick = (e) => {
-            const btn = e.target.closest('.poll-btn');
-            if (!btn) return;
+            const btn = e.target.closest('.poll-btn'); if (!btn) return;
             const key = btn.dataset.key;
             if (btn.classList.contains('like')) {
                 voteData[key].likes++;
@@ -339,18 +322,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         reqList.onclick = (e) => {
             if (e.target.classList.contains('req-delete')) {
-                if (confirm(lang.confirmDelete)) {
-                    idolRequests.splice(e.target.dataset.idx, 1); saveRequests(); renderPoll();
-                }
+                if (confirm(lang.confirmDelete)) { idolRequests.splice(e.target.dataset.idx, 1); saveRequests(); renderPoll(); }
             }
         };
 
         els.postsContainer.querySelector('#btn-submit-req').onclick = () => {
             const inp = document.getElementById('req-input');
-            if (inp.value.trim()) {
-                idolRequests.push({ text: inp.value.trim(), author: currentUser });
-                saveRequests(); renderPoll();
-            }
+            if (inp.value.trim()) { idolRequests.push({ text: inp.value.trim(), author: currentUser }); saveRequests(); renderPoll(); }
         };
     }
 
@@ -365,8 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).slice(0, 2).forEach(([k, d]) => items.push({ title: d.name, meta: `Idol • ❤️ ${d.likes}`, cat: 'vote' }));
 
         items.forEach((item, i) => {
-            const li = document.createElement('li');
-            li.className = 'trending-item';
+            const li = document.createElement('li'); li.className = 'trending-item';
             li.innerHTML = `<div class="trending-rank">${i+1}</div><div class="trending-info"><div class="trending-title">${item.title}</div><div class="trending-meta">${item.meta}</div></div>`;
             li.onclick = () => { currentCategory = item.cat; if(item.id) expandedPostId = item.id; updateUI(); renderContent(); };
             els.trendingList.appendChild(li);
@@ -387,11 +364,18 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error(e); }
     }
 
+    async function translateText(text, src, target, callback) {
+        const res = await fetchTranslation(text, src, target);
+        callback(res);
+    }
+
     async function fetchTranslation(text, source, target) {
         if (source === target) return text;
-        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`);
-        const data = await res.json();
-        return data.responseData.translatedText;
+        try {
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`);
+            const data = await res.json();
+            return data.responseData.translatedText;
+        } catch (e) { return text; }
     }
 
     function setupDragAndDrop() {
@@ -400,22 +384,23 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', (e) => {
             Array.from(e.dataTransfer.files).forEach(file => {
                 if (!file.type.startsWith('image/')) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    currentPostImages.push(ev.target.result);
-                    const idx = currentPostImages.length - 1;
+                const reader = new FileReader(); reader.onload = (ev) => {
+                    currentPostImages.push(ev.target.result); const idx = currentPostImages.length - 1;
                     const cursor = els.postContent.selectionStart;
                     els.postContent.value = els.postContent.value.slice(0, cursor) + `\n[IMG_${idx}]\n` + els.postContent.value.slice(cursor);
                     const img = document.createElement('img'); img.src = ev.target.result; img.className = 'preview-thumb'; els.imagePreviews.appendChild(img);
-                };
-                reader.readAsDataURL(file);
+                }; reader.readAsDataURL(file);
             });
         }, false);
     }
 
     function setupEventListeners() {
         els.tabs.forEach(tab => tab.onclick = () => { currentCategory = tab.dataset.category; expandedPostId = null; updateUI(); renderContent(); });
-        els.langBtns.forEach(btn => btn.onclick = () => { currentLang = btn.dataset.lang; els.langBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); localStorage.setItem('kcon_lang', currentLang); updateUI(); renderContent(); });
+        els.langBtns.forEach(btn => btn.onclick = () => {
+            currentLang = btn.dataset.lang;
+            els.langBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            localStorage.setItem('kcon_lang', currentLang); updateUI(); renderContent();
+        });
         els.themeToggle.onclick = () => { currentTheme = currentTheme === 'light' ? 'dark' : 'light'; localStorage.setItem('kcon_theme', currentTheme); applyTheme(currentTheme); };
         els.btnNick.onclick = () => { const name = prompt("Nickname:", currentUser); if (name) { currentUser = name; localStorage.setItem('kcon_user', name); updateUI(); } };
         els.postForm.onsubmit = (e) => {
