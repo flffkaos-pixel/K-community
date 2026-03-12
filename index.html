@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GE1BKC2K1Y"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-GE1BKC2K1Y');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>K-community | Global Korea Hub - K-Pop, Travel, Life & Food</title>
@@ -13,6 +22,10 @@
     <meta name="naver-site-verification" content="6fdae79cc5c27680e8c80c3bad1aba12777fdd2f" />
     <meta name="google-site-verification" content="90ObN9YY1jH6ZHRfL3tGx5HvKoHC8boT6jdFhbSe80s" />
     <meta name="baidu-site-verification" content="VERIFICATION_CODE_HERE">
+    <meta name="geo.region" content="KR" />
+    <meta name="geo.placename" content="Seoul" />
+    <meta name="geo.position" content="37.5665;126.9780" />
+    <meta name="ICBM" content="37.5665, 126.9780" />
     <link rel="canonical" href="https://k-community.pages.dev/">
     
     <!-- Multilingual Support (hreflang) -->
@@ -35,20 +48,39 @@
       "name": "K-community",
       "url": "https://k-community.pages.dev/",
       "description": "Global hub for everything Korean: K-Pop, Lifestyle, Food, and Travel.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "K-community Global",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://k-community.pages.dev/favicon.svg"
+        }
+      },
       "potentialAction": {
         "@type": "SearchAction",
         "target": "https://k-community.pages.dev/?q={search_term_string}",
         "query-input": "required name=search_term_string"
-      }
+      },
+      "inLanguage": ["ko", "en", "ja", "zh", "es"]
     }
     </script>
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://k-community.pages.dev/">
-    <meta property="og:title" content="K-community | Global Korea Hub">
-    <meta property="og:description" content="Connect with the world through Korean culture. K-Pop, Food, Beauty, and more.">
+    <meta property="og:title" content="K-community | Global Korea Hub - K-Pop, Travel, Life & Food">
+    <meta property="og:description" content="Connect with the world through Korean culture. Real-time updates on K-Pop, expat living tips, authentic recipes, and hidden travel spots.">
     <meta property="og:image" content="https://k-community.pages.dev/favicon.svg">
+    <meta property="og:site_name" content="K-community">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ko_KR">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://k-community.pages.dev/">
+    <meta name="twitter:title" content="K-community | Global Korea Hub">
+    <meta name="twitter:description" content="Explore Korean culture: K-Pop, Food, Beauty, and Travel.">
+    <meta name="twitter:image" content="https://k-community.pages.dev/favicon.svg">
     
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">

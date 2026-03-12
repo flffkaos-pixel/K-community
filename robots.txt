@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Sitemap: https://k-community.pages.dev/sitemap.xml
 
 User-agent: Mediapartners-Google
 Allow: /
