@@ -266,11 +266,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchTranslation(text, source, target) {
         if (!text || source === target) return text;
+        
+        // 500자 제한을 피하기 위해 문단(줄바꿈) 단위로 쪼개기
+        const lines = text.split('\n');
+        const chunks = [];
+        let currentChunk = "";
+
+        for (const line of lines) {
+            // 한 줄 자체가 450자를 넘으면 강제로 쪼갬
+            if (line.length > 450) {
+                if (currentChunk) { chunks.push(currentChunk); currentChunk = ""; }
+                let tempLine = line;
+                while (tempLine.length > 450) {
+                    chunks.push(tempLine.substring(0, 450));
+                    tempLine = tempLine.substring(450);
+                }
+                currentChunk = tempLine;
+            } 
+            else if ((currentChunk.length + line.length + 1) < 450) {
+                currentChunk += (currentChunk ? '\n' : '') + line;
+            } else {
+                chunks.push(currentChunk);
+                currentChunk = line;
+            }
+        }
+        if (currentChunk) chunks.push(currentChunk);
+
         try {
-            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`);
-            const data = await res.json();
-            return data.responseData.translatedText || text;
-        } catch (e) { return text; }
+            // 여러 개의 덩어리를 각각 번역 요청 (병렬 처리)
+            const translatedChunks = await Promise.all(chunks.map(async (chunk) => {
+                if (!chunk.trim()) return chunk;
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${source}|${target}`);
+                const data = await res.json();
+                if (data.responseStatus == 200) {
+                    return data.responseData.translatedText;
+                } else {
+                    console.warn("Translation partial error:", data.responseDetails);
+                    return chunk; // 실패 시 원문 유지
+                }
+            }));
+            return translatedChunks.join('\n');
+        } catch (e) { 
+            console.error("Translation Error:", e);
+            return text; 
+        }
     }
 
     function renderPoll() {
