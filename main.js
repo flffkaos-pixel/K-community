@@ -170,6 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
             els.postsContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:#888;">${(t[currentLang]||t.en).loading}</div>`;
             return;
         }
+
+        // URL 파라미터 확인 (SEO 및 개별 링크 공유용)
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+        if (postId && !expandedPostId) {
+            expandedPostId = postId;
+        }
+
         if (currentCategory === 'vote') renderPoll();
         else renderPosts();
         renderTrending();
@@ -178,6 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPosts() {
         els.postsContainer.innerHTML = '';
         const filtered = posts.filter(p => p.category === currentCategory);
+        
+        // 특정 글이 선택된 경우 (URL 파라미터 id=...) 최상단으로 올리기
+        if (expandedPostId) {
+            const index = filtered.findIndex(p => p.firebaseId === expandedPostId);
+            if (index > -1) {
+                const selectedPost = filtered.splice(index, 1)[0];
+                filtered.unshift(selectedPost);
+                // 검색엔진을 위한 제목/설명 변경
+                updateMetaTags(selectedPost);
+            }
+        }
+
         if (filtered.length === 0) {
             els.postsContainer.innerHTML = `<div style="text-align:center; color:#888; padding: 2rem;">${(t[currentLang]||t.en).noPosts}</div>`;
             return;
@@ -219,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="btn-icon like-post-btn" style="color: ${isLiked ? 'var(--primary-color)' : 'inherit'}">
                             ${isLiked ? '❤️' : '🤍'} ${post.likes || 0}
                         </button>
+                        <button class="btn-icon share-post-btn" title="Copy Link">🔗</button>
                     </div>
                 </div>
                 <div class="post-mgmt-actions">
@@ -233,9 +254,24 @@ document.addEventListener('DOMContentLoaded', () => {
             el.onclick = async (e) => {
                 if (e.target.closest('button')) return;
                 const isExp = !el.classList.contains('expanded');
-                expandedPostId = isExp ? post.firebaseId : null;
-                if (isExp) await updateDoc(doc(db, "posts", post.firebaseId), { views: increment(1) });
+                if (isExp) {
+                    expandedPostId = post.firebaseId;
+                    // 주소창 변경 (공유 및 SEO용)
+                    window.history.pushState({}, '', `?category=${currentCategory}&id=${post.firebaseId}`);
+                    await updateDoc(doc(db, "posts", post.firebaseId), { views: increment(1) });
+                    updateMetaTags(post);
+                } else {
+                    expandedPostId = null;
+                    window.history.pushState({}, '', `?category=${currentCategory}`);
+                }
                 renderPosts();
+            };
+
+            const shareBtn = el.querySelector('.share-post-btn');
+            shareBtn.onclick = (e) => {
+                e.stopPropagation();
+                const url = `${window.location.origin}${window.location.pathname}?id=${post.firebaseId}`;
+                navigator.clipboard.writeText(url).then(() => alert("Link copied to clipboard!"));
             };
 
             const delBtn = el.querySelector('.delete-btn');
@@ -261,6 +297,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             els.postsContainer.appendChild(el);
         });
+    }
+
+    function updateMetaTags(post) {
+        if (!post) return;
+        document.title = `${post.title} | K-community`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', post.content.substring(0, 150));
+        
+        // Open Graph (페이스북, 카톡 공유용)
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute('content', post.title);
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogDesc) ogDesc.setAttribute('content', post.content.substring(0, 150));
     }
 
     async function translatePost(post) {
