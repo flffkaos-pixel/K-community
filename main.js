@@ -117,6 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateUI() {
         const langData = t[currentLang] || t.en;
+        
+        // 언어 버튼 활성화 상태 동기화
+        els.langBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === currentLang);
+        });
+
         els.tabs.forEach(tab => {
             tab.classList.toggle('active', tab.dataset.category === currentCategory);
             tab.textContent = (langData.cats && langData.cats[tab.dataset.category]) ? langData.cats[tab.dataset.category] : tab.dataset.category;
