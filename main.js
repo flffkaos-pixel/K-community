@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loading: "서버에 연결 중...",
             noPosts: "게시글이 없습니다. 첫 글을 남겨보세요!",
             write: "글쓰기", confirmDelete: "삭제하시겠습니까?", confirmDislike: "취소 불가합니다. 계속?",
+            translating: "번역 중...",
             reqTitle: "➕ 아이돌 추가 요청", reqPlace: "이름 입력...", reqBtn: "요청",
             cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
             titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
@@ -47,10 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
             loading: "Connecting...",
             noPosts: "No posts yet. Be the first!",
             write: "Write", confirmDelete: "Delete this?", confirmDislike: "Cannot undo. Proceed?",
+            translating: "Translating...",
             reqTitle: "➕ Request New Idol", reqPlace: "Idol name...", reqBtn: "Request",
             cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
             titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
             descs: { vote: "Unlimited votes!", kpop: "K-Pop News", living: "Life tips", food: "Food stories", beauty: "Beauty trends", travel: "Travel guide" }
+        },
+        ja: {
+            write: "書く", loading: "接続中...", translating: "翻訳中...",
+            cats: { vote: "アイドル投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
+            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活情報", food: "K-フード & レシピ", beauty: "K-ビューティー", travel: "韓国旅行ガイド" }
+        },
+        zh: {
+            write: "发布", loading: "连接中...", translating: "翻译中...",
+            cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
+            titles: { vote: "偶像人气投票", kpop: "K-Pop & 娱乐", living: "韩国生活信息", food: "K-美食 & 食谱", beauty: "K-美妆 & 风格", travel: "韩国旅游指南" }
+        },
+        es: {
+            write: "Escribir", loading: "Conectando...", translating: "Traduciendo...",
+            cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
+            titles: { vote: "Votación de Ídolos", kpop: "K-Pop y Entretenimiento", living: "Vida en Corea", food: "Comida y Recetas", beauty: "Belleza y Estilo", travel: "Guía de Viajes" }
         }
     };
 
@@ -78,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderContent();
         }, (err) => {
             console.error("Firebase Sync Error:", err);
-            els.postsContainer.innerHTML = `<div style="color:red; padding:2rem; text-align:center;">Firebase 연동 오류. 콘솔에서 Firestore를 활성화하고 규칙을 설정해주세요.</div>`;
+            els.postsContainer.innerHTML = `<div style="color:red; padding:2rem; text-align:center;">연결 오류. Firestore 설정 확인 필요.</div>`;
         });
 
         onSnapshot(collection(db, "votes"), (snapshot) => {
@@ -129,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             els.categoryTitle.appendChild(writeBtn);
         }
-        els.categoryDesc.textContent = langData.descs[currentCategory] || "";
+        els.categoryDesc.textContent = langData.descs ? (langData.descs[currentCategory] || "") : "";
         els.userDisplay.textContent = currentUser;
         els.userDisplay.style.color = (currentUser === ADMIN_NICK) ? "var(--primary-color)" : "inherit";
     }
@@ -143,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else renderPosts();
     }
 
-    function renderPosts() {
+    async function renderPosts() {
         els.postsContainer.innerHTML = '';
         const filtered = posts.filter(p => p.category === currentCategory);
         if (filtered.length === 0) {
@@ -151,17 +168,34 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        filtered.forEach(post => {
+        for (const post of filtered) {
             const el = document.createElement('article');
             el.className = 'post-card';
             if (expandedPostId === post.firebaseId) el.classList.add('expanded');
+
+            // --- Translation Logic ---
+            let displayTitle = post.title;
+            let displayContent = post.content;
+
+            if (post.lang !== currentLang) {
+                const titleKey = `t_${post.firebaseId}_${currentLang}`;
+                const contentKey = `c_${post.firebaseId}_${currentLang}`;
+
+                if (translationCache[titleKey]) {
+                    displayTitle = translationCache[titleKey];
+                    displayContent = translationCache[contentKey];
+                } else {
+                    displayTitle = (t[currentLang] || t.en).translating;
+                    translatePost(post); // Background translation
+                }
+            }
 
             const isLiked = (JSON.parse(localStorage.getItem('kcon_liked_posts')) || []).includes(post.firebaseId);
             const isOwner = post.author === currentUser;
             const isAdmin = currentUser === ADMIN_NICK;
 
             el.innerHTML = `
-                <div class="post-header"><div class="post-title">${post.title}</div></div>
+                <div class="post-header"><div class="post-title">${displayTitle}</div></div>
                 <div class="post-meta">
                     <div class="meta-left"><span>@${post.author}</span><span>•</span><span>${post.date}</span></div>
                     <div class="meta-right">
@@ -175,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${(isOwner || isAdmin) ? `<button class="btn-icon delete-btn">🗑</button>` : ''}
                 </div>
                 <div class="post-content">
-                    <div style="white-space: pre-wrap; margin-bottom: 1rem;">${post.content}</div>
+                    <div style="white-space: pre-wrap; margin-bottom: 1rem;">${displayContent}</div>
                     ${post.images ? post.images.map(img => `<img src="${img}" style="margin-top:10px; border-radius:8px; max-width:100%;">`).join('') : ''}
                 </div>
             `;
@@ -210,12 +244,35 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             els.postsContainer.appendChild(el);
-        });
+        }
+    }
+
+    async function translatePost(post) {
+        const titleKey = `t_${post.firebaseId}_${currentLang}`;
+        const contentKey = `c_${post.firebaseId}_${currentLang}`;
+        try {
+            const [translatedTitle, translatedContent] = await Promise.all([
+                fetchTranslation(post.title, post.lang, currentLang),
+                fetchTranslation(post.content, post.lang, currentLang)
+            ]);
+            translationCache[titleKey] = translatedTitle;
+            translationCache[contentKey] = translatedContent;
+            renderPosts();
+        } catch (e) { console.error("Translation Error:", e); }
+    }
+
+    async function fetchTranslation(text, source, target) {
+        if (!text || source === target) return text;
+        try {
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`);
+            const data = await res.json();
+            return data.responseData.translatedText || text;
+        } catch (e) { return text; }
     }
 
     function renderPoll() {
         const lang = t[currentLang] || t.en;
-        els.postsContainer.innerHTML = `<div class="poll-grid"></div><div class="request-board"><h3>${lang.reqTitle}</h3><div class="request-input-area"><input type="text" id="req-input" class="request-input" placeholder="${lang.reqPlace}"><button id="btn-submit-req" class="btn btn-primary">${lang.reqBtn}</button></div><div class="req-list"></div></div>`;
+        els.postsContainer.innerHTML = `<div class="poll-grid"></div><div class="request-board"><h3>${lang.reqTitle || "Idol Requests"}</h3><div class="request-input-area"><input type="text" id="req-input" class="request-input" placeholder="${lang.reqPlace}"><button id="btn-submit-req" class="btn btn-primary">${lang.reqBtn || "Request"}</button></div><div class="req-list"></div></div>`;
         const grid = els.postsContainer.querySelector('.poll-grid');
         
         const idols = ['bts', 'aespa', 'seventeen', 'enhypen', 'skz', 'ive', 'newjeans', 'riize'];
