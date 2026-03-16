@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isConnected = false;
 
     let currentCategory = 'vote';
-    let currentLang = localStorage.getItem('kcon_lang') || 'en';
+    let currentLang = localStorage.getItem('kcon_lang') || 'ko';
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentPostImages = [];
     let expandedPostId = null;
