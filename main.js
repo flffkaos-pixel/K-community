@@ -32,13 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let expandedPostId = null;
 
     const translationCache = {};
-    const translatingIds = new Set(); // 중복 번역 방지
+    const translatingIds = new Set(); 
 
     const t = {
         ko: {
             loading: "서버 연결 중...", noPosts: "게시글이 없습니다.", write: "글쓰기",
             confirmDelete: "삭제하시겠습니까?", translating: "번역 중...",
             reqTitle: "➕ 아이돌 추가 요청", reqPlace: "이름 입력...", reqBtn: "요청",
+            trendingTitle: "🔥 지금 인기 있는 글",
+            blogTitle: "📖 올 어바웃 코리아 블로그",
+            blogDesc: "한국에 대한 더 깊은 이야기들을 만나보세요.",
             cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
             titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
             descs: { vote: "무제한 투표!", kpop: "K-Pop 뉴스", living: "생활 꿀팁", food: "맛있는 음식", beauty: "뷰티 트렌드", travel: "여행 가이드" }
@@ -47,22 +50,28 @@ document.addEventListener('DOMContentLoaded', () => {
             loading: "Connecting...", noPosts: "No posts yet.", write: "Write",
             confirmDelete: "Delete this?", translating: "Translating...",
             reqTitle: "➕ Request New Idol", reqPlace: "Idol name...", reqBtn: "Request",
+            trendingTitle: "🔥 Trending Now",
+            blogTitle: "📖 All About Korea Blog",
+            blogDesc: "Explore more deep stories about Korea.",
             cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
             titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
             descs: { vote: "Unlimited votes!", kpop: "K-Pop News", living: "Life tips", food: "Food stories", beauty: "Beauty trends", travel: "Travel guide" }
         },
         ja: {
             write: "投稿", loading: "接続中...", translating: "翻訳中...",
+            trendingTitle: "🔥 今人気の投稿", blogTitle: "📖 All About Korea ブログ",
             cats: { vote: "投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
             titles: { vote: "人気投票", kpop: "K-POPニュース", living: "韓国生活", food: "グルメ情報", beauty: "K-뷰티", travel: "旅行ガイド" }
         },
         zh: {
             write: "发布", loading: "连接中...", translating: "翻译中...",
+            trendingTitle: "🔥 热门内容", blogTitle: "📖 All About Korea 博客",
             cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
             titles: { vote: "人气投票", kpop: "K-Pop 娱乐", living: "韩国生活", food: "韩国美食", beauty: "韩国美妆", travel: "韩国旅游" }
         },
         es: {
             write: "Escribir", loading: "Conectando...", translating: "Traduciendo...",
+            trendingTitle: "🔥 Tendencias", blogTitle: "📖 Blog All About Korea",
             cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
             titles: { vote: "Votación de Ídolos", kpop: "Noticias K-Pop", living: "Vida en Corea", food: "Comida Coreana", beauty: "Belleza K", travel: "Guía de Viaje" }
         }
@@ -71,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const els = {
         postsContainer: document.getElementById('posts-container'),
         trendingList: document.getElementById('trending-list'),
+        trendingTitle: document.getElementById('trending-title'),
         tabs: document.querySelectorAll('.tab'),
         modal: document.getElementById('modal-overlay'),
         postForm: document.getElementById('post-form'),
@@ -118,12 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateUI() {
         const langData = t[currentLang] || t.en;
-        
-        // 언어 버튼 활성화 상태 동기화
-        els.langBtns.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.lang === currentLang);
-        });
-
+        els.langBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
         els.tabs.forEach(tab => {
             tab.classList.toggle('active', tab.dataset.category === currentCategory);
             tab.textContent = (langData.cats && langData.cats[tab.dataset.category]) ? langData.cats[tab.dataset.category] : tab.dataset.category;
@@ -152,6 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
         els.categoryDesc.textContent = (langData.descs && langData.descs[currentCategory]) ? langData.descs[currentCategory] : "";
         els.userDisplay.textContent = currentUser;
         els.userDisplay.style.color = (currentUser === ADMIN_NICK) ? "var(--primary-color)" : "inherit";
+        
+        if (els.trendingTitle) els.trendingTitle.textContent = langData.trendingTitle || "Trending Now";
     }
 
     function renderContent() {
@@ -268,50 +275,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchTranslation(text, source, target) {
         if (!text || source === target) return text;
-        
-        // 500자 제한을 피하기 위해 문단(줄바꿈) 단위로 쪼개기
         const lines = text.split('\n');
         const chunks = [];
         let currentChunk = "";
-
         for (const line of lines) {
-            // 한 줄 자체가 450자를 넘으면 강제로 쪼갬
             if (line.length > 450) {
                 if (currentChunk) { chunks.push(currentChunk); currentChunk = ""; }
                 let tempLine = line;
-                while (tempLine.length > 450) {
-                    chunks.push(tempLine.substring(0, 450));
-                    tempLine = tempLine.substring(450);
-                }
+                while (tempLine.length > 450) { chunks.push(tempLine.substring(0, 450)); tempLine = tempLine.substring(450); }
                 currentChunk = tempLine;
             } 
-            else if ((currentChunk.length + line.length + 1) < 450) {
-                currentChunk += (currentChunk ? '\n' : '') + line;
-            } else {
-                chunks.push(currentChunk);
-                currentChunk = line;
-            }
+            else if ((currentChunk.length + line.length + 1) < 450) { currentChunk += (currentChunk ? '\n' : '') + line; } 
+            else { chunks.push(currentChunk); currentChunk = line; }
         }
         if (currentChunk) chunks.push(currentChunk);
-
         try {
-            // 여러 개의 덩어리를 각각 번역 요청 (병렬 처리)
             const translatedChunks = await Promise.all(chunks.map(async (chunk) => {
                 if (!chunk.trim()) return chunk;
                 const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${source}|${target}`);
                 const data = await res.json();
-                if (data.responseStatus == 200) {
-                    return data.responseData.translatedText;
-                } else {
-                    console.warn("Translation partial error:", data.responseDetails);
-                    return chunk; // 실패 시 원문 유지
-                }
+                return (data.responseStatus == 200) ? data.responseData.translatedText : chunk;
             }));
             return translatedChunks.join('\n');
-        } catch (e) { 
-            console.error("Translation Error:", e);
-            return text; 
-        }
+        } catch (e) { return text; }
     }
 
     function renderPoll() {
@@ -319,23 +305,34 @@ document.addEventListener('DOMContentLoaded', () => {
         els.postsContainer.innerHTML = `<div class="poll-grid"></div><div class="request-board"><h3>${lang.reqTitle || "Idol Requests"}</h3><div class="request-input-area"><input type="text" id="req-input" class="request-input" placeholder="${lang.reqPlace}"><button id="btn-submit-req" class="btn btn-primary">${lang.reqBtn || "Request"}</button></div><div class="req-list"></div></div>`;
         const grid = els.postsContainer.querySelector('.poll-grid');
         
-        const idols = ['bts', 'aespa', 'seventeen', 'enhypen', 'skz', 'ive', 'newjeans', 'riize'];
-        idols.forEach(key => {
-            const data = voteData[key] || { name: key.toUpperCase(), likes: 0 };
-            const card = document.createElement('div'); card.className = 'idol-card';
+        const idols = [
+            { key: 'bts', name: 'BTS', img: 'bts.jpg' },
+            { key: 'aespa', name: 'Aespa', img: 'aespa.jpg' },
+            { key: 'seventeen', name: 'Seventeen' },
+            { key: 'enhypen', name: 'Enhypen' },
+            { key: 'skz', name: 'Stray Kids' },
+            { key: 'ive', name: 'IVE' },
+            { key: 'newjeans', name: 'NewJeans' },
+            { key: 'riize', name: 'RIIZE' }
+        ];
+
+        idols.forEach(idol => {
+            const data = voteData[idol.key] || { name: idol.name, likes: 0 };
+            const card = document.createElement('div'); 
+            card.className = 'idol-card';
             
-            if (key === 'bts') {
-                card.style.background = 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("bts.jpg") center/cover no-repeat';
+            if (idol.img) {
+                card.style.background = `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("${idol.img}") center/cover no-repeat`;
                 card.style.color = 'white';
             }
 
             card.innerHTML = `
-                <div class="idol-name" style="${key === 'bts' ? 'color: white;' : ''}">${data.name}</div>
+                <div class="idol-name" style="${idol.img ? 'color: white;' : ''}">${data.name}</div>
                 <div class="poll-actions">
-                    <button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button>
+                    <button class="poll-btn like" data-key="${idol.key}">👍 <span class="count">${data.likes}</span></button>
                 </div>`;
             card.querySelector('.like').onclick = async () => {
-                await setDoc(doc(db, "votes", key), { name: data.name, likes: increment(1) }, { merge: true });
+                await setDoc(doc(db, "votes", idol.key), { name: idol.name, likes: increment(1) }, { merge: true });
             };
             grid.appendChild(card);
         });
@@ -362,34 +359,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTrending() {
         if (!els.trendingList) return;
+        const langData = t[currentLang] || t.en;
         els.trendingList.innerHTML = '';
-        const items = [];
         
-        // 1. 블로그 홍보 박스
         let blogBox = document.getElementById('blog-promo-box');
         if (!blogBox) {
             blogBox = document.createElement('div');
             blogBox.id = 'blog-promo-box';
             blogBox.style.cssText = "margin-top: 1rem; padding: 1rem; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 12px; font-size: 0.85rem;";
-            blogBox.innerHTML = `<strong>📖 All About Korea Blog</strong><p style="margin: 0.5rem 0; color: #666;">Explore more deep stories about Korea.</p><a href="https://ailaboutkorea.blogspot.com/" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Visit Blog →</a>`;
             els.trendingList.parentNode.appendChild(blogBox);
         }
+        blogBox.innerHTML = `<strong>${langData.blogTitle}</strong><p style="margin: 0.5rem 0; color: #666;">${langData.blogDesc}</p><a href="https://ailaboutkorea.blogspot.com/" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Visit Blog →</a>`;
 
-        // 2. 인기 게시글
+        const items = [];
         const sortedPosts = [...posts].sort((a,b) => ((b.views||0) + (b.likes||0)*2) - ((a.views||0) + (a.likes||0)*2)).slice(0, 3);
-        sortedPosts.forEach(p => items.push({ title: p.title, meta: `Post • ❤️ ${p.likes||0}`, id: p.firebaseId, cat: p.category }));
+        sortedPosts.forEach(p => items.push({ title: p.title, meta: `Post • ❤️ ${p.likes||0}`, id: p.firebaseId, cat: p.category, lang: p.lang }));
 
-        // 3. 인기 아이돌
         Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).slice(0, 2).forEach(([k, d]) => items.push({ title: d.name, meta: `Idol • ❤️ ${d.likes}`, cat: 'vote' }));
 
-        items.forEach((item, i) => {
+        items.forEach(async (item, i) => {
             const li = document.createElement('li'); li.className = 'trending-item';
-            li.innerHTML = `<div class="trending-rank">${i+1}</div><div class="trending-info"><div class="trending-title">${item.title}</div><div class="trending-meta">${item.meta}</div></div>`;
-            li.onclick = () => { 
-                currentCategory = item.cat; 
-                if(item.id) expandedPostId = item.id; 
-                updateUI(); renderContent(); 
-            };
+            let displayTitle = item.title;
+            if (item.lang && item.lang !== currentLang) {
+                const key = `trend_${item.id}_${currentLang}`;
+                displayTitle = translationCache[key] || await fetchTranslation(item.title, item.lang, currentLang).then(res => { translationCache[key] = res; return res; });
+            }
+            li.innerHTML = `<div class="trending-rank">${i+1}</div><div class="trending-info"><div class="trending-title">${displayTitle}</div><div class="trending-meta">${item.meta}</div></div>`;
+            li.onclick = () => { currentCategory = item.cat; if(item.id) expandedPostId = item.id; updateUI(); renderContent(); };
             els.trendingList.appendChild(li);
         });
     }
@@ -399,7 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
         els.langBtns.forEach(btn => btn.onclick = () => {
             currentLang = btn.dataset.lang; 
             localStorage.setItem('kcon_lang', currentLang); 
-            els.langBtns.forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
             updateUI(); renderContent();
         });
         els.themeToggle.onclick = () => {
@@ -420,25 +415,17 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         document.getElementById('close-modal').onclick = () => els.modal.classList.remove('active');
         document.getElementById('cancel-post').onclick = () => els.modal.classList.remove('active');
-
         els.postForm.onsubmit = async (e) => {
             e.preventDefault();
             const btn = els.postForm.querySelector('button[type="submit"]');
             btn.disabled = true;
             try {
                 await addDoc(collection(db, "posts"), { 
-                    category: currentCategory, 
-                    title: els.postTitle.value, 
-                    content: els.postContent.value, 
-                    author: currentUser, 
-                    date: new Date().toLocaleDateString(), 
-                    likes: 0, views: 0, comments: [], 
-                    lang: currentLang, images: currentPostImages,
-                    createdAt: Date.now()
+                    category: currentCategory, title: els.postTitle.value, content: els.postContent.value, 
+                    author: currentUser, date: new Date().toLocaleDateString(), likes: 0, views: 0, 
+                    comments: [], lang: currentLang, images: currentPostImages, createdAt: Date.now()
                 });
-                els.modal.classList.remove('active');
-                els.postForm.reset();
-                currentPostImages = [];
+                els.modal.classList.remove('active'); els.postForm.reset(); currentPostImages = [];
             } catch (err) { alert("Error: " + err.message); }
             finally { btn.disabled = false; }
         };
