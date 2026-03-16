@@ -465,17 +465,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 lang: currentLang, 
                 images: [...currentPostImages] 
             };
-            if (id) {
-                newPost.firebaseId = id;
-                const existing = posts.find(p => p.id === id);
-                if (existing) {
-                    newPost.likes = existing.likes;
-                    newPost.views = existing.views;
-                    newPost.comments = existing.comments;
+            
+            try {
+                if (id) {
+                    newPost.firebaseId = id;
+                    const existing = posts.find(p => p.id === id);
+                    if (existing) {
+                        newPost.likes = existing.likes || 0;
+                        newPost.views = existing.views || 0;
+                        newPost.comments = existing.comments || [];
+                    }
                 }
+                
+                // 먼저 창을 닫아 사용자에게 피드백을 줌
+                els.modal.classList.remove('active');
+                
+                await savePostToFirebase(newPost);
+                
+                // 폼 초기화
+                els.postForm.reset();
+                els.imagePreviews.innerHTML = '';
+                currentPostImages = [];
+                
+            } catch (error) {
+                console.error("Error saving post:", error);
+                alert("Failed to save post. Please try again.");
             }
-            await savePostToFirebase(newPost);
-            els.modal.classList.remove('active');
         };
         document.getElementById('close-modal').onclick = () => els.modal.classList.remove('active');
         document.getElementById('cancel-post').onclick = () => els.modal.classList.remove('active');
