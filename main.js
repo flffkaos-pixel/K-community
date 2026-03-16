@@ -308,12 +308,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const idols = [
             { key: 'bts', name: 'BTS', img: 'bts.jpg' },
             { key: 'aespa', name: 'Aespa', img: 'aespa.jpg' },
-            { key: 'seventeen', name: 'Seventeen' },
-            { key: 'enhypen', name: 'Enhypen' },
-            { key: 'skz', name: 'Stray Kids' },
-            { key: 'ive', name: 'IVE' },
-            { key: 'newjeans', name: 'NewJeans' },
-            { key: 'riize', name: 'RIIZE' }
+            { key: 'seventeen', name: 'Seventeen', img: 'seventeen.jpg' },
+            { key: 'enhypen', name: 'Enhypen', img: 'enhypen.jpg' },
+            { key: 'skz', name: 'Stray Kids', img: 'straykids.jpg' },
+            { key: 'ive', name: 'IVE', img: 'ive.jpg' },
+            { key: 'newjeans', name: 'NewJeans', img: 'newjeans.jpg' },
+            { key: 'riize', name: 'RIIZE', img: 'riize.jpg' }
         ];
 
         idols.forEach(idol => {
