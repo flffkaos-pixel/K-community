@@ -32,42 +32,39 @@ document.addEventListener('DOMContentLoaded', () => {
     let expandedPostId = null;
 
     const translationCache = {};
+    const translatingIds = new Set(); // 중복 번역 방지
 
     const t = {
         ko: {
-            loading: "서버에 연결 중...",
-            noPosts: "게시글이 없습니다. 첫 글을 남겨보세요!",
-            write: "글쓰기", confirmDelete: "삭제하시겠습니까?", confirmDislike: "취소 불가합니다. 계속?",
-            translating: "번역 중...",
+            loading: "서버 연결 중...", noPosts: "게시글이 없습니다.", write: "글쓰기",
+            confirmDelete: "삭제하시겠습니까?", translating: "번역 중...",
             reqTitle: "➕ 아이돌 추가 요청", reqPlace: "이름 입력...", reqBtn: "요청",
             cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
             titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
             descs: { vote: "무제한 투표!", kpop: "K-Pop 뉴스", living: "생활 꿀팁", food: "맛있는 음식", beauty: "뷰티 트렌드", travel: "여행 가이드" }
         },
         en: {
-            loading: "Connecting...",
-            noPosts: "No posts yet. Be the first!",
-            write: "Write", confirmDelete: "Delete this?", confirmDislike: "Cannot undo. Proceed?",
-            translating: "Translating...",
+            loading: "Connecting...", noPosts: "No posts yet.", write: "Write",
+            confirmDelete: "Delete this?", translating: "Translating...",
             reqTitle: "➕ Request New Idol", reqPlace: "Idol name...", reqBtn: "Request",
             cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
             titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
             descs: { vote: "Unlimited votes!", kpop: "K-Pop News", living: "Life tips", food: "Food stories", beauty: "Beauty trends", travel: "Travel guide" }
         },
         ja: {
-            write: "書く", loading: "接続中...", translating: "翻訳中...",
-            cats: { vote: "アイドル投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
-            titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活情報", food: "K-フード & レシピ", beauty: "K-ビューティー", travel: "韓国旅行ガイド" }
+            write: "投稿", loading: "接続中...", translating: "翻訳中...",
+            cats: { vote: "投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
+            titles: { vote: "人気投票", kpop: "K-POPニュース", living: "韓国生活", food: "グルメ情報", beauty: "K-뷰티", travel: "旅行ガイド" }
         },
         zh: {
             write: "发布", loading: "连接中...", translating: "翻译中...",
             cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
-            titles: { vote: "偶像人气投票", kpop: "K-Pop & 娱乐", living: "韩国生活信息", food: "K-美食 & 食谱", beauty: "K-美妆 & 风格", travel: "韩国旅游指南" }
+            titles: { vote: "人气投票", kpop: "K-Pop 娱乐", living: "韩国生活", food: "韩国美食", beauty: "韩国美妆", travel: "韩国旅游" }
         },
         es: {
             write: "Escribir", loading: "Conectando...", translating: "Traduciendo...",
             cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
-            titles: { vote: "Votación de Ídolos", kpop: "K-Pop y Entretenimiento", living: "Vida en Corea", food: "Comida y Recetas", beauty: "Belleza y Estilo", travel: "Guía de Viajes" }
+            titles: { vote: "Votación de Ídolos", kpop: "Noticias K-Pop", living: "Vida en Corea", food: "Comida Coreana", beauty: "Belleza K", travel: "Guía de Viaje" }
         }
     };
 
@@ -87,25 +84,24 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle: document.getElementById('theme-toggle')
     };
 
-    // --- Firebase Sync ---
     const startSync = () => {
         onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), (snapshot) => {
             isConnected = true;
             posts = snapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
             renderContent();
         }, (err) => {
-            console.error("Firebase Sync Error:", err);
-            els.postsContainer.innerHTML = `<div style="color:red; padding:2rem; text-align:center;">연결 오류. Firestore 설정 확인 필요.</div>`;
+            console.error("Firebase Error:", err);
+            els.postsContainer.innerHTML = `<div style="color:red;padding:2rem;text-align:center;">서버 연결 오류.</div>`;
         });
 
         onSnapshot(collection(db, "votes"), (snapshot) => {
             snapshot.forEach(doc => { voteData[doc.id] = doc.data(); });
-            renderContent();
+            if (currentCategory === 'vote') renderPoll();
         });
 
         onSnapshot(collection(db, "requests"), (snapshot) => {
             idolRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderContent();
+            if (currentCategory === 'vote') renderPoll();
         });
     };
 
@@ -123,12 +119,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const langData = t[currentLang] || t.en;
         els.tabs.forEach(tab => {
             tab.classList.toggle('active', tab.dataset.category === currentCategory);
-            tab.textContent = langData.cats[tab.dataset.category] || tab.dataset.category;
+            tab.textContent = (langData.cats && langData.cats[tab.dataset.category]) ? langData.cats[tab.dataset.category] : tab.dataset.category;
         });
         
         const oldBtn = document.getElementById('board-write-btn');
         if (oldBtn) oldBtn.remove();
-        els.categoryTitle.innerHTML = langData.titles[currentCategory] || currentCategory;
+        els.categoryTitle.innerHTML = (langData.titles && langData.titles[currentCategory]) ? langData.titles[currentCategory] : currentCategory;
         
         if (currentCategory !== 'vote') {
             const writeBtn = document.createElement('button');
@@ -136,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             writeBtn.className = 'btn btn-primary';
             writeBtn.style.marginLeft = '1rem';
             writeBtn.style.fontSize = '0.8rem';
-            writeBtn.textContent = langData.write;
+            writeBtn.textContent = langData.write || "Write";
             writeBtn.onclick = () => {
                 document.getElementById('post-id').value = '';
                 els.postForm.reset();
@@ -146,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             els.categoryTitle.appendChild(writeBtn);
         }
-        els.categoryDesc.textContent = langData.descs ? (langData.descs[currentCategory] || "") : "";
+        els.categoryDesc.textContent = (langData.descs && langData.descs[currentCategory]) ? langData.descs[currentCategory] : "";
         els.userDisplay.textContent = currentUser;
         els.userDisplay.style.color = (currentUser === ADMIN_NICK) ? "var(--primary-color)" : "inherit";
     }
@@ -160,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else renderPosts();
     }
 
-    async function renderPosts() {
+    function renderPosts() {
         els.postsContainer.innerHTML = '';
         const filtered = posts.filter(p => p.category === currentCategory);
         if (filtered.length === 0) {
@@ -168,25 +164,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        for (const post of filtered) {
+        filtered.forEach(post => {
             const el = document.createElement('article');
             el.className = 'post-card';
             if (expandedPostId === post.firebaseId) el.classList.add('expanded');
 
-            // --- Translation Logic ---
             let displayTitle = post.title;
             let displayContent = post.content;
 
             if (post.lang !== currentLang) {
                 const titleKey = `t_${post.firebaseId}_${currentLang}`;
                 const contentKey = `c_${post.firebaseId}_${currentLang}`;
-
                 if (translationCache[titleKey]) {
                     displayTitle = translationCache[titleKey];
                     displayContent = translationCache[contentKey];
                 } else {
-                    displayTitle = (t[currentLang] || t.en).translating;
-                    translatePost(post); // Background translation
+                    displayTitle = (t[currentLang] || t.en).translating || "Translating...";
+                    if (!translatingIds.has(post.firebaseId + currentLang)) {
+                        translatingIds.add(post.firebaseId + currentLang);
+                        translatePost(post);
+                    }
                 }
             }
 
@@ -210,27 +207,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="post-content">
                     <div style="white-space: pre-wrap; margin-bottom: 1rem;">${displayContent}</div>
-                    ${post.images ? post.images.map(img => `<img src="${img}" style="margin-top:10px; border-radius:8px; max-width:100%;">`).join('') : ''}
+                    ${post.images ? post.images.map(img => `<img src="${img}" style="margin-top:10px; border-radius:8px; max-width:100%; display:block;">`).join('') : ''}
                 </div>
             `;
 
             el.onclick = async (e) => {
                 if (e.target.closest('button')) return;
                 const isExp = !el.classList.contains('expanded');
-                if (isExp) { 
-                    expandedPostId = post.firebaseId; 
-                    await updateDoc(doc(db, "posts", post.firebaseId), { views: increment(1) });
-                } else expandedPostId = null;
+                expandedPostId = isExp ? post.firebaseId : null;
+                if (isExp) await updateDoc(doc(db, "posts", post.firebaseId), { views: increment(1) });
                 renderPosts();
             };
 
             const delBtn = el.querySelector('.delete-btn');
-            if (delBtn) delBtn.onclick = async () => { 
+            if (delBtn) delBtn.onclick = async (e) => { 
+                e.stopPropagation();
                 if(confirm((t[currentLang]||t.en).confirmDelete)) await deleteDoc(doc(db, "posts", post.firebaseId)); 
             };
 
             const likeBtn = el.querySelector('.like-post-btn');
-            likeBtn.onclick = async () => {
+            likeBtn.onclick = async (e) => {
+                e.stopPropagation();
                 let liked = JSON.parse(localStorage.getItem('kcon_liked_posts')) || [];
                 const idx = liked.indexOf(post.firebaseId);
                 if (idx === -1) {
@@ -244,21 +241,21 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             els.postsContainer.appendChild(el);
-        }
+        });
     }
 
     async function translatePost(post) {
         const titleKey = `t_${post.firebaseId}_${currentLang}`;
         const contentKey = `c_${post.firebaseId}_${currentLang}`;
         try {
-            const [translatedTitle, translatedContent] = await Promise.all([
+            const [tT, tC] = await Promise.all([
                 fetchTranslation(post.title, post.lang, currentLang),
                 fetchTranslation(post.content, post.lang, currentLang)
             ]);
-            translationCache[titleKey] = translatedTitle;
-            translationCache[contentKey] = translatedContent;
+            translationCache[titleKey] = tT;
+            translationCache[contentKey] = tC;
             renderPosts();
-        } catch (e) { console.error("Translation Error:", e); }
+        } catch (e) { console.error(e); }
     }
 
     async function fetchTranslation(text, source, target) {
@@ -277,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const idols = ['bts', 'aespa', 'seventeen', 'enhypen', 'skz', 'ive', 'newjeans', 'riize'];
         idols.forEach(key => {
-            const data = voteData[key] || { name: key.toUpperCase(), likes: 0, dislikes: 0 };
+            const data = voteData[key] || { name: key.toUpperCase(), likes: 0 };
             const card = document.createElement('div'); card.className = 'idol-card';
             card.innerHTML = `
                 <div class="idol-name">${data.name}</div>
@@ -285,8 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button>
                 </div>`;
             card.querySelector('.like').onclick = async () => {
-                const docRef = doc(db, "votes", key);
-                await setDoc(docRef, { name: key.toUpperCase(), likes: increment(1) }, { merge: true });
+                await setDoc(doc(db, "votes", key), { name: data.name, likes: increment(1) }, { merge: true });
             };
             grid.appendChild(card);
         });
@@ -295,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         idolRequests.forEach(req => {
             const item = document.createElement('div'); item.className = 'req-item';
             const isAdmin = currentUser === ADMIN_NICK;
-            item.innerHTML = `<span>${req.text} <small>(@${req.author})</small></span>${(isAdmin || req.author === currentUser) ? `<span class="req-delete" style="cursor:pointer" data-id="${req.id}">🗑</span>` : ''}`;
+            item.innerHTML = `<span>${req.text} <small>(@${req.author})</small></span>${(isAdmin || req.author === currentUser) ? `<span class="req-delete" style="cursor:pointer">🗑</span>` : ''}`;
             if (item.querySelector('.req-delete')) {
                 item.querySelector('.req-delete').onclick = async () => { if(confirm(lang.confirmDelete)) await deleteDoc(doc(db, "requests", req.id)); };
             }
@@ -356,11 +352,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 els.modal.classList.remove('active');
                 els.postForm.reset();
                 currentPostImages = [];
-            } catch (err) {
-                alert("저장 실패: " + err.message);
-            } finally {
-                btn.disabled = false;
-            }
+            } catch (err) { alert("Error: " + err.message); }
+            finally { btn.disabled = false; }
         };
     }
 
