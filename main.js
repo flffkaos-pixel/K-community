@@ -9,20 +9,21 @@ import {
     updateDoc, 
     increment, 
     deleteDoc,
-    setDoc,
-    getDocs
+    setDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Global State ---
+    const ADMIN_NICK = "운영자";
+    const ADMIN_PW = "admin1234"; // 운영자 전용 암호
+
     let currentUser = localStorage.getItem('kcon_user');
     if (!currentUser) {
         currentUser = 'User_' + Math.floor(Math.random() * 9999);
         localStorage.setItem('kcon_user', currentUser);
     }
 
-    // Firebase를 사용하므로 로컬 버전 체크는 더 이상 필요 없거나 용도가 변경됩니다.
-    const RESET_VER = "v20_firebase_realtime"; 
+    // 데이터 초기화 로직 완전 제거 (이제 Firebase가 마스터입니다)
     
     let posts = [];
     let voteData = {
@@ -52,9 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
             write: "글쓰기", cancel: "취소", post: "게시하기",
             pollTitle: "⭐ 아이돌 인기 투표", pollDesc: "좋아요 무제한! 싫어요는 1회만!",
             reqTitle: "➕ 아이돌 추가 요청", reqPlace: "아이돌 이름 입력...", reqBtn: "요청",
-            noPosts: "게시글이 없습니다.", translating: "번역 중...",
+            noPosts: "게시글이 없습니다. (서버 연결 중...)", translating: "번역 중...",
             confirmDelete: "삭제하시겠습니까?", confirmDislike: "싫어요는 취소 불가합니다. 계속하시겠습니까?",
-            intro: "K-community에 오신 것을 환영합니다! 이곳은 한국의 다양한 문화, 연예, 생활 정보를 전 세계인과 공유하는 글로벌 허브입니다. 아이돌 투표에도 참여하고 여러분의 소중한 이야기를 들려주세요.",
+            intro: "K-community에 오신 것을 환영합니다!",
             cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
             titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
             descs: { vote: "무제한 투표로 팬심을 보여주세요!", kpop: "가장 핫한 K-Pop 뉴스", living: "한국 생활 꿀팁 공유", food: "맛있는 한국 음식 이야기", beauty: "최신 뷰티 트렌드", travel: "숨겨진 명소 탐방" }
@@ -63,9 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
             write: "Write", cancel: "Cancel", post: "Post",
             pollTitle: "⭐ Idol Popularity Poll", pollDesc: "Unlimited Likes! One Dislike only.",
             reqTitle: "➕ Request New Idol", reqPlace: "Idol name...", reqBtn: "Request",
-            noPosts: "No posts yet.", translating: "Translating...",
+            noPosts: "No posts yet. (Connecting...)", translating: "Translating...",
             confirmDelete: "Delete this?", confirmDislike: "Cannot undo dislike. Proceed?",
-            intro: "Welcome to K-community! We are a global hub sharing various information about Korean culture, entertainment, and lifestyle. Participate in idol polls and share your precious stories with the world.",
+            intro: "Welcome to K-community!",
             cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
             titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
             descs: { vote: "Show your love with unlimited votes!", kpop: "Hottest K-Pop News", living: "Tips for life in Korea", food: "Delicious Korean food stories", beauty: "Latest beauty trends", travel: "Explore hidden gems" }
@@ -76,10 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
             reqTitle: "➕ 추가 리퀘스트", reqPlace: "名前を入力...", reqBtn: "리퀘스트",
             noPosts: "投稿がありません。", translating: "翻訳中...",
             confirmDelete: "削除しますか？", confirmDislike: "嫌いねは取消不可です。続けますか？",
-            intro: "K-communityへようこそ！ここは韓国の多様な文化、芸能、生活情報を全世界の人々と共有するグローバルハブです。アイドル投票に参加したり、あなたの貴重な話を共有してください。",
+            intro: "K-communityへようこそ！",
             cats: { vote: "アイドル投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
             titles: { vote: "アイドル人気投票", kpop: "K-POP & エンタメ", living: "韓国生活情報", food: "K-フード & レ시피", beauty: "K-ビューティー", travel: "韓国旅行ガイド" },
-            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活のヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティートレンド", travel: "隠れた名所を探そう" }
+            descs: { vote: "無制限投票で愛を伝えよう！", kpop: "最新K-POPニュース", living: "韓国生活のヒント", food: "美味しい韓国料理の話", beauty: "最新ビューティート레ンド", travel: "隠れた名所を探そう" }
         },
         zh: {
             write: "发布", cancel: "取消", post: "发布",
@@ -87,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reqTitle: "➕ 请求添加偶像", reqPlace: "偶像名字...", reqBtn: "提交",
             noPosts: "暂无帖子。", translating: "翻译中...",
             confirmDelete: "确定删除吗？", confirmDislike: "踩操作无法撤销。确定吗？",
-            intro: "欢迎来到 K-community！这是一个与全球分享韩国文化、娱乐和生活信息的中心. 欢迎参加偶像投票，并与世界分享您的精彩故事。",
+            intro: "欢迎来到 K-community！",
             cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
             titles: { vote: "偶像人气投票", kpop: "K-Pop & 娱乐", living: "韩国生活信息", food: "K-美食 & 食谱", beauty: "K-美妆 & 风格", travel: "韩国旅游指南" },
             descs: { vote: "用无限制的票数表达你的爱！", kpop: "最热 K-Pop 新闻", living: "韩国生活小贴士", food: "美味的韩国食物", beauty: "最新美妆潮流", travel: "探索隐藏景点" }
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reqTitle: "➕ Solicitar Ídolo", reqPlace: "Nombre del ídolo...", reqBtn: "Solicitar",
             noPosts: "No hay publicaciones.", translating: "Traduciendo...",
             confirmDelete: "¿Eliminar?", confirmDislike: "No se puede deshacer. ¿Continuar?",
-            intro: "¡Bienvenido a K-community! Somos un centro global que comparte información sobre la cultura, el entretenimiento y el estilo de vida coreanos. Participa en las encuestas de ídolos y comparte tus historias con el mundo.",
+            intro: "¡Bienvenido a K-community!",
             cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
             titles: { vote: "Votación de Ídolos", kpop: "K-Pop y Entretenimiento", living: "Vida en Corea", food: "Comida y Recetas", beauty: "Belleza y Estilo", travel: "Guía de Viajes" },
             descs: { vote: "¡Muestra tu amor con votos ilimitados!", kpop: "Noticias K-Pop", living: "Consejos de vida", food: "Historias de comida", beauty: "Tendencias de belleza", travel: "Explora lugares únicos" }
@@ -129,6 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
     onSnapshot(postsQuery, (snapshot) => {
         posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderContent();
+    }, (error) => {
+        console.error("Firebase sync error:", error);
     });
 
     // 2. 투표 데이터 실시간 동기화
@@ -155,29 +158,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function savePostToFirebase(postData) {
-        if (postData.firebaseId) {
-            const docRef = doc(db, "posts", postData.firebaseId);
-            const { firebaseId, ...pureData } = postData;
-            await updateDoc(docRef, pureData);
-        } else {
-            postData.createdAt = Date.now();
-            await addDoc(collection(db, "posts"), postData);
+        try {
+            if (postData.firebaseId) {
+                const docRef = doc(db, "posts", postData.firebaseId);
+                const { firebaseId, ...pureData } = postData;
+                await updateDoc(docRef, pureData);
+            } else {
+                postData.createdAt = Date.now();
+                await addDoc(collection(db, "posts"), postData);
+            }
+            console.log("Post saved successfully to Firebase");
+        } catch (e) {
+            console.error("Error saving post:", e);
+            alert("Error saving post: " + e.message);
         }
     }
 
     async function deletePostFromFirebase(id) {
-        await deleteDoc(doc(db, "posts", id));
+        try {
+            await deleteDoc(doc(db, "posts", id));
+        } catch (e) {
+            console.error("Delete error:", e);
+        }
     }
 
     async function updateVoteInFirebase(key, type) {
         const docRef = doc(db, "votes", key);
-        // 문서가 없을 경우 초기화
         if (!voteData[key]) {
             await setDoc(docRef, { name: key.toUpperCase(), likes: 0, dislikes: 0 });
         }
-        await updateDoc(docRef, {
-            [type]: increment(1)
-        });
+        await updateDoc(docRef, { [type]: increment(1) });
     }
 
     function updateUI() {
@@ -209,6 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         els.categoryDesc.textContent = langData.descs[currentCategory];
         els.userDisplay.textContent = currentUser;
+        if (currentUser === ADMIN_NICK) els.userDisplay.style.color = "var(--primary-color)";
+        else els.userDisplay.style.color = "inherit";
     }
 
     function renderContent() {
@@ -245,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const isLiked = myLikedPosts.includes(post.id);
             const isOwner = post.author === currentUser;
+            const isAdmin = currentUser === ADMIN_NICK;
 
             el.innerHTML = `
                 <div class="post-header"><div class="post-title">${title}</div></div>
@@ -257,7 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                     </div>
                 </div>
-                ${isOwner ? `<div class="post-mgmt-actions"><button class="btn-icon edit-btn">✎</button><button class="btn-icon delete-btn">🗑</button></div>` : ''}
+                <div class="post-mgmt-actions">
+                    ${isOwner ? `<button class="btn-icon edit-btn">✎</button>` : ''}
+                    ${(isOwner || isAdmin) ? `<button class="btn-icon delete-btn">🗑</button>` : ''}
+                </div>
                 <div class="post-content">${content}</div>
                 <div class="comments-section">
                     <div class="comment-list">${post.comments ? post.comments.map(c => renderComment(c)).join('') : ''}</div>
@@ -275,42 +291,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isExp) { 
                     el.classList.add('expanded'); 
                     expandedPostId = post.id; 
-                    const docRef = doc(db, "posts", post.id);
-                    await updateDoc(docRef, { views: increment(1) });
+                    await updateDoc(doc(db, "posts", post.id), { views: increment(1) });
                 }
                 else expandedPostId = null;
             };
 
             el.querySelector('.like-post-btn').onclick = async () => {
                 const idx = myLikedPosts.indexOf(post.id);
-                const docRef = doc(db, "posts", post.id);
                 if (idx === -1) { 
                     myLikedPosts.push(post.id); 
-                    await updateDoc(docRef, { likes: increment(1) });
+                    await updateDoc(doc(db, "posts", post.id), { likes: increment(1) });
                 }
                 else { 
                     myLikedPosts.splice(idx, 1); 
-                    await updateDoc(docRef, { likes: increment(-1) });
+                    await updateDoc(doc(db, "posts", post.id), { likes: increment(-1) });
                 }
                 localStorage.setItem('kcon_liked_posts', JSON.stringify(myLikedPosts)); 
             };
 
-            if (isOwner) {
-                el.querySelector('.delete-btn').onclick = () => { if(confirm(t[currentLang].confirmDelete)) deletePostFromFirebase(post.id); };
-                el.querySelector('.edit-btn').onclick = () => {
-                    document.getElementById('post-id').value = post.id; els.postTitle.value = post.title; els.postContent.value = post.content;
-                    currentPostImages = [...(post.images || [])]; els.imagePreviews.innerHTML = '';
-                    currentPostImages.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'preview-thumb'; els.imagePreviews.appendChild(img); });
-                    els.modal.classList.add('active');
-                };
-            }
+            const delBtn = el.querySelector('.delete-btn');
+            if (delBtn) delBtn.onclick = () => { if(confirm(t[currentLang].confirmDelete)) deletePostFromFirebase(post.id); };
+            
+            const editBtn = el.querySelector('.edit-btn');
+            if (editBtn) editBtn.onclick = () => {
+                document.getElementById('post-id').value = post.id; els.postTitle.value = post.title; els.postContent.value = post.content;
+                currentPostImages = [...(post.images || [])]; els.imagePreviews.innerHTML = '';
+                currentPostImages.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'preview-thumb'; els.imagePreviews.appendChild(img); });
+                els.modal.classList.add('active');
+            };
 
             el.querySelector('.add-comment-btn').onclick = async () => {
                 const inp = el.querySelector('.comment-input'); if(!inp.value.trim()) return;
                 const newComments = post.comments ? [...post.comments] : [];
                 newComments.push({ id: Date.now(), text: inp.value, author: currentUser, lang: currentLang });
-                const docRef = doc(db, "posts", post.id);
-                await updateDoc(docRef, { comments: newComments });
+                await updateDoc(doc(db, "posts", post.id), { comments: newComments });
             };
             els.postsContainer.appendChild(el);
         });
@@ -318,11 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderComment(c) {
         let text = c.text;
-        if (c.lang !== currentLang) {
-            const key = `cmt_${c.id}_${currentLang}`;
-            if (translationCache[key]) text = translationCache[key];
-            else translateText(c.text, c.lang, currentLang, (res) => { translationCache[key] = res; });
-        }
+        const isAdmin = currentUser === ADMIN_NICK;
+        // 운영자는 모든 댓글 삭제 권한 (추후 기능 추가 가능)
         return `<div class="comment-item"><b>@${c.author}</b>: ${text}</div>`;
     }
 
@@ -346,10 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
         grid.onclick = (e) => {
             const btn = e.target.closest('.poll-btn'); if (!btn) return;
             const key = btn.dataset.key;
-            if (btn.classList.contains('like')) { 
-                updateVoteInFirebase(key, 'likes');
-                if (voteData[key].likes > 0 && voteData[key].likes % 100 === 0) triggerFireworks(voteData[key].likes); 
-            }
+            if (btn.classList.contains('like')) updateVoteInFirebase(key, 'likes');
             else if (btn.classList.contains('dislike')) {
                 if (myDislikes.includes(key)) return;
                 if (confirm(lang.confirmDislike)) { 
@@ -361,16 +369,15 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const reqList = els.postsContainer.querySelector('.req-list');
         idolRequests.forEach((req) => {
-            const canDelete = req.author === currentUser || currentUser.toLowerCase().includes('admin');
+            const isAdmin = currentUser === ADMIN_NICK;
+            const canDelete = req.author === currentUser || isAdmin;
             const item = document.createElement('div'); item.className = 'req-item';
             item.innerHTML = `<span>${req.text} <small style="color:#888">(@${req.author})</small></span>${canDelete ? `<span class="req-delete" data-id="${req.id}">🗑</span>` : ''}`;
             reqList.appendChild(item);
         });
         reqList.onclick = async (e) => { 
             if (e.target.classList.contains('req-delete')) { 
-                if (confirm(t[currentLang].confirmDelete)) { 
-                    await deleteDoc(doc(db, "requests", e.target.dataset.id));
-                } 
+                if (confirm(t[currentLang].confirmDelete)) await deleteDoc(doc(db, "requests", e.target.dataset.id));
             } 
         };
         els.postsContainer.querySelector('#btn-submit-req').onclick = async () => {
@@ -381,8 +388,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
-
-    function triggerFireworks(score) { confetti({ particleCount: Math.min(200, 50 + score/5), spread: 70, origin: { y: 0.6 } }); }
 
     function renderTrending() {
         els.trendingList.innerHTML = '';
@@ -396,15 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
             li.onclick = () => { currentCategory = item.cat; if(item.id) expandedPostId = item.id; updateUI(); renderContent(); };
             els.trendingList.appendChild(li);
         });
-        
-        let blogBox = document.getElementById('blog-promo-box');
-        if (!blogBox) {
-            blogBox = document.createElement('div');
-            blogBox.id = 'blog-promo-box';
-            blogBox.style.cssText = "margin-top: 1.5rem; padding: 1rem; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 12px; font-size: 0.85rem;";
-            blogBox.innerHTML = `<strong>📖 All About Korea Blog</strong><p style="margin: 0.5rem 0; color: #666;">Explore more deep stories about Korea.</p><a href="https://ailaboutkorea.blogspot.com/" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Visit Blog →</a>`;
-            els.trendingList.parentNode.appendChild(blogBox);
-        }
     }
 
     async function translatePost(post) {
@@ -414,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const [tT, tC] = await Promise.all([fetchTranslation(post.title, post.lang, currentLang), fetchTranslation(post.content, post.lang, currentLang)]);
             translationCache[titleKey] = tT; translationCache[contentKey] = tC; renderPosts();
-        } catch (e) { console.error(e); }
+        } catch (e) {}
     }
 
     async function fetchTranslation(text, source, target) {
@@ -434,8 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!file.type.startsWith('image/')) return;
                 const reader = new FileReader(); reader.onload = (ev) => {
                     currentPostImages.push(ev.target.result); const idx = currentPostImages.length - 1;
-                    const cursor = els.postContent.selectionStart;
-                    els.postContent.value = els.postContent.value.slice(0, cursor) + `\n[IMG_${idx}]\n` + els.postContent.value.slice(cursor);
+                    els.postContent.value += `\n[IMG_${idx}]\n`;
                     const img = document.createElement('img'); img.src = ev.target.result; img.className = 'preview-thumb'; els.imagePreviews.appendChild(img);
                 }; reader.readAsDataURL(file);
             });
@@ -449,7 +444,21 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('kcon_lang', currentLang); updateUI(); renderContent();
         });
         els.themeToggle.onclick = () => { currentTheme = currentTheme === 'light' ? 'dark' : 'light'; localStorage.setItem('kcon_theme', currentTheme); applyTheme(currentTheme); };
-        els.btnNick.onclick = () => { const name = prompt("Nickname:", currentUser); if (name) { currentUser = name; localStorage.setItem('kcon_user', name); updateUI(); } };
+        
+        els.btnNick.onclick = () => { 
+            const name = prompt("Nickname:"); 
+            if (name) { 
+                if (name === ADMIN_NICK) {
+                    const pw = prompt("Admin Password:");
+                    if (pw !== ADMIN_PW) { alert("Invalid Password"); return; }
+                }
+                currentUser = name; 
+                localStorage.setItem('kcon_user', name); 
+                updateUI(); 
+                renderContent();
+            } 
+        };
+
         els.postForm.onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('post-id').value;
@@ -476,20 +485,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         newPost.comments = existing.comments || [];
                     }
                 }
-                
-                // 먼저 창을 닫아 사용자에게 피드백을 줌
                 els.modal.classList.remove('active');
-                
                 await savePostToFirebase(newPost);
-                
-                // 폼 초기화
                 els.postForm.reset();
                 els.imagePreviews.innerHTML = '';
                 currentPostImages = [];
-                
             } catch (error) {
-                console.error("Error saving post:", error);
-                alert("Failed to save post. Please try again.");
+                console.error("Save failed:", error);
             }
         };
         document.getElementById('close-modal').onclick = () => els.modal.classList.remove('active');
