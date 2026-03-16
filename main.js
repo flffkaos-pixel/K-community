@@ -60,18 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
         ja: {
             write: "投稿", loading: "接続中...", translating: "翻訳中...",
             trendingTitle: "🔥 今人気の投稿", blogTitle: "📖 All About Korea ブログ",
+            blogDesc: "韓国に関するより深い話に会いましょう。",
             cats: { vote: "投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
             titles: { vote: "人気投票", kpop: "K-POPニュース", living: "韓国生活", food: "グルメ情報", beauty: "K-뷰티", travel: "旅行ガイド" }
         },
         zh: {
             write: "发布", loading: "连接中...", translating: "翻译中...",
             trendingTitle: "🔥 热门内容", blogTitle: "📖 All About Korea 博客",
+            blogDesc: "了解更多关于韩国的深度故事。",
             cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
             titles: { vote: "人气投票", kpop: "K-Pop 娱乐", living: "韩国生活", food: "韩国美食", beauty: "韩国美妆", travel: "韩国旅游" }
         },
         es: {
             write: "Escribir", loading: "Conectando...", translating: "Traduciendo...",
             trendingTitle: "🔥 Tendencias", blogTitle: "📖 Blog All About Korea",
+            blogDesc: "Explora historias más profundas sobre Corea.",
             cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
             titles: { vote: "Votación de Ídolos", kpop: "Noticias K-Pop", living: "Vida en Corea", food: "Comida Coreana", beauty: "Belleza K", travel: "Guía de Viaje" }
         }
@@ -124,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startSync();
         setupEventListeners();
         setupDragAndDrop();
+        initCursorFollower();
     }
 
     function updateUI() {
@@ -382,12 +386,56 @@ document.addEventListener('DOMContentLoaded', () => {
             let displayTitle = item.title;
             if (item.lang && item.lang !== currentLang) {
                 const key = `trend_${item.id}_${currentLang}`;
-                displayTitle = translationCache[key] || await fetchTranslation(item.title, item.lang, currentLang).then(res => { translationCache[key] = res; return res; });
+                if (translationCache[key]) displayTitle = translationCache[key];
+                else {
+                    displayTitle = (t[currentLang] || t.en).translating || "Translating...";
+                    fetchTranslation(item.title, item.lang, currentLang).then(res => { 
+                        translationCache[key] = res; 
+                        renderTrending(); 
+                    });
+                }
             }
             li.innerHTML = `<div class="trending-rank">${i+1}</div><div class="trending-info"><div class="trending-title">${displayTitle}</div><div class="trending-meta">${item.meta}</div></div>`;
             li.onclick = () => { currentCategory = item.cat; if(item.id) expandedPostId = item.id; updateUI(); renderContent(); };
             els.trendingList.appendChild(li);
         });
+    }
+
+    function initCursorFollower() {
+        const idolImages = ['bts.jpg', 'aespa.jpg', 'seventeen.jpg', 'enhypen.jpg', 'straykids.jpg', 'ive.jpg', 'newjeans.jpg', 'riize.jpg'];
+        const randomImg = idolImages[Math.floor(Math.random() * idolImages.length)];
+        
+        const follower = document.createElement('div');
+        follower.className = 'cursor-character';
+        follower.innerHTML = `<img src="${randomImg}" alt="follower">`;
+        document.body.appendChild(follower);
+
+        let mouseX = 0, mouseY = 0;
+        let charX = 0, charY = 0;
+        let lastX = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animate() {
+            let dx = mouseX - charX - 30;
+            let dy = mouseY - charY - 30;
+            
+            charX += dx * 0.08;
+            charY += dy * 0.08;
+            
+            let scaleX = 1;
+            if (charX > lastX + 0.5) scaleX = 1;
+            else if (charX < lastX - 0.5) scaleX = -1;
+            
+            follower.style.transform = `translate(${charX}px, ${charY}px) scaleX(${scaleX})`;
+            lastX = charX;
+            
+            requestAnimationFrame(animate);
+        }
+        animate();
     }
 
     function setupEventListeners() {

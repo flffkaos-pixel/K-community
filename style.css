@@ -408,5 +408,30 @@ body {
 .footer-nav { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
 .footer-nav a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
 .footer-nav a:hover { color: var(--primary-color); }
+/* Cursor Follower Character */
+.cursor-character {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    z-index: 10000;
+    will-change: transform;
+}
+.cursor-character img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid white;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    animation: char-walk 0.6s infinite alternate ease-in-out;
+}
+@keyframes char-walk {
+    0% { transform: translateY(0) rotate(-10deg); }
+    100% { transform: translateY(-12px) rotate(10deg); }
+}
+
 .site-intro { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem; line-height: 1.7; color: var(--text-secondary); font-size: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02); text-align: center; }
 
