@@ -187,16 +187,20 @@ document.addEventListener('DOMContentLoaded', () => {
         els.postsContainer.innerHTML = '';
         const filtered = posts.filter(p => p.category === currentCategory);
         
-        // 특정 글이 선택된 경우 (URL 파라미터 id=...) 최상단으로 올리기
+        // 봇을 위한 숨겨진 링크 목록 생성 (SEO 자동화)
+        updateCrawlerLinks(filtered);
+
         if (expandedPostId) {
             const index = filtered.findIndex(p => p.firebaseId === expandedPostId);
             if (index > -1) {
                 const selectedPost = filtered.splice(index, 1)[0];
                 filtered.unshift(selectedPost);
-                // 검색엔진을 위한 제목/설명 변경
                 updateMetaTags(selectedPost);
+                // 구글을 위한 구조화 데이터 추가
+                generateStructuredData(selectedPost);
             }
         }
+        // ... (이하 동일한 렌더링 로직)
 
         if (filtered.length === 0) {
             els.postsContainer.innerHTML = `<div style="text-align:center; color:#888; padding: 2rem;">${(t[currentLang]||t.en).noPosts}</div>`;
@@ -305,11 +309,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) metaDesc.setAttribute('content', post.content.substring(0, 150));
         
-        // Open Graph (페이스북, 카톡 공유용)
+        // Open Graph
         const ogTitle = document.querySelector('meta[property="og:title"]');
         if (ogTitle) ogTitle.setAttribute('content', post.title);
         const ogDesc = document.querySelector('meta[property="og:description"]');
         if (ogDesc) ogDesc.setAttribute('content', post.content.substring(0, 150));
+    }
+
+    // 구글 봇을 위한 숨겨진 링크 목록 생성 (sitemap.xml 수동 업데이트 대체)
+    function updateCrawlerLinks(filteredPosts) {
+        let crawlerDiv = document.getElementById('crawler-links');
+        if (!crawlerDiv) {
+            crawlerDiv = document.createElement('div');
+            crawlerDiv.id = 'crawler-links';
+            crawlerDiv.style.display = 'none'; // 사용자에게는 안 보임
+            document.body.appendChild(crawlerDiv);
+        }
+        
+        crawlerDiv.innerHTML = filteredPosts.map(p => 
+            `<a href="?id=${p.firebaseId}">${p.title}</a>`
+        ).join(' ');
+    }
+
+    // 구글 검색 결과에 상세 정보를 표시하기 위한 구조화 데이터 생성
+    function generateStructuredData(post) {
+        const scriptId = 'structured-data-script';
+        let script = document.getElementById(scriptId);
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+
+        const data = {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "description": post.content.substring(0, 150),
+            "author": {
+                "@type": "Person",
+                "name": post.author
+            },
+            "datePublished": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
+            "url": `${window.location.origin}${window.location.pathname}?id=${post.firebaseId}`
+        };
+        
+        script.text = JSON.stringify(data);
     }
 
     async function translatePost(post) {

@@ -1,52 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
-  <!-- Landing Page -->
-  <url>
-    <loc>https://k-community.pages.dev/</loc>
-    <lastmod>2026-03-12</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-
-  <!-- Community Board -->
-  <url>
-    <loc>https://k-community.pages.dev/board.html</loc>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://k-community.pages.dev/board.html"/>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://k-community.pages.dev/board.html?lang=ko"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://k-community.pages.dev/board.html?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="ja" href="https://k-community.pages.dev/board.html?lang=ja"/>
-    <xhtml:link rel="alternate" hreflang="zh" href="https://k-community.pages.dev/board.html?lang=zh"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://k-community.pages.dev/board.html?lang=es"/>
-    <lastmod>2026-03-12</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Static Pages -->
-  <url>
-    <loc>https://k-community.pages.dev/about.html</loc>
-    <lastmod>2026-03-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://k-community.pages.dev/contact.html</loc>
-    <lastmod>2026-03-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://k-community.pages.dev/privacy.html</loc>
-    <lastmod>2026-03-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://k-community.pages.dev/terms.html</loc>
-    <lastmod>2026-03-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://k-community.pages.dev/</loc>
+        <lastmod>2026-03-16</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://k-community.pages.dev/board.html</loc>
+        <lastmod>2026-03-16</lastmod>
+        <changefreq>always</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url><loc>https://k-community.pages.dev/board.html?category=vote</loc><changefreq>always</changefreq><priority>0.8</priority></url>
+    <url><loc>https://k-community.pages.dev/board.html?category=kpop</loc><changefreq>always</changefreq><priority>0.8</priority></url>
+    <url><loc>https://k-community.pages.dev/board.html?category=living</loc><changefreq>always</changefreq><priority>0.8</priority></url>
+    <url><loc>https://k-community.pages.dev/board.html?category=food</loc><changefreq>always</changefreq><priority>0.8</priority></url>
+    <url><loc>https://k-community.pages.dev/board.html?category=beauty</loc><changefreq>always</changefreq><priority>0.8</priority></url>
+    <url><loc>https://k-community.pages.dev/board.html?category=travel</loc><changefreq>always</changefreq><priority>0.8</priority></url>
 </urlset>
