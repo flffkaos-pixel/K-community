@@ -321,8 +321,14 @@ document.addEventListener('DOMContentLoaded', () => {
         idols.forEach(key => {
             const data = voteData[key] || { name: key.toUpperCase(), likes: 0 };
             const card = document.createElement('div'); card.className = 'idol-card';
+            
+            if (key === 'bts') {
+                card.style.background = 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("bts.jpg") center/cover no-repeat';
+                card.style.color = 'white';
+            }
+
             card.innerHTML = `
-                <div class="idol-name">${data.name}</div>
+                <div class="idol-name" style="${key === 'bts' ? 'color: white;' : ''}">${data.name}</div>
                 <div class="poll-actions">
                     <button class="poll-btn like" data-key="${key}">👍 <span class="count">${data.likes}</span></button>
                 </div>`;
