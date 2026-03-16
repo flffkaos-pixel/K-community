@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const els = {
         postsContainer: document.getElementById('posts-container'),
+        trendingList: document.getElementById('trending-list'),
         tabs: document.querySelectorAll('.tab'),
         modal: document.getElementById('modal-overlay'),
         postForm: document.getElementById('post-form'),
@@ -160,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (currentCategory === 'vote') renderPoll();
         else renderPosts();
+        renderTrending();
     }
 
     function renderPosts() {
@@ -356,6 +358,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 inp.value = '';
             }
         };
+    }
+
+    function renderTrending() {
+        if (!els.trendingList) return;
+        els.trendingList.innerHTML = '';
+        const items = [];
+        
+        // 1. 블로그 홍보 박스
+        let blogBox = document.getElementById('blog-promo-box');
+        if (!blogBox) {
+            blogBox = document.createElement('div');
+            blogBox.id = 'blog-promo-box';
+            blogBox.style.cssText = "margin-top: 1rem; padding: 1rem; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 12px; font-size: 0.85rem;";
+            blogBox.innerHTML = `<strong>📖 All About Korea Blog</strong><p style="margin: 0.5rem 0; color: #666;">Explore more deep stories about Korea.</p><a href="https://ailaboutkorea.blogspot.com/" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Visit Blog →</a>`;
+            els.trendingList.parentNode.appendChild(blogBox);
+        }
+
+        // 2. 인기 게시글
+        const sortedPosts = [...posts].sort((a,b) => ((b.views||0) + (b.likes||0)*2) - ((a.views||0) + (a.likes||0)*2)).slice(0, 3);
+        sortedPosts.forEach(p => items.push({ title: p.title, meta: `Post • ❤️ ${p.likes||0}`, id: p.firebaseId, cat: p.category }));
+
+        // 3. 인기 아이돌
+        Object.entries(voteData).sort(([,a], [,b]) => b.likes - a.likes).slice(0, 2).forEach(([k, d]) => items.push({ title: d.name, meta: `Idol • ❤️ ${d.likes}`, cat: 'vote' }));
+
+        items.forEach((item, i) => {
+            const li = document.createElement('li'); li.className = 'trending-item';
+            li.innerHTML = `<div class="trending-rank">${i+1}</div><div class="trending-info"><div class="trending-title">${item.title}</div><div class="trending-meta">${item.meta}</div></div>`;
+            li.onclick = () => { 
+                currentCategory = item.cat; 
+                if(item.id) expandedPostId = item.id; 
+                updateUI(); renderContent(); 
+            };
+            els.trendingList.appendChild(li);
+        });
     }
 
     function setupEventListeners() {
