@@ -663,15 +663,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = els.postForm.querySelector('button[type="submit"]');
             btn.disabled = true;
             try {
-                await addDoc(collection(db, "posts"), { 
+                const newPost = { 
                     category: currentCategory, title: els.postTitle.value, content: els.postContent.value, 
                     author: currentUser, date: new Date().toLocaleDateString(), likes: 0, views: 0, 
                     comments: [], lang: currentLang, images: currentPostImages, createdAt: Date.now()
-                });
+                };
+                const docRef = await addDoc(collection(db, "posts"), newPost);
+                
+                // --- Search Engine Indexing Request (IndexNow) ---
+                notifySearchEngines(docRef.id);
+
                 els.modal.classList.remove('active'); els.postForm.reset(); currentPostImages = [];
             } catch (err) { alert("Error: " + err.message); }
             finally { btn.disabled = false; }
         };
+
+        async function notifySearchEngines(postId) {
+            const host = "k-community.pages.dev";
+            const postUrl = `https://${host}/board.html?id=${postId}`;
+            const key = "7ed8b2c45a914e289d3f1c6b2e0a4f5d";
+            
+            // IndexNow API call (Bing, Yandex, etc.)
+            // Naver also supports IndexNow compatibility.
+            const indexNowUrl = `https://www.bing.com/IndexNow?url=${encodeURIComponent(postUrl)}&key=${key}`;
+            
+            try {
+                // Using no-cors mode to avoid preflight issues, as IndexNow supports simple GET
+                await fetch(indexNowUrl, { mode: 'no-cors' });
+                console.log("Indexing request sent for:", postUrl);
+            } catch (e) {
+                console.error("Indexing request failed:", e);
+            }
+        }
     }
 
     function setupDragAndDrop() {
