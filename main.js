@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             trendingTitle: "🔥 지금 인기 있는 글",
             blogTitle: "📖 올 어바웃 코리아 블로그",
             blogDesc: "한국에 대한 더 깊은 이야기들을 만나보세요.",
+            welcomeTitle: "환영합니다! 🎉",
+            welcomeMsg: "K-community에서 여러분의 소중한 이야기를 들려주세요! K-Pop, 한국 여행, 음식 등 어떤 주제든 좋습니다. 카테고리를 선택하고 '글쓰기' 버튼을 눌러 전 세계 친구들과 소통해 보세요.",
             cats: { vote: "아이돌 투표", kpop: "K-Pop", living: "한국 생활", food: "음식", beauty: "뷰티", travel: "여행" },
             titles: { vote: "아이돌 인기 투표", kpop: "K-Pop & 엔터", living: "한국 생활 정보", food: "K-푸드 & 레시피", beauty: "K-뷰티 & 스타일", travel: "한국 여행 가이드" },
             descs: { vote: "무제한 투표!", kpop: "K-Pop 뉴스", living: "생활 꿀팁", food: "맛있는 음식", beauty: "뷰티 트렌드", travel: "여행 가이드" }
@@ -53,6 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
             trendingTitle: "🔥 Trending Now",
             blogTitle: "📖 All About Korea Blog",
             blogDesc: "Explore more deep stories about Korea.",
+            welcomeTitle: "Welcome! 🎉",
+            welcomeMsg: "Share your precious stories at K-community! K-Pop, Korea travel, food, or any topic is welcome. Select a category and click 'Write' to connect with friends worldwide.",
             cats: { vote: "Idol Poll", kpop: "K-Pop", living: "Living", food: "Food", beauty: "Beauty", travel: "Travel" },
             titles: { vote: "Idol Popularity Poll", kpop: "K-Pop & Entertainment", living: "Living in Korea", food: "K-Food & Recipes", beauty: "K-Beauty & Style", travel: "Korea Travel Guide" },
             descs: { vote: "Unlimited votes!", kpop: "K-Pop News", living: "Life tips", food: "Food stories", beauty: "Beauty trends", travel: "Travel guide" }
@@ -61,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
             write: "投稿", loading: "接続中...", translating: "翻訳中...",
             trendingTitle: "🔥 今人気の投稿", blogTitle: "📖 All About Korea ブログ",
             blogDesc: "韓国に関するより深い話に会いましょう。",
+            welcomeTitle: "ようこそ！ 🎉",
+            welcomeMsg: "K-communityであなたの貴重な話を共有してください！K-Pop、韓国旅行、食べ物など、どんなトピックでも大歓迎です。カテゴリーを選択して「投稿」をクリックし、世界中の友達とつながりましょう。",
             cats: { vote: "投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
             titles: { vote: "人気投票", kpop: "K-POPニュース", living: "韓国生活", food: "グルメ情報", beauty: "K-뷰티", travel: "旅行ガイド" }
         },
@@ -68,6 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
             write: "发布", loading: "连接中...", translating: "翻译中...",
             trendingTitle: "🔥 热门内容", blogTitle: "📖 All About Korea 博客",
             blogDesc: "了解更多关于韩国的深度故事。",
+            welcomeTitle: "欢迎！ 🎉",
+            welcomeMsg: "在 K-community 分享您的精彩故事！无论是 K-Pop、韩国旅游、美食还是任何话题都欢迎。选择一个类别并点击“发布”，与世界各地的朋友交流。",
             cats: { vote: "偶像投票", kpop: "K-Pop", living: "生活", food: "美食", beauty: "美妆", travel: "旅游" },
             titles: { vote: "人气投票", kpop: "K-Pop 娱乐", living: "韩国生活", food: "韩国美食", beauty: "韩国美妆", travel: "韩国旅游" }
         },
@@ -75,8 +83,28 @@ document.addEventListener('DOMContentLoaded', () => {
             write: "Escribir", loading: "Conectando...", translating: "Traduciendo...",
             trendingTitle: "🔥 Tendencias", blogTitle: "📖 Blog All About Korea",
             blogDesc: "Explora historias más profundas sobre Corea.",
+            welcomeTitle: "¡Bienvenido! 🎉",
+            welcomeMsg: "¡Comparte tus valiosas historias en K-community! K-Pop, viajes por Corea, comida o cualquier tema es bienvenido. Selecciona una categoría y haz clic en 'Escribir' para conectar con amigos de todo el mundo.",
             cats: { vote: "Votación", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Belleza", travel: "Viajes" },
             titles: { vote: "Votación de Ídolos", kpop: "Noticias K-Pop", living: "Vida en Corea", food: "Comida Coreana", beauty: "Belleza K", travel: "Guía de Viaje" }
+        },
+        th: {
+            write: "เขียน", loading: "กำลังเชื่อมต่อ...", translating: "กำลังแปล...",
+            trendingTitle: "🔥 กำลังเป็นที่นิยม", blogTitle: "📖 บล็อก All About Korea",
+            blogDesc: "สำรวจเรื่องราวเชิงลึกเกี่ยวกับเกาหลีเพิ่มเติม",
+            welcomeTitle: "ยินดีต้อนรับ! 🎉",
+            welcomeMsg: "แบ่งปันเรื่องราวที่มีค่าของคุณที่ K-community! ไม่ว่าจะเป็น K-Pop, การเที่ยวเกาหลี, อาหาร หรือหัวข้อใดๆ ก็ตาม เลือกหมวดหมู่แล้วคลิก 'เขียน' เพื่อเชื่อมต่อกับเพื่อนๆ ทั่วโลก",
+            cats: { vote: "โหวตไอดอล", kpop: "K-Pop", living: "การใช้ชีวิต", food: "อาหาร", beauty: "ความงาม", travel: "การท่องเที่ยว" },
+            titles: { vote: "โหวตยอดนิยมไอดอล", kpop: "K-Pop & บันเทิง", living: "การใช้ชีวิตในเกาหลี", food: "อาหารเกาหลี & สูตรอาหาร", beauty: "K-Beauty & สไตล์", travel: "คู่มือท่องเที่ยวเกาหลี" }
+        },
+        vi: {
+            write: "Viết bài", loading: "Đang kết nối...", translating: "Đang dịch...",
+            trendingTitle: "🔥 Đang thịnh hành", blogTitle: "📖 Blog All About Korea",
+            blogDesc: "Khám phá thêm những câu chuyện sâu sắc về Hàn Quốc.",
+            welcomeTitle: "Chào mừng! 🎉",
+            welcomeMsg: "Chia sẻ những câu chuyện quý giá của bạn tại K-community! K-Pop, du lịch Hàn Quốc, ẩm thực hoặc bất kỳ chủ đề nào đều được chào đón. Chọn một danh mục và nhấp vào 'Viết bài' để kết nối với bạn bè trên toàn thế giới.",
+            cats: { vote: "Bình chọn Idol", kpop: "K-Pop", living: "Đời sống", food: "Ẩm thực", beauty: "Làm đẹp", travel: "Du lịch" },
+            titles: { vote: "Bình chọn độ nổi tiếng Idol", kpop: "K-Pop & Giải trí", living: "Sống tại Hàn Quốc", food: "Món ăn & Công thức", beauty: "K-Beauty & Phong cách", travel: "Cẩm nang du lịch Hàn Quốc" }
         }
     };
 
@@ -86,6 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
         trendingTitle: document.getElementById('trending-title'),
         tabs: document.querySelectorAll('.tab'),
         modal: document.getElementById('modal-overlay'),
+        welcomePopup: document.getElementById('welcome-popup'),
+        welcomeTitle: document.getElementById('welcome-title'),
+        welcomeMessage: document.getElementById('welcome-message'),
         postForm: document.getElementById('post-form'),
         postTitle: document.getElementById('post-title'),
         postContent: document.getElementById('post-content'),
@@ -128,6 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
         setupEventListeners();
         setupDragAndDrop();
         initCursorFollower();
+        checkWelcomePopup();
+    }
+
+    function checkWelcomePopup() {
+        const welcomeShown = localStorage.getItem('kcon_welcome_shown');
+        if (!welcomeShown) {
+            const langData = t[currentLang] || t.en;
+            els.welcomeTitle.textContent = langData.welcomeTitle;
+            els.welcomeMessage.textContent = langData.welcomeMsg;
+            els.welcomePopup.classList.add('active');
+        }
     }
 
     function updateUI() {
@@ -558,6 +600,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         document.getElementById('close-modal').onclick = () => els.modal.classList.remove('active');
         document.getElementById('cancel-post').onclick = () => els.modal.classList.remove('active');
+        document.getElementById('close-welcome').onclick = () => {
+            els.welcomePopup.classList.remove('active');
+            localStorage.setItem('kcon_welcome_shown', 'true');
+        };
         els.postForm.onsubmit = async (e) => {
             e.preventDefault();
             const btn = els.postForm.querySelector('button[type="submit"]');

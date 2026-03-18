@@ -345,6 +345,26 @@ body {
     z-index: 2000;
 }
 .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+
+/* Welcome Popup Specific */
+#welcome-popup .modal {
+    max-width: 400px;
+    text-align: center;
+    padding: 2rem;
+}
+#welcome-popup h2 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+#welcome-popup p {
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+#welcome-popup .modal-footer {
+    border-top: none;
+    padding: 0;
+}
 .modal {
     background: var(--modal-bg);
     width: 90%; max-width: 550px;
