@@ -97,6 +97,13 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Mobile adjustment for many flags */
+        .lang-switcher {
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1955893232253258" crossorigin="anonymous"></script>
 </head>
@@ -132,6 +139,14 @@
                 <button class="lang-btn" data-lang="ja">🇯🇵</button>
                 <button class="lang-btn" data-lang="zh">🇨🇳</button>
                 <button class="lang-btn" data-lang="es">🇪🇸</button>
+                <button class="lang-btn" data-lang="th">🇹🇭</button>
+                <button class="lang-btn" data-lang="vi">🇻🇳</button>
+                <button class="lang-btn" data-lang="id">🇮🇩</button>
+                <button class="lang-btn" data-lang="fr">🇫🇷</button>
+                <button class="lang-btn" data-lang="de">🇩🇪</button>
+                <button class="lang-btn" data-lang="pt">🇧🇷</button>
+                <button class="lang-btn" data-lang="ru">🇷🇺</button>
+                <button class="lang-btn" data-lang="ar">🇸🇦</button>
             </div>
         </div>
     </main>
@@ -163,7 +178,7 @@
             ja: {
                 title: "K-community",
                 desc: "K-communityへようこそ！ここは韓国の多様な文化、芸能、生活情報を全世界の人々と共有하는 グローバルハブです。アイドル投票に参加したり、あなたの貴重な話を共有してください。",
-                btn: "コミュニティに入る"
+                btn: "コミュニ티に入る"
             },
             zh: {
                 title: "K-community",
@@ -174,13 +189,54 @@
                 title: "K-community",
                 desc: "¡Bienvenido a K-community! Somos un centro global que comparte información sobre la cultura, el entretenimiento y el estilo de vida coreanos. Participa en las encuestas de ídolos y comparte tus historias con el mundo.",
                 btn: "Entrar en la comunidad"
+            },
+            th: {
+                title: "K-community",
+                desc: "ยินดีต้อนรับสู่ K-community! เราเป็นศูนย์กลางระดับโลกที่แบ่งปันข้อมูลต่างๆ เกี่ยวกับวัฒนธรรม ความบันเทิง และไลฟ์สไตล์ของเกาหลี มีส่วนร่วมในการโหวตไอดอลและแบ่งปันเรื่องราวที่มีค่าของคุณกับคนทั้งโลก",
+                btn: "เข้าสู่ชุมชน"
+            },
+            vi: {
+                title: "K-community",
+                desc: "Chào mừng bạn đến với K-community! Chúng tôi là một trung tâm toàn cầu chia sẻ các thông tin khác nhau về văn hóa, giải trí và lối sống Hàn Quốc. Tham gia bình chọn thần tượng và chia sẻ những câu chuyện quý giá của bạn với thế giới.",
+                btn: "Vào cộng đồng"
+            },
+            id: {
+                title: "K-community",
+                desc: "Selamat datang di K-community! Kami adalah pusat global yang berbagi berbagai informasi tentang budaya, hiburan, dan gaya hidup Korea. Berpartisipasilah dalam pemungutan suara idola dan bagikan kisah berharga Anda kepada dunia.",
+                btn: "Masuk ke Komunitas"
+            },
+            fr: {
+                title: "K-community",
+                desc: "Bienvenue sur K-community ! Nous sommes un hub mondial partageant diverses informations sur la culture, le divertissement et le mode de vie coréens. Participez aux sondages d'idoles et partagez vos précieuses histoires avec le monde.",
+                btn: "Entrer dans la communauté"
+            },
+            de: {
+                title: "K-community",
+                desc: "Willkommen bei K-community! Wir sind ein globales Zentrum, das verschiedene Informationen über die koreanische Kultur, Unterhaltung und den Lebensstil teilt. Nehmen Sie an Idol-Umfragen teil und teilen Sie Ihre wertvollen Geschichten mit der Welt.",
+                btn: "Community betreten"
+            },
+            pt: {
+                title: "K-community",
+                desc: "Bem-vindo à K-community! Somos um hub global que compartilha várias informações sobre a cultura, entretenimento e estilo de vida coreanos. Participe de enquetes de ídolos e compartilhe suas histórias preciosas com o mundo.",
+                btn: "Entrar na Comunidade"
+            },
+            ru: {
+                title: "K-community",
+                desc: "Добро пожаловать в K-community! Мы — глобальный хаб, где делятся информацией о корейской культуре, развлечениях и образе жизни. Участвуйте в опросах айдолов и делитесь своими историями со всем миром.",
+                btn: "Войти в сообщество"
+            },
+            ar: {
+                title: "K-community",
+                desc: "أهلاً بك في K-community! نحن مركز عالمي يشارك معلومات متنوعة حول الثقافة والترفيه وأسلوب الحياة في كوريا. شارك في استطلاعات الرأي للآيدولز وشارك قصصك الثمينة مع العالم.",
+                btn: "دخول المجتمع"
             }
         };
 
         function updateLandingUI(lang) {
-            document.getElementById('l-title').textContent = texts[lang].title;
-            document.getElementById('l-desc').textContent = texts[lang].desc;
-            document.getElementById('l-btn').textContent = texts[lang].btn;
+            const data = texts[lang] || texts.en;
+            document.getElementById('l-title').textContent = data.title;
+            document.getElementById('l-desc').textContent = data.desc;
+            document.getElementById('l-btn').textContent = data.btn;
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });

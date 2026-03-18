@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ja: {
             write: "投稿", loading: "接続中...", translating: "翻訳中...",
             trendingTitle: "🔥 今人気の投稿", blogTitle: "📖 All About Korea ブログ",
-            blogDesc: "韓国に関するより深い話に会いましょう。",
+            blogDesc: "韓国に関するより深い話에 만나보세요.",
             welcomeTitle: "ようこそ！ 🎉",
             welcomeMsg: "K-communityであなたの貴重な話を共有してください！K-Pop、韓国旅行、食べ物など、どんなトピックでも大歓迎です。カテゴリーを選択して「投稿」をクリックし、世界中の友達とつながりましょう。",
             cats: { vote: "投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
@@ -105,6 +105,60 @@ document.addEventListener('DOMContentLoaded', () => {
             welcomeMsg: "Chia sẻ những câu chuyện quý giá của bạn tại K-community! K-Pop, du lịch Hàn Quốc, ẩm thực hoặc bất kỳ chủ đề nào đều được chào đón. Chọn một danh mục và nhấp vào 'Viết bài' để kết nối với bạn bè trên toàn thế giới.",
             cats: { vote: "Bình chọn Idol", kpop: "K-Pop", living: "Đời sống", food: "Ẩm thực", beauty: "Làm đẹp", travel: "Du lịch" },
             titles: { vote: "Bình chọn độ nổi tiếng Idol", kpop: "K-Pop & Giải trí", living: "Sống tại Hàn Quốc", food: "Món ăn & Công thức", beauty: "K-Beauty & Phong cách", travel: "Cẩm nang du lịch Hàn Quốc" }
+        },
+        id: {
+            write: "Tulis", loading: "Menghubungkan...", translating: "Menerjemahkan...",
+            trendingTitle: "🔥 Tren Sekarang", blogTitle: "📖 Blog All About Korea",
+            blogDesc: "Jelajahi lebih banyak cerita mendalam tentang Korea.",
+            welcomeTitle: "Selamat Datang! 🎉",
+            welcomeMsg: "Bagikan cerita berharga Anda di K-community! K-Pop, perjalanan Korea, makanan, atau topik apa pun dipersilakan. Pilih kategori dan klik 'Tulis' untuk terhubung dengan teman-teman di seluruh dunia.",
+            cats: { vote: "Polling Idol", kpop: "K-Pop", living: "Kehidupan", food: "Makanan", beauty: "Kecantikan", travel: "Wisata" },
+            titles: { vote: "Polling Popularitas Idol", kpop: "K-Pop & Hiburan", living: "Tinggal di Korea", food: "Makanan & Resep", beauty: "K-Beauty & Gaya", travel: "Panduan Wisata" }
+        },
+        fr: {
+            write: "Écrire", loading: "Connexion...", translating: "Traduction...",
+            trendingTitle: "🔥 Tendances", blogTitle: "📖 Blog All About Korea",
+            blogDesc: "Explorez des histoires plus profondes sur la Corée.",
+            welcomeTitle: "Bienvenue ! 🎉",
+            welcomeMsg: "Partagez vos histoires précieuses sur K-community ! K-Pop, voyages en Corée, cuisine ou tout autre sujet sont les bienvenus. Sélectionnez une catégorie et cliquez sur 'Écrire' pour vous connecter avec des amis du monde entier.",
+            cats: { vote: "Sondage Idol", kpop: "K-Pop", living: "Vie", food: "Cuisine", beauty: "Beauté", travel: "Voyage" },
+            titles: { vote: "Sondage de popularité Idol", kpop: "K-Pop & Divertissement", living: "Vivre en Corée", food: "Cuisine & Recettes", beauty: "K-Beauty & Style", travel: "Guide de voyage" }
+        },
+        de: {
+            write: "Schreiben", loading: "Verbinden...", translating: "Übersetzen...",
+            trendingTitle: "🔥 Trends", blogTitle: "📖 All About Korea Blog",
+            blogDesc: "Entdecke tiefere Geschichten über Korea.",
+            welcomeTitle: "Willkommen! 🎉",
+            welcomeMsg: "Teile deine wertvollen Geschichten in der K-community! K-Pop, Korea-Reisen, Essen oder jedes andere Thema ist willkommen. Wähle eine Kategorie und klicke auf 'Schreiben', um dich mit Freunden weltweit zu verbinden.",
+            cats: { vote: "Idol-Umfrage", kpop: "K-Pop", living: "Leben", food: "Essen", beauty: "Schönheit", travel: "Reisen" },
+            titles: { vote: "Idol-Beliebtheitsumfrage", kpop: "K-Pop & Unterhaltung", living: "Leben in Korea", food: "Essen & Rezepte", beauty: "K-Beauty & Stil", travel: "Reiseführer" }
+        },
+        pt: {
+            write: "Escrever", loading: "Conectando...", translating: "Traduzindo...",
+            trendingTitle: "🔥 Tendências", blogTitle: "📖 Blog All About Korea",
+            blogDesc: "Explore histórias mais profundas sobre a Coreia.",
+            welcomeTitle: "Bem-vindo! 🎉",
+            welcomeMsg: "Compartilhe suas histórias preciosas na K-community! K-Pop, viagens à Coreia, comida ou qualquer tópico é bem-vindo. Selecione uma categoria e clique em 'Escrever' para se conectar com amigos de todo o mundo.",
+            cats: { vote: "Votação Idol", kpop: "K-Pop", living: "Vida", food: "Comida", beauty: "Beleza", travel: "Viagem" },
+            titles: { vote: "Votação de Popularidade Idol", kpop: "K-Pop & Entretenimento", living: "Viver na Coreia", food: "Comida & Receitas", beauty: "K-Beauty & Estilo", travel: "Guia de Viagem" }
+        },
+        ru: {
+            write: "Написать", loading: "Подключение...", translating: "Перевод...",
+            trendingTitle: "🔥 Сейчас в тренде", blogTitle: "📖 Блог All About Korea",
+            blogDesc: "Узнайте больше глубоких историй о Корее.",
+            welcomeTitle: "Добро пожаловать! 🎉",
+            welcomeMsg: "Поделитесь своими драгоценными историями в K-community! K-Pop, путешествия по Корее, еда или любая другая тема приветствуются. Выберите категорию и нажмите «Написать», чтобы пообщаться с друзьями со всего мира.",
+            cats: { vote: "Голосование", kpop: "K-Pop", living: "Жизнь", food: "Еда", beauty: "Красота", travel: "Путешествия" },
+            titles: { vote: "Рейтинг айдолов", kpop: "K-Pop и шоу-бизнес", living: "Жизнь в Корее", food: "Еда и рецепты", beauty: "K-Beauty и стиль", travel: "Путеводитель" }
+        },
+        ar: {
+            write: "كتابة", loading: "جاري الاتصال...", translating: "جاري الترجمة...",
+            trendingTitle: "🔥 شائع الآن", blogTitle: "📖 مدونة كل شيء عن كوريا",
+            blogDesc: "استكشف المزيد من القصص العميقة عن كوريا.",
+            welcomeTitle: "أهلاً بك! 🎉",
+            welcomeMsg: "شارك قصصك الثمينة في K-community! الكيبوب، السفر إلى كوريا، الطعام، أو أي موضوع مرحب به. اختر فئة وانقر على 'كتابة' للتواصل مع الأصدقاء في جميع أنحاء العالم.",
+            cats: { vote: "تصويت", kpop: "K-Pop", living: "الحياة", food: "طعام", beauty: "جمال", travel: "سفر" },
+            titles: { vote: "تصويت شعبية الآيدولز", kpop: "K-Pop والترفيه", living: "الحياة في كوريا", food: "الطعام والوصفات", beauty: "K-Beauty والأناقة", travel: "دليل السفر" }
         }
     };
 
