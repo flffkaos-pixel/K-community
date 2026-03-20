@@ -1,4 +1,9 @@
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
+import { 
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     collection, 
     addDoc, 
@@ -14,11 +19,10 @@ import {
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Global State ---
-    const ADMIN_NICK = "운영자";
-    const ADMIN_PW = "admin1234";
+    const ADMIN_EMAIL = "your-admin-email@example.com"; 
 
     let currentUser = localStorage.getItem('kcon_user') || 'User_' + Math.floor(Math.random() * 9999);
-    localStorage.setItem('kcon_user', currentUser);
+    let isAdmin = false;
 
     let posts = [];
     let voteData = {};
@@ -629,6 +633,19 @@ document.addEventListener('DOMContentLoaded', () => {
         animate();
     }
 
+    // 인증 상태 감시
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.email === ADMIN_EMAIL) {
+            isAdmin = true;
+            currentUser = "운영자";
+        } else {
+            isAdmin = false;
+            currentUser = localStorage.getItem('kcon_user') || 'User_' + Math.floor(Math.random() * 9999);
+        }
+        updateUI();
+        renderContent();
+    });
+
     function setupEventListeners() {
         els.tabs.forEach(tab => tab.onclick = () => { currentCategory = tab.dataset.category; expandedPostId = null; updateUI(); renderContent(); });
         els.langBtns.forEach(btn => btn.onclick = () => {
@@ -641,14 +658,29 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('kcon_theme', currentTheme);
             applyTheme(currentTheme);
         };
-        els.btnNick.onclick = () => { 
-            const name = prompt("Nickname:"); 
-            if (name) { 
-                if (name === ADMIN_NICK) {
-                    if (prompt("Admin Password:") !== ADMIN_PW) { alert("Wrong Password"); return; }
+        els.btnNick.onclick = async () => { 
+            if (isAdmin) {
+                if (confirm("운영자 로그아웃 하시겠습니까?")) {
+                    await signOut(auth);
+                    location.reload();
                 }
-                currentUser = name; 
-                localStorage.setItem('kcon_user', name); 
+                return;
+            }
+
+            const name = prompt("Nickname (또는 관리자 이메일):"); 
+            if (name) { 
+                if (name.includes("@")) { 
+                    const pw = prompt("Admin Password:");
+                    try {
+                        await signInWithEmailAndPassword(auth, name, pw);
+                        alert("관리자로 인증되었습니다.");
+                    } catch (e) {
+                        alert("인증 실패: " + e.message);
+                    }
+                } else {
+                    currentUser = name; 
+                    localStorage.setItem('kcon_user', name); 
+                }
                 updateUI(); renderContent();
             } 
         };
