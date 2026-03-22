@@ -20,7 +20,10 @@ import {
 document.addEventListener('DOMContentLoaded', () => {
     // --- Global State ---
     const ADMIN_EMAIL = "your-admin-email@example.com"; 
+    const ADMIN_NICK = "운영자";
 
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentCategory = urlParams.get('category') || 'vote';
     let currentUser = localStorage.getItem('kcon_user') || 'User_' + Math.floor(Math.random() * 9999);
     let isAdmin = false;
 
@@ -29,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let idolRequests = [];
     let isConnected = false;
 
-    let currentCategory = 'vote';
     let currentLang = localStorage.getItem('kcon_lang') || 'ko';
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentPostImages = [];
