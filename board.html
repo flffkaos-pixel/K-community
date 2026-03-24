@@ -1,18 +1,91 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GE1BKC2K1Y"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GE1BKC2K1Y');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-community - K-Pop Voting & Korean Life</title>
+    <title>Community Board | K-community - K-Pop Voting & Korean Life</title>
+    <meta name="description" content="K-community: The global hub for K-Pop popularity polls, authentic travel guides, and Korean lifestyle tips. Join our multilingual community today!">
+    <meta name="keywords" content="K-pop voting, BTS, Aespa, Seventeen, Korea Travel, Living in Korea, Korean Food, K-beauty, K-community">
+    <meta name="author" content="All About Korea">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="canonical" href="https://k-community.pages.dev/">
+    
+    <!-- Geo Targeting -->
+    <meta name="geo.region" content="KR" />
+    <meta name="geo.placename" content="Seoul" />
+    <meta name="geo.position" content="37.5665;126.9780" />
+    <meta name="ICBM" content="37.5665, 126.9780" />
+
+    <!-- Multilingual Support (SEO) -->
+    <link rel="alternate" hreflang="ko" href="https://k-community.pages.dev/?lang=ko" />
+    <link rel="alternate" hreflang="en" href="https://k-community.pages.dev/?lang=en" />
+    <link rel="alternate" hreflang="ja" href="https://k-community.pages.dev/?lang=ja" />
+    <link rel="alternate" hreflang="zh" href="https://k-community.pages.dev/?lang=zh" />
+    <link rel="alternate" hreflang="es" href="https://k-community.pages.dev/?lang=es" />
+    <link rel="alternate" hreflang="x-default" href="https://k-community.pages.dev/" />
+
+    <!-- Open Graph for Social Authority -->
+    <meta property="og:site_name" content="K-community">
+    <meta property="og:title" content="K-community | Vote for Your Favorite K-Pop Idols">
+    <meta property="og:description" content="Join the global community. Real-time K-pop voting and sharing authentic Korean life stories.">
+    <meta property="og:url" content="https://k-community.pages.dev/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://k-community.pages.dev/favicon.svg">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://k-community.pages.dev/",
+      "name": "K-community",
+      "relatedLink": "https://ailaboutkorea.blogspot.com/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "All About Korea",
+        "logo": "https://k-community.pages.dev/favicon.svg"
+      }
+    }
+    </script>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1955893232253258" crossorigin="anonymous"></script>
 </head>
 <body>
     <header class="header">
         <div class="header-container">
-            <a href="index.html" class="logo">K-community</a>
+            <div class="header-left">
+                <a href="board.html" class="logo" id="logo-link">K-community</a>
+                <div class="user-badge">
+                    <span id="user-display"></span>
+                    <button id="btn-change-nickname" class="btn-icon-small" title="Change Nickname">✎</button>
+                </div>
+            </div>
             <div class="header-actions">
-                <button id="theme-toggle" class="btn-icon">?뙔</button>
+                <div class="lang-switcher" id="lang-switcher">
+                    <button class="lang-btn active" data-lang="ko">🇰🇷</button>
+                    <button class="lang-btn" data-lang="en">🇺🇸</button>
+                    <button class="lang-btn" data-lang="ja">🇯🇵</button>
+                    <button class="lang-btn" data-lang="zh">🇨🇳</button>
+                    <button class="lang-btn" data-lang="es">🇪🇸</button>
+                    <button class="lang-btn" data-lang="th">🇹🇭</button>
+                    <button class="lang-btn" data-lang="vi">🇻🇳</button>
+                    <button class="lang-btn" data-lang="id">🇮🇩</button>
+                    <button class="lang-btn" data-lang="fr">🇫🇷</button>
+                    <button class="lang-btn" data-lang="de">🇩🇪</button>
+                    <button class="lang-btn" data-lang="pt">🇧🇷</button>
+                    <button class="lang-btn" data-lang="ru">🇷🇺</button>
+                    <button class="lang-btn" data-lang="ar">🇸🇦</button>
+                </div>
+                <button id="theme-toggle" class="btn-icon theme-btn">🌙</button>
             </div>
         </div>
     </header>
@@ -20,7 +93,7 @@
     <nav class="nav">
         <div class="nav-container">
             <ul class="category-tabs" id="category-tabs">
-                <li class="tab active" data-category="vote">狩?Idol Poll</li>
+                <li class="tab active" data-category="vote" id="tab-vote">⭐ Idol Poll</li>
                 <li class="tab" data-category="kpop">K-Pop</li>
                 <li class="tab" data-category="living">Living</li>
                 <li class="tab" data-category="food">Food</li>
@@ -35,35 +108,75 @@
             <div class="content-layout">
                 <div class="posts-section">
                     <div class="category-header">
-                        <h2>Welcome to K-community!</h2>
-                        <p>Join our global K-Pop voting community. Vote for your favorite idols and share stories!</p>
+                        <h2 id="category-title">Idol Popularity Poll</h2>
+                        <p id="category-desc">Vote for your favorite K-Pop stars!</p>
                     </div>
                     <div id="posts-container" class="posts-list">
-                        <p>Loading posts...</p>
+                        <!-- Content injected here -->
                     </div>
                 </div>
                 
                 <aside class="sidebar">
                     <div class="trending-card">
-                        <h3>?뵦 Popular Groups</h3>
-                        <ul class="trending-list">
-                            <li>BTS</li>
-                            <li>BLACKPINK</li>
-                            <li>TWICE</li>
-                            <li>NewJeans</li>
-                            <li>aespa</li>
-                            <li>ENHYPEN</li>
-                            <li>IVE</li>
-                            <li>RIIZE</li>
-                        </ul>
+                        <h3 id="trending-title">🔥 Trending Now</h3>
+                        <ul id="trending-list" class="trending-list"></ul>
                     </div>
                 </aside>
             </div>
         </div>
     </main>
 
+    <!-- Write Post Modal -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header center-title">
+                <h3>Create New Post</h3>
+                <button id="close-modal" class="btn-close">&times;</button>
+            </div>
+            <form id="post-form" class="post-form">
+                <input type="hidden" id="post-id">
+                <!-- Category is now implicit based on current tab -->
+                <div class="form-group">
+                    <input type="text" id="post-title" class="input-title" placeholder="Title" required>
+                </div>
+                <div class="form-group content-area">
+                    <div class="toolbar">
+                        <button type="button" class="btn-tool" onclick="document.getElementById('post-image').click()">📷 Add Photo</button>
+                        <span class="tool-tip">Tip: Drag & drop images here</span>
+                    </div>
+                    <input type="file" id="post-image" accept="image/*" style="display: none;" multiple>
+                    <textarea id="post-content" rows="12" placeholder="Write your story here..." required></textarea>
+                    <div id="image-previews" class="image-previews"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-post" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Welcome Popup Modal -->
+    <div id="welcome-popup" class="modal-overlay">
+        <div class="modal">
+            <h2 id="welcome-title">Welcome!</h2>
+            <p id="welcome-message"></p>
+            <div class="modal-footer">
+                <button id="close-welcome" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
-        <p>&copy; 2026 K-community. All rights reserved.</p>
+        <div class="footer-container">
+            <nav class="footer-nav"><a href="index.html">Home</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <p>&copy; 2026 K-community. All rights reserved.</p>
+        </div>
     </footer>
     <script type="module" src="main.js"></script>
 </body>
