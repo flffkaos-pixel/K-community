@@ -45,22 +45,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const translationCache = {};
     const translatingIds = new Set(); 
     
-    // --- Translation Queue System ---
+    // --- Translation Queue System (Optimized) ---
     const translationQueue = [];
-    let isTranslatingQueue = false;
+    let activeTasks = 0;
+    const MAX_CONCURRENT = 5; // Process 5 requests at once for speed
+    const QUEUE_DELAY = 50;   // Minimal delay between tasks
 
     function processQueue() {
-        if (isTranslatingQueue || translationQueue.length === 0) return;
-        isTranslatingQueue = true;
-        const { task, resolve } = translationQueue.shift();
-        
-        task().then(resolve).finally(() => {
-            // Delay between requests to avoid 429 Too Many Requests
-            setTimeout(() => {
-                isTranslatingQueue = false;
-                processQueue();
-            }, 500); 
-        });
+        while (activeTasks < MAX_CONCURRENT && translationQueue.length > 0) {
+            activeTasks++;
+            const { task, resolve } = translationQueue.shift();
+            
+            task().then(resolve).finally(() => {
+                activeTasks--;
+                setTimeout(processQueue, QUEUE_DELAY);
+            });
+        }
     }
 
     function enqueueTranslation(text, source, target) {
@@ -555,34 +555,48 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!text || !target) return text;
         if (source === target && source !== 'auto') return text;
         
-        const cacheKey = `txt_${target}_${btoa(encodeURIComponent(text.substring(0, 50)))}`; 
+        // Better cache key for content stability
+        const cacheKey = `txt_${target}_${btoa(encodeURIComponent(text.substring(0, 100)))}_${text.length}`; 
         const cached = localStorage.getItem(cacheKey);
         if (cached && cached !== "null") return cached;
 
-        // Use Google Translate GTX API for better reliability and speed
+        // Split long text into chunks to avoid URL length limits (approx 1000 chars per chunk for safety)
+        const maxChunkSize = 1000;
+        if (text.length <= maxChunkSize) {
+            return await fetchSingleGTX(text, target, cacheKey);
+        }
+
+        // Handle long text by chunking
+        const chunks = [];
+        for (let i = 0; i < text.length; i += maxChunkSize) {
+            chunks.push(text.substring(i, i + maxChunkSize));
+        }
+
+        try {
+            const results = await Promise.all(chunks.map(c => fetchSingleGTX(c, target)));
+            if (results.some(r => r === null)) return null;
+            const fullResult = results.join('');
+            try { localStorage.setItem(cacheKey, fullResult); } catch(e) {}
+            return fullResult;
+        } catch (e) { return null; }
+    }
+
+    async function fetchSingleGTX(text, target, cacheKey = null) {
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
-        
         try {
             const res = await fetch(url);
-            if (!res.ok) throw new Error("GTX Fail");
+            if (!res.ok) return null;
             const data = await res.json();
-            
             if (data && data[0]) {
-                let translatedText = "";
-                data[0].forEach(part => {
-                    if (part[0]) translatedText += part[0];
-                });
-                
-                if (translatedText) {
-                    try { localStorage.setItem(cacheKey, translatedText); } catch(e) {}
-                    return translatedText;
+                let translated = "";
+                data[0].forEach(part => { if (part[0]) translated += part[0]; });
+                if (translated && cacheKey) {
+                    try { localStorage.setItem(cacheKey, translated); } catch(e) {}
                 }
+                return translated;
             }
             return null;
-        } catch (e) { 
-            console.error("Translation API Error:", e);
-            return null; 
-        }
+        } catch (e) { return null; }
     }
 
     function renderPoll() {
