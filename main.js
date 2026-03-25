@@ -552,44 +552,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchTranslationInternal(text, source, target) {
-        // Even if we say 'auto', if target is the same as supposed source, API might skip.
-        // But 'auto' is safer.
-        if (!text) return text;
+        if (!text || !target) return text;
+        if (source === target && source !== 'auto') return text;
         
-        const cacheKey = `txt_${target}_${btoa(encodeURIComponent(text.substring(0, 30)))}`; 
+        const cacheKey = `txt_${target}_${btoa(encodeURIComponent(text.substring(0, 50)))}`; 
         const cached = localStorage.getItem(cacheKey);
         if (cached && cached !== "null") return cached;
 
-        const lines = text.split('\n');
-        const chunks = [];
-        let currentChunk = "";
-        for (const line of lines) {
-            if (line.length > 450) {
-                if (currentChunk) { chunks.push(currentChunk); currentChunk = ""; }
-                let tempLine = line;
-                while (tempLine.length > 450) { chunks.push(tempLine.substring(0, 450)); tempLine = tempLine.substring(450); }
-                currentChunk = tempLine;
-            } 
-            else if ((currentChunk.length + line.length + 1) < 450) { currentChunk += (currentChunk ? '\n' : '') + line; } 
-            else { chunks.push(currentChunk); currentChunk = line; }
-        }
-        if (currentChunk) chunks.push(currentChunk);
+        // Use Google Translate GTX API for better reliability and speed
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
         
         try {
-            const translatedChunks = await Promise.all(chunks.map(async (chunk) => {
-                if (!chunk.trim()) return chunk;
-                // Using 'auto' for automatic source language detection
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=auto|${target}`);
-                const data = await res.json();
-                return (data.responseStatus == 200) ? data.responseData.translatedText : null;
-            }));
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("GTX Fail");
+            const data = await res.json();
             
-            if (translatedChunks.some(c => c === null)) return null;
-            
-            const result = translatedChunks.join('\n');
-            try { localStorage.setItem(cacheKey, result); } catch(e) {} 
-            return result;
-        } catch (e) { return null; }
+            if (data && data[0]) {
+                let translatedText = "";
+                data[0].forEach(part => {
+                    if (part[0]) translatedText += part[0];
+                });
+                
+                if (translatedText) {
+                    try { localStorage.setItem(cacheKey, translatedText); } catch(e) {}
+                    return translatedText;
+                }
+            }
+            return null;
+        } catch (e) { 
+            console.error("Translation API Error:", e);
+            return null; 
+        }
     }
 
     function renderPoll() {
