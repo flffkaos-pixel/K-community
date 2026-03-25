@@ -473,16 +473,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const sl = sourceLang || post.lang || 'ko';
         const titleKey = `t_${post.firebaseId}_${currentLang}`;
         const contentKey = `c_${post.firebaseId}_${currentLang}`;
+        
+        // 1. Check LocalStorage first
+        const cachedTitle = localStorage.getItem(titleKey);
+        const cachedContent = localStorage.getItem(contentKey);
+        
+        if (cachedTitle && cachedContent) {
+            translationCache[titleKey] = cachedTitle;
+            translationCache[contentKey] = cachedContent;
+            renderPosts();
+            return;
+        }
+
         try {
             const [tT, tC] = await Promise.all([
                 fetchTranslation(post.title, sl, currentLang),
                 fetchTranslation(post.content, sl, currentLang)
             ]);
-            translationCache[titleKey] = tT;
-            translationCache[contentKey] = tC;
+
+            // Only persist if translation was successful (not null)
+            if (tT !== null) {
+                localStorage.setItem(titleKey, tT);
+                translationCache[titleKey] = tT;
+            } else {
+                translationCache[titleKey] = post.title; // Fallback for session
+            }
+
+            if (tC !== null) {
+                localStorage.setItem(contentKey, tC);
+                translationCache[contentKey] = tC;
+            } else {
+                translationCache[contentKey] = post.content; // Fallback for session
+            }
+
         } catch (e) { 
             console.error(e);
-            // On failure, cache the original so we don't keep trying and showing "Translating..."
             translationCache[titleKey] = post.title;
             translationCache[contentKey] = post.content;
         } finally {
@@ -493,6 +518,12 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchTranslation(text, source, target) {
         const s = source || 'ko';
         if (!text || s === target) return text;
+        
+        // Check local storage for simple text fragments (optional but good for repeated short texts)
+        const cacheKey = `txt_${s}_${target}_${btoa(encodeURIComponent(text.substring(0, 20)))}`; // Simple hash
+        const cached = localStorage.getItem(cacheKey);
+        if (cached && cached !== "null") return cached;
+
         const lines = text.split('\n');
         const chunks = [];
         let currentChunk = "";
@@ -507,15 +538,23 @@ document.addEventListener('DOMContentLoaded', () => {
             else { chunks.push(currentChunk); currentChunk = line; }
         }
         if (currentChunk) chunks.push(currentChunk);
+        
         try {
             const translatedChunks = await Promise.all(chunks.map(async (chunk) => {
                 if (!chunk.trim()) return chunk;
                 const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${s}|${target}`);
                 const data = await res.json();
-                return (data.responseStatus == 200) ? data.responseData.translatedText : chunk;
+                return (data.responseStatus == 200) ? data.responseData.translatedText : null;
             }));
-            return translatedChunks.join('\n');
-        } catch (e) { return text; }
+            
+            // If any chunk failed (null), return null for the whole text to prevent partial corruption
+            if (translatedChunks.some(c => c === null)) return null;
+            
+            const result = translatedChunks.join('\n');
+            // Cache successful result
+            try { localStorage.setItem(cacheKey, result); } catch(e) {} // Handle quota exceeded
+            return result;
+        } catch (e) { return null; }
     }
 
     function renderPoll() {
@@ -567,10 +606,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (translationCache[key]) displayText = translationCache[key];
                 else {
                     displayText = (t[currentLang] || t.en).translating || "Translating...";
-                    fetchTranslation(req.text, sl, currentLang).then(res => {
-                        translationCache[key] = res;
-                        renderPoll();
-                    });
+                    // Prevent repeated calls if already requested
+                    if (!translatingIds.has(key)) {
+                        translatingIds.add(key);
+                        fetchTranslation(req.text, sl, currentLang).then(res => {
+                            if (res !== null) {
+                                translationCache[key] = res;
+                            } else {
+                                translationCache[key] = req.text; // Fallback
+                            }
+                            renderPoll();
+                        });
+                    }
                 }
             }
 
@@ -624,10 +671,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (translationCache[key]) displayTitle = translationCache[key];
                 else {
                     displayTitle = (t[currentLang] || t.en).translating || "Translating...";
-                    fetchTranslation(item.title, sl, currentLang).then(res => { 
-                        translationCache[key] = res; 
-                        renderTrending(); 
-                    });
+                    if (!translatingIds.has(key)) {
+                        translatingIds.add(key);
+                        fetchTranslation(item.title, sl, currentLang).then(res => { 
+                            if (res !== null) {
+                                translationCache[key] = res; 
+                            } else {
+                                translationCache[key] = item.title; // Fallback
+                            }
+                            renderTrending(); 
+                        });
+                    }
                 }
             }
             li.innerHTML = `<div class="trending-rank">${i+1}</div><div class="trending-info"><div class="trending-title">${displayTitle}</div><div class="trending-meta">${item.meta}</div></div>`;
