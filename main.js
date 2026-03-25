@@ -316,8 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let displayTitle = post.title;
             let displayContent = post.content;
+            const sourceLang = post.lang || 'ko';
 
-            if (post.lang !== currentLang) {
+            if (sourceLang !== currentLang) {
                 const titleKey = `t_${post.firebaseId}_${currentLang}`;
                 const contentKey = `c_${post.firebaseId}_${currentLang}`;
                 if (translationCache[titleKey]) {
@@ -327,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayTitle = (t[currentLang] || t.en).translating || "Translating...";
                     if (!translatingIds.has(post.firebaseId + currentLang)) {
                         translatingIds.add(post.firebaseId + currentLang);
-                        translatePost(post);
+                        translatePost(post, sourceLang);
                     }
                 }
             }
@@ -460,13 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
         script.text = JSON.stringify(data);
     }
 
-    async function translatePost(post) {
+    async function translatePost(post, sourceLang) {
+        const sl = sourceLang || post.lang || 'ko';
         const titleKey = `t_${post.firebaseId}_${currentLang}`;
         const contentKey = `c_${post.firebaseId}_${currentLang}`;
         try {
             const [tT, tC] = await Promise.all([
-                fetchTranslation(post.title, post.lang, currentLang),
-                fetchTranslation(post.content, post.lang, currentLang)
+                fetchTranslation(post.title, sl, currentLang),
+                fetchTranslation(post.content, sl, currentLang)
             ]);
             translationCache[titleKey] = tT;
             translationCache[contentKey] = tC;
@@ -475,7 +477,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchTranslation(text, source, target) {
-        if (!text || source === target) return text;
+        const s = source || 'ko';
+        if (!text || s === target) return text;
         const lines = text.split('\n');
         const chunks = [];
         let currentChunk = "";
@@ -493,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const translatedChunks = await Promise.all(chunks.map(async (chunk) => {
                 if (!chunk.trim()) return chunk;
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${source}|${target}`);
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${s}|${target}`);
                 const data = await res.json();
                 return (data.responseStatus == 200) ? data.responseData.translatedText : chunk;
             }));
@@ -542,7 +545,22 @@ document.addEventListener('DOMContentLoaded', () => {
         idolRequests.forEach(req => {
             const item = document.createElement('div'); item.className = 'req-item';
             const isAdmin = currentUser === ADMIN_NICK;
-            item.innerHTML = `<span>${req.text} <small>(@${req.author})</small></span>${(isAdmin || req.author === currentUser) ? `<span class="req-delete" style="cursor:pointer">🗑</span>` : ''}`;
+            
+            let displayText = req.text;
+            const sl = req.lang || 'ko';
+            if (sl !== currentLang) {
+                const key = `req_${req.id}_${currentLang}`;
+                if (translationCache[key]) displayText = translationCache[key];
+                else {
+                    displayText = (t[currentLang] || t.en).translating || "Translating...";
+                    fetchTranslation(req.text, sl, currentLang).then(res => {
+                        translationCache[key] = res;
+                        renderPoll();
+                    });
+                }
+            }
+
+            item.innerHTML = `<span>${displayText} <small>(@${req.author})</small></span>${(isAdmin || req.author === currentUser) ? `<span class="req-delete" style="cursor:pointer">🗑</span>` : ''}`;
             if (item.querySelector('.req-delete')) {
                 item.querySelector('.req-delete').onclick = async () => { if(confirm(lang.confirmDelete)) await deleteDoc(doc(db, "requests", req.id)); };
             }
@@ -552,7 +570,12 @@ document.addEventListener('DOMContentLoaded', () => {
         els.postsContainer.querySelector('#btn-submit-req').onclick = async () => {
             const inp = document.getElementById('req-input');
             if (inp.value.trim()) {
-                await addDoc(collection(db, "requests"), { text: inp.value.trim(), author: currentUser, createdAt: Date.now() });
+                await addDoc(collection(db, "requests"), { 
+                    text: inp.value.trim(), 
+                    author: currentUser, 
+                    createdAt: Date.now(),
+                    lang: currentLang
+                });
                 inp.value = '';
             }
         };
@@ -581,12 +604,13 @@ document.addEventListener('DOMContentLoaded', () => {
         items.forEach(async (item, i) => {
             const li = document.createElement('li'); li.className = 'trending-item';
             let displayTitle = item.title;
-            if (item.lang && item.lang !== currentLang) {
-                const key = `trend_${item.id}_${currentLang}`;
+            const sl = item.lang || 'ko';
+            if (sl !== currentLang) {
+                const key = `trend_${item.id || item.title}_${currentLang}`;
                 if (translationCache[key]) displayTitle = translationCache[key];
                 else {
                     displayTitle = (t[currentLang] || t.en).translating || "Translating...";
-                    fetchTranslation(item.title, item.lang, currentLang).then(res => { 
+                    fetchTranslation(item.title, sl, currentLang).then(res => { 
                         translationCache[key] = res; 
                         renderTrending(); 
                     });
