@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     let currentCategory = urlParams.get('category') || 'vote';
+    
+    // Support ?lang= URL parameter
+    const urlLang = urlParams.get('lang');
+    if (urlLang) localStorage.setItem('kcon_lang', urlLang);
+    
     let currentUser = localStorage.getItem('kcon_user') || 'User_' + Math.floor(Math.random() * 9999);
     let isAdmin = false;
 
@@ -32,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let idolRequests = [];
     let isConnected = false;
 
-    let currentLang = localStorage.getItem('kcon_lang') || 'ko';
+    let currentLang = urlLang || localStorage.getItem('kcon_lang') || 'ko';
     let currentTheme = localStorage.getItem('kcon_theme') || 'light';
     let currentPostImages = [];
     let expandedPostId = null;
@@ -499,11 +504,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function translatePost(post, sourceLang) {
-        const sl = sourceLang || post.lang || 'ko';
         const titleKey = `t_${post.firebaseId}_${currentLang}`;
         const contentKey = `c_${post.firebaseId}_${currentLang}`;
         
-        // 1. Check LocalStorage first
         const cachedTitle = localStorage.getItem(titleKey);
         const cachedContent = localStorage.getItem(contentKey);
         
@@ -515,28 +518,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            // Use 'auto' to let the API detect the source language automatically
             const [tT, tC] = await Promise.all([
-                fetchTranslation(post.title, sl, currentLang),
-                fetchTranslation(post.content, sl, currentLang)
+                fetchTranslation(post.title, 'auto', currentLang),
+                fetchTranslation(post.content, 'auto', currentLang)
             ]);
 
-            // Only persist if translation was successful (not null)
             if (tT !== null) {
                 localStorage.setItem(titleKey, tT);
                 translationCache[titleKey] = tT;
             } else {
-                translationCache[titleKey] = post.title; // Fallback for session
+                translationCache[titleKey] = post.title;
             }
 
             if (tC !== null) {
                 localStorage.setItem(contentKey, tC);
                 translationCache[contentKey] = tC;
             } else {
-                translationCache[contentKey] = post.content; // Fallback for session
+                translationCache[contentKey] = post.content;
             }
 
         } catch (e) { 
-            console.error(e);
+            console.error("Translation Error:", e);
             translationCache[titleKey] = post.title;
             translationCache[contentKey] = post.content;
         } finally {
@@ -544,17 +547,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Wrapper to use the queue
     async function fetchTranslation(text, source, target) {
         return enqueueTranslation(text, source, target);
     }
 
     async function fetchTranslationInternal(text, source, target) {
-        const s = source || 'ko';
-        if (!text || s === target) return text;
+        // Even if we say 'auto', if target is the same as supposed source, API might skip.
+        // But 'auto' is safer.
+        if (!text) return text;
         
-        // Check local storage for simple text fragments (optional but good for repeated short texts)
-        const cacheKey = `txt_${s}_${target}_${btoa(encodeURIComponent(text.substring(0, 20)))}`; // Simple hash
+        const cacheKey = `txt_${target}_${btoa(encodeURIComponent(text.substring(0, 30)))}`; 
         const cached = localStorage.getItem(cacheKey);
         if (cached && cached !== "null") return cached;
 
@@ -576,17 +578,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const translatedChunks = await Promise.all(chunks.map(async (chunk) => {
                 if (!chunk.trim()) return chunk;
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${s}|${target}`);
+                // Using 'auto' for automatic source language detection
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=auto|${target}`);
                 const data = await res.json();
                 return (data.responseStatus == 200) ? data.responseData.translatedText : null;
             }));
             
-            // If any chunk failed (null), return null for the whole text to prevent partial corruption
             if (translatedChunks.some(c => c === null)) return null;
             
             const result = translatedChunks.join('\n');
-            // Cache successful result
-            try { localStorage.setItem(cacheKey, result); } catch(e) {} // Handle quota exceeded
+            try { localStorage.setItem(cacheKey, result); } catch(e) {} 
             return result;
         } catch (e) { return null; }
     }
