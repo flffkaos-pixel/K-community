@@ -265,6 +265,12 @@ document.addEventListener('DOMContentLoaded', () => {
         els.userDisplay.style.color = (currentUser === ADMIN_NICK) ? "var(--primary-color)" : "inherit";
         
         if (els.trendingTitle) els.trendingTitle.textContent = langData.trendingTitle || "Trending Now";
+
+        // Update welcome popup if visible
+        if (els.welcomePopup.classList.contains('active')) {
+            els.welcomeTitle.textContent = langData.welcomeTitle;
+            els.welcomeMessage.textContent = langData.welcomeMsg;
+        }
     }
 
     function renderContent() {
@@ -325,7 +331,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayTitle = translationCache[titleKey];
                     displayContent = translationCache[contentKey];
                 } else {
-                    displayTitle = (t[currentLang] || t.en).translating || "Translating...";
+                    const transMsg = (t[currentLang] || t.en).translating || "Translating...";
+                    displayTitle = transMsg;
+                    displayContent = transMsg;
                     if (!translatingIds.has(post.firebaseId + currentLang)) {
                         translatingIds.add(post.firebaseId + currentLang);
                         translatePost(post, sourceLang);
@@ -472,8 +480,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ]);
             translationCache[titleKey] = tT;
             translationCache[contentKey] = tC;
+        } catch (e) { 
+            console.error(e);
+            // On failure, cache the original so we don't keep trying and showing "Translating..."
+            translationCache[titleKey] = post.title;
+            translationCache[contentKey] = post.content;
+        } finally {
             renderPosts();
-        } catch (e) { console.error(e); }
+        }
     }
 
     async function fetchTranslation(text, source, target) {
