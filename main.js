@@ -39,6 +39,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const translationCache = {};
     const translatingIds = new Set(); 
+    
+    // --- Translation Queue System ---
+    const translationQueue = [];
+    let isTranslatingQueue = false;
+
+    function processQueue() {
+        if (isTranslatingQueue || translationQueue.length === 0) return;
+        isTranslatingQueue = true;
+        const { task, resolve } = translationQueue.shift();
+        
+        task().then(resolve).finally(() => {
+            // Delay between requests to avoid 429 Too Many Requests
+            setTimeout(() => {
+                isTranslatingQueue = false;
+                processQueue();
+            }, 500); 
+        });
+    }
+
+    function enqueueTranslation(text, source, target) {
+        return new Promise((resolve) => {
+            translationQueue.push({
+                task: () => fetchTranslationInternal(text, source, target),
+                resolve
+            });
+            processQueue();
+        });
+    }
+    // -------------------------------
 
     const t = {
         ko: {
@@ -70,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ja: {
             write: "投稿", loading: "接続中...", translating: "翻訳中...",
             trendingTitle: "🔥 今人気の投稿", blogTitle: "📖 All About Korea ブログ",
-            blogDesc: "韓国に関するより深い話에 만나보세요.",
+            blogDesc: "韓国に関するより深い話に 만나보세요.",
             welcomeTitle: "ようこそ！ 🎉",
             welcomeMsg: "K-communityであなたの貴重な話を共有してください！K-Pop、韓国旅行、食べ物など、どんなトピックでも大歓迎です。カテゴリーを選択して「投稿」をクリックし、世界中の友達とつながりましょう。",
             cats: { vote: "投票", kpop: "K-POP", living: "生活", food: "グルメ", beauty: "ビューティー", travel: "旅行" },
@@ -515,7 +544,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Wrapper to use the queue
     async function fetchTranslation(text, source, target) {
+        return enqueueTranslation(text, source, target);
+    }
+
+    async function fetchTranslationInternal(text, source, target) {
         const s = source || 'ko';
         if (!text || s === target) return text;
         
