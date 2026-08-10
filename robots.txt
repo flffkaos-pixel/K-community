@@ -1,9 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /research/
 Sitemap: https://k-community.pages.dev/sitemap.xml
 
 User-agent: Mediapartners-Google
 Allow: /
 
 User-agent: Googlebot
-Allow: /Disallow: /firebase-debug.log
+Allow: /
+Disallow: /firebase-debug.log
