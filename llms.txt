@@ -1,0 +1,9 @@
+# K-커뮤니티 - 한국 문화 커뮤니티
+
+> K-Pop 투표, 한국 여행 가이드, 한국 문화 커뮤니티
+
+Canonical URL: https://flffkaos-pixel.github.io/K-community
+Language: ko
+
+## Pages
+- https://flffkaos-pixel.github.io/K-community/ : K-커뮤니티 - 한국 문화 커뮤니티
